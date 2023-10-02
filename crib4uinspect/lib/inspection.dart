@@ -30,39 +30,90 @@ class _inspectState extends State<inspect> {
   List<String> items = ["Active", "Schedule"];
   int current = 0;
   List<Task> tasks = [];
-  getUserData() async {
-    print('get Inspect list calling');
-    var response = await http.get(Uri.https(
-        'https://crib4u.axiomprotect.com:9497/api',
-        '/prop_gateway/inspect/list/active'));
+  Future<void> active() async {
+    var response = await http.get(
+      Uri.https(
+        'crib4u.axiomprotect.com:9497',
+        '/api/prop_gateway/inspect/list/active',
+      ),
+    );
+
     print(response.body);
-    var jsonData = jsonDecode(response.body) ;
 
-    List<Map<String, dynamic>> _tableRows = [];
-    print(jsonData);
-    if (jsonData > 0) {
-      for (int i = 0; i < jsonData.length; i++) {
-        dynamic _obj = jsonData[i];
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
 
-        String propertyName =
-            '${_obj['property']['property_basic_details']['address']['line_one']} ${_obj['property']['property_basic_details']['address']['line_two']}';
-        String tenantName =
-            '${_obj['tenant']['users'][0]['name']['firstName'] ?? ''} ${_obj['tenant']['users'][0]['name']['lastName'] ?? ''}';
-        String managerName =
-            '${_obj['manager']['name']['firstName'] ?? ''} ${_obj['manager']['name']['lastName'] ?? ''}';
+      List<Map<String, dynamic>> _tableRows = [];
+      print(jsonData);
 
-        _tableRows.add({
-          '_id': _obj['_id'],
-          'inspectionOn':
-              '${DateFormat('dd-MM-yyyy').format(_obj['date'])} ${DateFormat('hh:mm a').format(_obj['startTime'])}',
-          'type': _obj['type'],
-          'summary': _obj['summary'],
-          'property': propertyName,
-          'manager': managerName,
-          'tenant': tenantName,
-          'createdAt':
-              DateFormat('dd-MMM-yyyy hh:mm a').format(_obj['createdAt']),
-        });
+      if (jsonData.length > 0) {
+        for (int i = 0; i < jsonData.length; i++) {
+          dynamic _obj = jsonData[i];
+
+          String propertyName =
+              '${_obj['property']['property_basic_details']['address']['line_one']} ${_obj['property']['property_basic_details']['address']['line_two']}';
+          String tenantName =
+              '${_obj['tenant']['users'][0]['name']['firstName'] ?? ''} ${_obj['tenant']['users'][0]['name']['lastName'] ?? ''}';
+          String managerName =
+              '${_obj['manager']['name']['firstName'] ?? ''} ${_obj['manager']['name']['lastName'] ?? ''}';
+
+          _tableRows.add({
+            '_id': _obj['_id'],
+            'inspectionOn':
+                '${DateFormat('dd-MM-yyyy').format(_obj['date'])} ${DateFormat('hh:mm a').format(_obj['startTime'])}',
+            'type': _obj['type'],
+            'summary': _obj['summary'],
+            'property': propertyName,
+            'manager': managerName,
+            'tenant': tenantName,
+            'createdAt':
+                DateFormat('dd-MMM-yyyy hh:mm a').format(_obj['createdAt']),
+          });
+        }
+      }
+    }
+  }
+
+  Future<void> detailsOfInspection() async {
+    var response = await http.get(
+      Uri.https(
+        'crib4u.axiomprotect.com:9497',
+        '/api/prop_gateway/inspect/getInspectReportDetails/YOUR_INSPECTION_ID',
+      ),
+    );
+
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+
+      List<Map<String, dynamic>> _tableRows = [];
+      print(jsonData);
+
+      if (jsonData.length > 0) {
+        for (int i = 0; i < jsonData.length; i++) {
+          dynamic _obj = jsonData[i];
+
+          String propertyName =
+              '${_obj['property']['property_basic_details']['address']['line_one']} ${_obj['property']['property_basic_details']['address']['line_two']}';
+          String tenantName =
+              '${_obj['tenant']['users'][0]['name']['firstName'] ?? ''} ${_obj['tenant']['users'][0]['name']['lastName'] ?? ''}';
+          String managerName =
+              '${_obj['manager']['name']['firstName'] ?? ''} ${_obj['manager']['name']['lastName'] ?? ''}';
+
+          _tableRows.add({
+            '_id': _obj['_id'],
+            'inspectionOn':
+                '${DateFormat('dd-MM-yyyy').format(_obj['date'])} ${DateFormat('hh:mm a').format(_obj['startTime'])}',
+            'type': _obj['type'],
+            'summary': _obj['summary'],
+            'property': propertyName,
+            'manager': managerName,
+            'tenant': tenantName,
+            'createdAt':
+                DateFormat('dd-MMM-yyyy hh:mm a').format(_obj['createdAt']),
+          });
+        }
       }
     }
   }
@@ -119,6 +170,7 @@ class _inspectState extends State<inspect> {
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
+                      active();
                       setState(() {
                         current = index;
                       });
@@ -196,7 +248,8 @@ class _inspectState extends State<inspect> {
                             trailing: IconButton(
                               icon: Icon(CupertinoIcons.ellipsis_vertical),
                               onPressed: () {
-                                _deleteTask();
+                                detailsOfInspection();
+                                // _deleteTask();
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
@@ -241,9 +294,9 @@ class _inspectState extends State<inspect> {
     });
   }
 
-  void _deleteTask() {
-    setState(() {
-      tasks.remove((task) => task);
-    });
-  }
+//   void _deleteTask() {
+//     setState(() {
+//       tasks.remove((task) => task);
+//     });
+//   }
 }

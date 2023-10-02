@@ -17,12 +17,12 @@ class _login_pageState extends State<login_page> {
   // var abc = "";
 
   main() async {
-    final Headers = {'Content-Type': 'application/json','authorization':'Basic c3R1ZHlkb3RlOnN0dWR5ZG90ZTEyMw=='};
-    final Body = {
-      "email": "$email",
-      "password": "$password",
-      "googleData": null
+    final Headers = {
+      'Content-Type': 'application/json',
+      'authorization': 'Basic c3R1ZHlkb3RlOnN0dWR5ZG90ZTEyMw=='
     };
+    final Body = jsonEncode(
+        {"email": "$email", "password": "$password", "googleData": null});
     print(Body);
 
     final response = await http.post(
@@ -37,21 +37,15 @@ class _login_pageState extends State<login_page> {
       final responseBodyJson = jsonDecode(response.body);
 
       final responseData = responseBodyJson['data'];
-      final userID = responseData['userID'];
-      final role = responseData['role'];
-
-      var prefs = await SharedPreferences.getInstance();
-      await prefs.setString('userID', userID);
-      await prefs.setString('role', role);
-
+      // 
       print(responseData);
 
-      // Navigator.push(
-      //   context,
-      //   MaterialPageRoute(
-      //     builder: (context) => inspect(),
-      //   ),
-      // );
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => inspect(),
+        ),
+      );
       //abc = await response.stream.bytesToString();
       //   if (abc == 'true') {
       //     Navigator.push(
