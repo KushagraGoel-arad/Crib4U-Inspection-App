@@ -347,7 +347,7 @@
 import 'dart:convert';
 
 import 'package:crib4uinspect/basic_details.dart';
-import 'package:dio/dio.dart';
+//import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -384,7 +384,7 @@ class _inspectState extends State<inspect> {
   List<Task> tasks = [];
   List<Map<String, dynamic>> _tableRows = [];
 
-  final dio = Dio();
+  //final dio = Dio();
 
   Future<void> active() async {
     final headers = {
@@ -411,6 +411,7 @@ class _inspectState extends State<inspect> {
       if (jData.length > 0) {
         for (int i = 0; i < jData.length; i++) {
           dynamic _obj = jData[i];
+          String inspectionId = _obj['_id'];
 
           String propertyName =
               '${_obj['property']['property_basic_details']['address']['line_one']} ${_obj['property']['property_basic_details']['address']['line_two']}';
@@ -424,7 +425,7 @@ class _inspectState extends State<inspect> {
           DateTime createAt = DateTime.parse(_obj['createdAt']);
 
           _tableRows.add({
-            '_id': _obj['_id'],
+            '_id': inspectionId,
             'inspectionOn':
                 '${DateFormat('dd-MM-yyyy').format(date)} ${DateFormat('hh:mm a').format(startTime)}',
             'type': _obj['type'],
@@ -439,7 +440,7 @@ class _inspectState extends State<inspect> {
     }
   }
 
-  Future<void> detailsOfInspection() async {
+  Future<void> detailsOfInspection(String inspectionId) async {
     final headers = {
       'Content-Type': 'application/json',
       'accessToken': '${widget.accessToken}', // Use accessToken from widget
@@ -447,45 +448,108 @@ class _inspectState extends State<inspect> {
     var response = await http.get(
       Uri.https(
         'crib4u.axiomprotect.com:9497',
-        '/api/prop_gateway/inspect/getInspectReportDetails/YOUR_INSPECTION_ID',
+        '/api/prop_gateway/inspect/getInspectReportDetails/$inspectionId',
       ),
       headers: headers,
     );
 
     print(response.body);
 
+    // if (response.statusCode == 200) {
+    //   var jsonData = jsonDecode(response.body);
+
+    //   List<Map<String, dynamic>> _tableRows = [];
+    //   print(jsonData);
+    //   List<dynamic> jData = jsonData['details'];
+    //   if (jData.length > 0) {
+    //     for (int i = 0; i < jData.length; i++) {
+    //       dynamic _obj = jData[i];
+
+    //       String propertyName =
+    //           '${_obj['property']['property_basic_details']['address']['line_one']} ${_obj['property']['property_basic_details']['address']['line_two']}';
+    //       String tenantName =
+    //           '${_obj['tenant']['users'][0]['name']['firstName'] ?? ''} ${_obj['tenant']['users'][0]['name']['lastName'] ?? ''}';
+    //       String managerName =
+    //           '${_obj['manager']['name']['firstName'] ?? ''} ${_obj['manager']['name']['lastName'] ?? ''}';
+    //       DateTime date = DateTime.parse(_obj['date']);
+    //       DateTime startTime = DateTime.parse(_obj['startTime']);
+    //       //print(dateTime);
+    //       DateTime createAt = DateTime.parse(_obj['createdAt']);
+    //       _tableRows.add({
+    //         '_id': _obj['_id'],
+    //         'inspectionOn':
+    //             '${DateFormat('dd-MM-yyyy').format(date)} ${DateFormat('hh:mm a').format(startTime)}',
+    //         'type': _obj['type'],
+    //         'summary': _obj['summary'],
+    //         'property': propertyName,
+    //         'manager': managerName,
+    //         'tenant': tenantName,
+    //         'createdAt': DateFormat('dd-MM-yyyy hh:mm a').format(createAt),
+    //       });
+    //     }
+    //   }
+    // }
     if (response.statusCode == 200) {
-      var jsonData = jsonDecode(response.body);
+      final jsonData = jsonDecode(response.body);
 
-      List<Map<String, dynamic>> _tableRows = [];
-      print(jsonData);
-      List<dynamic> jData = jsonData['details'];
-      if (jData.length > 0) {
-        for (int i = 0; i < jData.length; i++) {
-          dynamic _obj = jData[i];
+      if (jsonData['resultCode'] == 1) {
+        final basicDetails = jsonData['details']['BasicDetails'];
 
-          String propertyName =
-              '${_obj['property']['property_basic_details']['address']['line_one']} ${_obj['property']['property_basic_details']['address']['line_two']}';
-          String tenantName =
-              '${_obj['tenant']['users'][0]['name']['firstName'] ?? ''} ${_obj['tenant']['users'][0]['name']['lastName'] ?? ''}';
-          String managerName =
-              '${_obj['manager']['name']['firstName'] ?? ''} ${_obj['manager']['name']['lastName'] ?? ''}';
-          DateTime date = DateTime.parse(_obj['date']);
-          DateTime startTime = DateTime.parse(_obj['startTime']);
-          //print(dateTime);
-          DateTime createAt = DateTime.parse(_obj['createdAt']);
+        final _obj = basicDetails; // Access the BasicDetails object
+
+        String inspectionId = _obj['_id'];
+
+        String propertyName =
+            '${_obj['property']['property_basic_details']['address']['line_one']} ${_obj['property']['property_basic_details']['address']['line_two']}';
+        String tenantName =
+            '${_obj['tenant']['users'][0]['name']['firstName'] ?? ''} ${_obj['tenant']['users'][0]['name']['lastName'] ?? ''}';
+        String managerName =
+            '${_obj['manager']['name']['firstName'] ?? ''} ${_obj['manager']['name']['lastName'] ?? ''}';
+        String ownerName =
+            '${_obj['owner']['primaryUserId']['name']['firstName'] ?? ''}';
+        DateTime date = DateTime.parse(_obj['date']);
+        String startTimeString =
+            _obj['startTime']; // Get the startTime as a string
+        List<String> timeParts =
+            startTimeString.split(':'); // Split it into hours and minutes
+
+        int hours = int.parse(timeParts[0]); // Parse hours as an integer
+        int minutes = int.parse(timeParts[1]); // Parse minutes as an integer
+
+        DateTime startTime =
+            DateTime(date.year, date.month, date.day, hours, minutes);
+        String endTimeString = _obj['endTime']; // Get the startTime as a string
+        List<String> timeParts1 =
+            startTimeString.split(':'); // Split it into hours and minutes
+
+        int hours1 = int.parse(timeParts[0]); // Parse hours as an integer
+        int minutes1 = int.parse(timeParts[1]); // Parse minutes as an integer
+
+        DateTime endTime =
+            DateTime(date.year, date.month, date.day, hours, minutes);
+
+        DateTime createAt = DateTime.parse(_obj['createdAt']);
+
+        setState(() {
+          _tableRows.clear(); // Clear the previous data
+
           _tableRows.add({
-            '_id': _obj['_id'],
-            'inspectionOn':
-                '${DateFormat('dd-MM-yyyy').format(date)} ${DateFormat('hh:mm a').format(startTime)}',
+            '_id': inspectionId,
+            'date':
+                '${DateFormat('dd-MM-yyyy').format(date)} ${DateFormat('hh:mm').format(startTime)}',
+            'startTime': '${DateFormat('hh:mm').format(startTime)}',
+            'endTime': '${DateFormat('hh:mm').format(endTime)}',
             'type': _obj['type'],
             'summary': _obj['summary'],
             'property': propertyName,
             'manager': managerName,
             'tenant': tenantName,
+            'owner': ownerName,
+            'status': _obj['status'],
+            'duration': _obj['duration'],
             'createdAt': DateFormat('dd-MM-yyyy hh:mm a').format(createAt),
           });
-        }
+        });
       }
     }
   }
@@ -594,11 +658,26 @@ class _inspectState extends State<inspect> {
 
                       return GestureDetector(
                         onTap: () {
-                          detailsOfInspection(); // Call your API or any other action
+                          String inspectionId = data['_id'];
+                          detailsOfInspection(
+                              inspectionId); // Call your API or any other action
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => basicDetails(),
+                              builder: (context) => basicDetails(
+                                type: data['type'],
+                                startTime: data['startTime'],
+                                endTime: data['endTime'],
+                                date: data['date'],
+                                summary: data['summary'],
+                                property: data['property'],
+                                manager: data['manager'],
+                                tenant: data['tenant'],
+                                createdAt: data['createdAt'],
+                                owner: data['owner'],
+                                status: data['status'],
+                                duration: data['duration'],
+                              ),
                             ),
                           );
                         },

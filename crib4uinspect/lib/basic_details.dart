@@ -7,7 +7,33 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class basicDetails extends StatefulWidget {
-  basicDetails({Key? key}) : super(key: key);
+  final String? type;
+  final String? startTime;
+  final String? date;
+  final String? endTime;
+  final String? summary;
+  final String? property;
+  final String? manager;
+  final String? tenant;
+  final String? owner;
+  final String? createdAt;
+  final String? status;
+  final String? duration;
+  basicDetails(
+      {Key? key,
+      this.type,
+      this.date,
+      this.endTime,
+      this.startTime,
+      this.summary,
+      this.property,
+      this.manager,
+      this.tenant,
+      this.owner,
+      this.createdAt,
+      this.status,
+      this.duration})
+      : super(key: key);
 
   @override
   State<basicDetails> createState() => _basicDetailsState();
@@ -51,41 +77,46 @@ class _basicDetailsState extends State<basicDetails> {
     'Tenant',
   ];
   final List<String> items12 = ['Owner'];
-
-  getUserData() async {
-    var response = await http.get(Uri.https(
-        'https://crib4u.axiomprotect.com:9497/api',
-        '/prop_gateway/inspect/getInspectReportDetails/YOUR_INSPECTION_ID'));
-    var jsonData = jsonDecode(response.body);
-
-    List<Map<String, dynamic>> _tableRows = [];
-
-    if (jsonData > 0) {
-      for (int i = 0; i < jsonData.length; i++) {
-        dynamic _obj = jsonData[i];
-
-        String propertyName =
-            '${_obj['property']['property_basic_details']['address']['line_one']} ${_obj['property']['property_basic_details']['address']['line_two']}';
-        String tenantName =
-            '${_obj['tenant']['users'][0]['name']['firstName'] ?? ''} ${_obj['tenant']['users'][0]['name']['lastName'] ?? ''}';
-        String managerName =
-            '${_obj['manager']['name']['firstName'] ?? ''} ${_obj['manager']['name']['lastName'] ?? ''}';
-
-        _tableRows.add({
-          '_id': _obj['_id'],
-          'inspectionOn':
-              '${DateFormat('dd-MM-yyyy').format(_obj['date'])} ${DateFormat('hh:mm a').format(_obj['startTime'])}',
-          'type': _obj['type'],
-          'summary': _obj['summary'],
-          'property': propertyName,
-          'manager': managerName,
-          'tenant': tenantName,
-          'createdAt':
-              DateFormat('dd-MMM-yyyy hh:mm a').format(_obj['createdAt']),
-        });
-      }
-    }
+  @override
+  void initState() {
+    super.initState();
+    print('Date: ${widget.date}');
   }
+
+  // getUserData() async {
+  //   var response = await http.get(Uri.https(
+  //       'https://crib4u.axiomprotect.com:9497/api',
+  //       '/prop_gateway/inspect/getInspectReportDetails/YOUR_INSPECTION_ID'));
+  //   var jsonData = jsonDecode(response.body);
+
+  //   List<Map<String, dynamic>> _tableRows = [];
+
+  //   if (jsonData > 0) {
+  //     for (int i = 0; i < jsonData.length; i++) {
+  //       dynamic _obj = jsonData[i];
+
+  //       String propertyName =
+  //           '${_obj['property']['property_basic_details']['address']['line_one']} ${_obj['property']['property_basic_details']['address']['line_two']}';
+  //       String tenantName =
+  //           '${_obj['tenant']['users'][0]['name']['firstName'] ?? ''} ${_obj['tenant']['users'][0]['name']['lastName'] ?? ''}';
+  //       String managerName =
+  //           '${_obj['manager']['name']['firstName'] ?? ''} ${_obj['manager']['name']['lastName'] ?? ''}';
+
+  //       _tableRows.add({
+  //         '_id': _obj['_id'],
+  //         'inspectionOn':
+  //             '${DateFormat('dd-MM-yyyy').format(_obj['date'])} ${DateFormat('hh:mm a').format(_obj['startTime'])}',
+  //         'type': _obj['type'],
+  //         'summary': _obj['summary'],
+  //         'property': propertyName,
+  //         'manager': managerName,
+  //         'tenant': tenantName,
+  //         'createdAt':
+  //             DateFormat('dd-MMM-yyyy hh:mm a').format(_obj['createdAt']),
+  //       });
+  //     }
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -148,12 +179,13 @@ class _basicDetailsState extends State<basicDetails> {
                   ),
                 ],
               ),
+
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   children: [
                     Text(
-                      "Inspection at Beach rd. 22",
+                      widget.property ?? '',
                       style:
                           TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
                     )
@@ -198,7 +230,7 @@ class _basicDetailsState extends State<basicDetails> {
                 width: double.infinity,
                 child: ListView.builder(
                   physics: const BouncingScrollPhysics(),
-                  itemCount: items.length,
+                  itemCount: items1.length,
                   scrollDirection: Axis.vertical,
                   itemBuilder: (context, index) {
                     final listItem = items1[index];
@@ -208,6 +240,9 @@ class _basicDetailsState extends State<basicDetails> {
                         title: Text(
                           items1[index],
                           style: TextStyle(fontSize: 18.0),
+                        ),
+                        subtitle: Text(
+                          widget.status ?? '',
                         ),
                         trailing: Text(
                           "Change Status",
@@ -224,7 +259,7 @@ class _basicDetailsState extends State<basicDetails> {
                 width: double.infinity,
                 child: ListView.builder(
                   physics: const BouncingScrollPhysics(),
-                  itemCount: items.length,
+                  itemCount: items2.length,
                   scrollDirection: Axis.vertical,
                   itemBuilder: (context, index) {
                     final listItem = items2[index];
@@ -234,6 +269,9 @@ class _basicDetailsState extends State<basicDetails> {
                         title: Text(
                           items2[index],
                           style: TextStyle(fontSize: 18.0),
+                        ),
+                        subtitle: Text(
+                          widget.date ?? '',
                         ),
                         trailing: IconButton(
                           icon: Icon(CupertinoIcons.calendar),
@@ -247,86 +285,105 @@ class _basicDetailsState extends State<basicDetails> {
                 ),
               ),
               SizedBox(
-                height: 80,
-                width: double.infinity,
-                child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: items.length,
-                  scrollDirection: Axis.vertical,
-                  itemBuilder: (context, index) {
-                    final listItem = items3[index];
+                  height: 80,
+                  width: double.infinity,
+                  child: ListView.builder(
+                    physics: const BouncingScrollPhysics(),
+                    itemCount: items3.length,
+                    scrollDirection: Axis.vertical,
+                    itemBuilder: (context, index) {
+                      final listItem = items3[index];
+                      Color? inkWellColor = Colors.grey[300]; // Default color
 
-                    return Card(
-                      child: ListTile(
-                        title: Text(
-                          items3[index],
-                          style: TextStyle(fontSize: 18.0),
+                      if (widget.type != null) {
+                        if (widget.type == 'Entry') {
+                          inkWellColor =
+                              Colors.green; // Change color for Entry type
+                        } else if (widget.type == 'Exit') {
+                          inkWellColor =
+                              Colors.red; // Change color for Exit type
+                        } else if (widget.type == 'Routine') {
+                          inkWellColor =
+                              Colors.blue; // Change color for Routine type
+                        }
+                      }
+
+                      return Card(
+                        child: ListTile(
+                          title: Text(
+                            items3[index],
+                            style: TextStyle(fontSize: 18.0),
+                          ),
+                          subtitle: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () {},
+                                  child: Container(
+                                    height: 30.0,
+                                    color: inkWellColor, // Set the color here
+                                    child: Center(
+                                      child: Text(
+                                        'Entry',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 18.0,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () {},
+                                  child: Container(
+                                    height: 30.0,
+                                    color: inkWellColor, // Set the color here
+                                    child: Center(
+                                      child: Text(
+                                        'Exit',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 18.0,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: InkWell(
+                                  onTap: () {},
+                                  child: Container(
+                                    height: 30.0,
+                                    color: inkWellColor, // Set the color here
+                                    child: Center(
+                                      child: Text(
+                                        'Routine',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 18.0,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          onTap: () {},
                         ),
-                        subtitle: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Expanded(
-                              child: InkWell(
-                                onTap: () {},
-                                child: Container(
-                                  height: 30.0,
-                                  color: Colors.grey[300],
-                                  child: Center(
-                                    child: Text(
-                                      'Entry',
-                                      style: TextStyle(
-                                          color: Colors.black, fontSize: 18.0),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: InkWell(
-                                onTap: () {},
-                                child: Container(
-                                  height: 30.0,
-                                  color: Colors.grey[300],
-                                  child: Center(
-                                    child: Text(
-                                      'Exit',
-                                      style: TextStyle(
-                                          color: Colors.black, fontSize: 18.0),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: InkWell(
-                                onTap: () {},
-                                child: Container(
-                                  height: 30.0,
-                                  color: Colors.grey[300],
-                                  child: Center(
-                                    child: Text(
-                                      'Routine',
-                                      style: TextStyle(
-                                          color: Colors.black, fontSize: 18.0),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        onTap: () {},
-                      ),
-                    );
-                  },
-                ),
-              ),
+                      );
+                    },
+                  )),
               SizedBox(
                 height: 80,
                 width: double.infinity,
                 child: ListView.builder(
                   physics: const BouncingScrollPhysics(),
-                  itemCount: items.length,
+                  itemCount: items4.length,
                   scrollDirection: Axis.vertical,
                   itemBuilder: (context, index) {
                     final listItem = items4[index];
@@ -337,7 +394,9 @@ class _basicDetailsState extends State<basicDetails> {
                           items4[index],
                           style: TextStyle(fontSize: 18.0),
                         ),
-                        subtitle: TextField(),
+                        subtitle: Text(
+                          widget.startTime ?? '',
+                        ),
                         trailing: IconButton(
                           icon: Icon(CupertinoIcons.clock),
                           onPressed: () {
@@ -355,7 +414,7 @@ class _basicDetailsState extends State<basicDetails> {
                 width: double.infinity,
                 child: ListView.builder(
                   physics: const BouncingScrollPhysics(),
-                  itemCount: items.length,
+                  itemCount: items5.length,
                   scrollDirection: Axis.vertical,
                   itemBuilder: (context, index) {
                     final listItem = items5[index];
@@ -366,7 +425,9 @@ class _basicDetailsState extends State<basicDetails> {
                           items5[index],
                           style: TextStyle(fontSize: 18.0),
                         ),
-                        subtitle: TextField(),
+                        subtitle: Text(
+                          widget.endTime ?? '',
+                        ),
                         trailing: IconButton(
                           icon: Icon(CupertinoIcons.clock),
                           onPressed: () {
@@ -395,6 +456,9 @@ class _basicDetailsState extends State<basicDetails> {
                           items6[index],
                           style: TextStyle(fontSize: 18.0),
                         ),
+                        subtitle: Text(
+                          widget.duration ?? '',
+                        ),
                         onTap: () {},
                       ),
                     );
@@ -417,27 +481,8 @@ class _basicDetailsState extends State<basicDetails> {
                           items7[index],
                           style: TextStyle(fontSize: 18.0),
                         ),
-                        onTap: () {},
-                      ),
-                    );
-                  },
-                ),
-              ),
-              SizedBox(
-                height: 60,
-                width: double.infinity,
-                child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: items.length,
-                  scrollDirection: Axis.vertical,
-                  itemBuilder: (context, index) {
-                    final listItem = items8[index];
-
-                    return Card(
-                      child: ListTile(
-                        title: Text(
-                          items8[index],
-                          style: TextStyle(fontSize: 18.0),
+                        subtitle: Text(
+                          widget.manager ?? '',
                         ),
                         onTap: () {},
                       ),
@@ -445,6 +490,28 @@ class _basicDetailsState extends State<basicDetails> {
                   },
                 ),
               ),
+              // SizedBox(
+              //   height: 60,
+              //   width: double.infinity,
+              //   child: ListView.builder(
+              //     physics: const BouncingScrollPhysics(),
+              //     itemCount: items.length,
+              //     scrollDirection: Axis.vertical,
+              //     itemBuilder: (context, index) {
+              //       final listItem = items8[index];
+
+              //       return Card(
+              //         child: ListTile(
+              //           title: Text(
+              //             items8[index],
+              //             style: TextStyle(fontSize: 18.0),
+              //           ),
+              //           onTap: () {},
+              //         ),
+              //       );
+              //     },
+              //   ),
+              // ),
               SizedBox(
                 height: 60,
                 width: double.infinity,
@@ -460,6 +527,9 @@ class _basicDetailsState extends State<basicDetails> {
                         title: Text(
                           items9[index],
                           style: TextStyle(fontSize: 18.0),
+                        ),
+                        subtitle: Text(
+                          widget.summary ?? '',
                         ),
                         onTap: () {},
                       ),
@@ -483,6 +553,9 @@ class _basicDetailsState extends State<basicDetails> {
                           items10[index],
                           style: TextStyle(fontSize: 18.0),
                         ),
+                        subtitle: Text(
+                          widget.property ?? '',
+                        ),
                         onTap: () {},
                       ),
                     );
@@ -505,6 +578,9 @@ class _basicDetailsState extends State<basicDetails> {
                           items11[index],
                           style: TextStyle(fontSize: 18.0),
                         ),
+                        subtitle: Text(
+                          widget.tenant ?? '',
+                        ),
                         onTap: () {},
                       ),
                     );
@@ -526,6 +602,9 @@ class _basicDetailsState extends State<basicDetails> {
                         title: Text(
                           items12[index],
                           style: TextStyle(fontSize: 18.0),
+                        ),
+                        subtitle: Text(
+                          widget.owner ?? '',
                         ),
                         onTap: () {},
                       ),
