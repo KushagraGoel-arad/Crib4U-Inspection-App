@@ -383,6 +383,7 @@ class _inspectState extends State<inspect> {
   int current = 0;
   List<Task> tasks = [];
   List<Map<String, dynamic>> _tableRows = [];
+  Map<String, dynamic> _inspectDetailObj = {};
 
   //final dio = Dio();
 
@@ -455,40 +456,6 @@ class _inspectState extends State<inspect> {
 
     print(response.body);
 
-    // if (response.statusCode == 200) {
-    //   var jsonData = jsonDecode(response.body);
-
-    //   List<Map<String, dynamic>> _tableRows = [];
-    //   print(jsonData);
-    //   List<dynamic> jData = jsonData['details'];
-    //   if (jData.length > 0) {
-    //     for (int i = 0; i < jData.length; i++) {
-    //       dynamic _obj = jData[i];
-
-    //       String propertyName =
-    //           '${_obj['property']['property_basic_details']['address']['line_one']} ${_obj['property']['property_basic_details']['address']['line_two']}';
-    //       String tenantName =
-    //           '${_obj['tenant']['users'][0]['name']['firstName'] ?? ''} ${_obj['tenant']['users'][0]['name']['lastName'] ?? ''}';
-    //       String managerName =
-    //           '${_obj['manager']['name']['firstName'] ?? ''} ${_obj['manager']['name']['lastName'] ?? ''}';
-    //       DateTime date = DateTime.parse(_obj['date']);
-    //       DateTime startTime = DateTime.parse(_obj['startTime']);
-    //       //print(dateTime);
-    //       DateTime createAt = DateTime.parse(_obj['createdAt']);
-    //       _tableRows.add({
-    //         '_id': _obj['_id'],
-    //         'inspectionOn':
-    //             '${DateFormat('dd-MM-yyyy').format(date)} ${DateFormat('hh:mm a').format(startTime)}',
-    //         'type': _obj['type'],
-    //         'summary': _obj['summary'],
-    //         'property': propertyName,
-    //         'manager': managerName,
-    //         'tenant': tenantName,
-    //         'createdAt': DateFormat('dd-MM-yyyy hh:mm a').format(createAt),
-    //       });
-    //     }
-    //   }
-    // }
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
 
@@ -531,9 +498,7 @@ class _inspectState extends State<inspect> {
         DateTime createAt = DateTime.parse(_obj['createdAt']);
 
         setState(() {
-          _tableRows.clear(); // Clear the previous data
-
-          _tableRows.add({
+          _inspectDetailObj = {
             '_id': inspectionId,
             'date':
                 '${DateFormat('dd-MM-yyyy').format(date)} ${DateFormat('hh:mm').format(startTime)}',
@@ -548,7 +513,7 @@ class _inspectState extends State<inspect> {
             'status': _obj['status'],
             'duration': _obj['duration'],
             'createdAt': DateFormat('dd-MM-yyyy hh:mm a').format(createAt),
-          });
+          };
         });
       }
     }
@@ -657,26 +622,27 @@ class _inspectState extends State<inspect> {
                       final data = _tableRows[index];
 
                       return GestureDetector(
-                        onTap: () {
+                        onTap: () async {
                           String inspectionId = data['_id'];
-                          detailsOfInspection(
+                          await detailsOfInspection(
                               inspectionId); // Call your API or any other action
+                          // ignore: use_build_context_synchronously
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => basicDetails(
-                                type: data['type'],
-                                startTime: data['startTime'],
-                                endTime: data['endTime'],
-                                date: data['date'],
-                                summary: data['summary'],
-                                property: data['property'],
-                                manager: data['manager'],
-                                tenant: data['tenant'],
-                                createdAt: data['createdAt'],
-                                owner: data['owner'],
-                                status: data['status'],
-                                duration: data['duration'],
+                                type: _inspectDetailObj['type'] ?? '',
+                                startTime: _inspectDetailObj['startTime'] ?? '',
+                                endTime: _inspectDetailObj['endTime'] ?? '',
+                                date: _inspectDetailObj['date'] ?? '',
+                                summary: _inspectDetailObj['summary'] ?? '',
+                                property: _inspectDetailObj['property'] ?? '',
+                                manager: _inspectDetailObj['manager'] ?? '',
+                                tenant: _inspectDetailObj['tenant'] ?? '',
+                                createdAt: _inspectDetailObj['createdAt'] ?? '',
+                                owner: _inspectDetailObj['owner'] ?? '',
+                                status: _inspectDetailObj['status'] ?? '',
+                                duration: _inspectDetailObj['duration'] ?? '',
                               ),
                             ),
                           );
