@@ -419,9 +419,10 @@ class _inspectState extends State<inspect> {
               '${_obj['tenant']['users'][0]['name']['firstName'] ?? ''} ${_obj['tenant']['users'][0]['name']['lastName'] ?? ''}';
           String managerName =
               '${_obj['manager']['name']['firstName'] ?? ''} ${_obj['manager']['name']['lastName'] ?? ''}';
-
+          String ownerName =
+              '${_obj['owner']['users'][0]['name']['firstName'] ?? ''} ${_obj['tenant']['users'][0]['name']['lastName'] ?? ''}';
           DateTime date = DateTime.parse(_obj['date']);
-          DateTime startTime = DateTime.parse(_obj['date']);
+          DateTime startTime = DateTime.parse(_obj['startTime']);
           DateTime createAt = DateTime.parse(_obj['createdAt']);
 
           _tableRows.add({
@@ -433,6 +434,7 @@ class _inspectState extends State<inspect> {
             'property': propertyName,
             'manager': managerName,
             'tenant': tenantName,
+            'owner': ownerName,
             'createdAt': DateFormat('dd-MM-yyyy hh:mm a').format(createAt),
           });
         }
@@ -668,7 +670,7 @@ class _inspectState extends State<inspect> {
                                 type: data['type'],
                                 startTime: data['startTime'],
                                 endTime: data['endTime'],
-                                date: data['date'],
+                                date: data['inspectionOn'],
                                 summary: data['summary'],
                                 property: data['property'],
                                 manager: data['manager'],
