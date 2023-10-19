@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 import 'areaaddScreen.dart';
 import 'compliance.dart';
 
-class report extends StatefulWidget {
+class reportEntryExit extends StatefulWidget {
   final String? accessToken;
   final String? refreshToken;
   final String followupActions;
@@ -41,7 +41,7 @@ class report extends StatefulWidget {
   final String? propertyId;
   Map<String, dynamic> reportdetails;
   List<Areas> areaList;
-  report({
+  reportEntryExit({
     super.key,
     this.accessToken,
     this.refreshToken,
@@ -74,10 +74,10 @@ class report extends StatefulWidget {
   });
 
   @override
-  State<report> createState() => _reportState();
+  State<reportEntryExit> createState() => _reportEntryExitState();
 }
 
-class _reportState extends State<report> {
+class _reportEntryExitState extends State<reportEntryExit> {
   List<bool> _isExpandedList = [false, false, false, false, false, false];
   List<Area> areasadd = [];
 
@@ -96,9 +96,9 @@ class _reportState extends State<report> {
   final List<String> item4 = [
     'Follow Up Actions',
   ];
-  // final List<String> itemU = [
-  //   'Compliance/Utilities',
-  // ];
+  final List<String> itemU = [
+    'Compliance/Utilities',
+  ];
   final List<String> item5 = [
     'Kitchen',
   ];
@@ -106,7 +106,14 @@ class _reportState extends State<report> {
     'Dining Room',
   ];
 
-  void addNewArea(String inspectionId, String reportId, String areaName) async {
+  addNewArea(String inspectionId, String reportId, String areaName) async {
+    if (areasadd.any((area) => area.name == areaName)) {
+      // Handle the case where the area name is a duplicate (show an error, etc.)
+      // You may want to display a snackbar or dialog to inform the user.
+      return SnackBar(
+        content: Text("Area name already exists."),
+      );
+    }
     final String url =
         'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/addNewArea/$inspectionId/$reportId';
 
@@ -420,6 +427,69 @@ class _reportState extends State<report> {
                   },
                 ),
               ),
+              SizedBox(
+                height: 60,
+                width: double.infinity,
+                child: ListView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: items.length,
+                  scrollDirection: Axis.vertical,
+                  itemBuilder: (context, index) {
+                    final listItem = itemU[index];
+
+                    return Card(
+                      child: ListTile(
+                        title: Text(
+                          itemU[index],
+                          style: TextStyle(fontSize: 18.0),
+                        ),
+                        trailing: Icon(
+                          Icons.arrow_forward,
+                          color: Color.fromRGBO(162, 154, 255, 1),
+                        ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CompliancePage(
+                                //checklistItems: [widget.signs_moulds_dampness, widget.pests_vermin, widget.rubbish_bin_left_premises, widget.telephone_line_premises, widget.internet_line_premises, widget.shower_wtr_rate_ltr_minute, widget.internal_basins_wtr_rate_ltr_minute, widget.no_licking_taps],
+                                signs_moulds_dampness:
+                                    widget.signs_moulds_dampness,
+                                pests_vermin: widget.pests_vermin,
+                                rubbish_bin_left_premises:
+                                    widget.rubbish_bin_left_premises,
+                                telephone_line_premises:
+                                    widget.telephone_line_premises,
+                                internet_line_premises:
+                                    widget.internet_line_premises,
+                                shower_wtr_rate_ltr_minute:
+                                    widget.shower_wtr_rate_ltr_minute,
+                                internal_basins_wtr_rate_ltr_minute:
+                                    widget.internal_basins_wtr_rate_ltr_minute,
+                                no_licking_taps: widget.no_licking_taps,
+
+                                water_meter_reading: widget.water_meter_reading,
+                                cleaning_repair_notes:
+                                    widget.cleaning_repair_notes,
+                                instalation_wtr_measures_on:
+                                    widget.instalation_wtr_measures_on,
+                                paint_premises_external_on:
+                                    widget.paint_premises_external_on,
+                                paint_premises_internal_on:
+                                    widget.paint_premises_internal_on,
+                                landlord_aggred_work_on:
+                                    widget.landlord_aggred_work_on,
+                                flooring_clean_replaced_on:
+                                    widget.flooring_clean_replaced_on,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
               Row(
                 children: [
                   Container(
@@ -533,13 +603,9 @@ class _reportState extends State<report> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => AddAreaScreen(
-                                  reportDetails: widget.reportdetails,
-                                  propId: widget.propertyId,
-                                  areaName: area.name,
-                                  inspID: widget.inspId,
-                                  reportID: widget.reportId,
-                                  areaList: widget.areaList),
+                              builder: (context) => areasEntryExit(
+                                title: area.name,
+                              ),
                             ),
                           );
                         },
@@ -569,14 +635,9 @@ class _reportState extends State<report> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => AddAreaScreen(
-                                  reportDetails: widget.reportdetails,
-                                  propId: widget.propertyId,
-                                  areaName: area.name,
-                                  inspID: widget.inspId,
-                                  reportID: widget.reportId,
-                                  jwttoken: widget.jwtToken,
-                                  areaList: widget.areaList),
+                              builder: (context) => areasEntryExit(
+                                title: area.name,
+                              ),
                             ),
                           );
                         },
@@ -633,6 +694,47 @@ class _reportState extends State<report> {
                 },
                 child: Icon(Icons.add),
               ),
+              // FloatingActionButton(
+              //   backgroundColor: Color.fromRGBO(127, 117, 240, 1),
+              //   splashColor: Color.fromRGBO(162, 154, 255, 1),
+              //   onPressed: () {
+              //     // Show the dialog to add a new area
+              //     showDialog(
+              //       context: context,
+              //       builder: (context) {
+              //         return AlertDialog(
+              //           backgroundColor: Colors.transparent,
+              //           content: SizedBox(
+              //             width: 800,
+              //             height: 700,
+              //             child: AddAreaDialog(
+              //               existingAreaNames:
+              //                   areasadd.map((area) => area.name).toList(),
+              //               onAreaAdded: (newAreaName) {
+              //                 final newArea = Area(name: newAreaName);
+              //                 setState(() {
+              //                   areasadd.add(newArea);
+              //                 });
+              //                 // Call the addNewArea function here with the areaName
+              //                 addNewArea(
+              //                     widget.inspId, widget.reportId, newAreaName);
+              //               },
+              //               onAreaDeleted: (areaName) {
+              //                 // Handle deleting existing area here
+              //                 setState(() {
+              //                   areasadd.removeWhere(
+              //                       (area) => area.name == areaName);
+              //                   // Implement the logic for deleting an area from the server
+              //                 });
+              //               },
+              //             ),
+              //           ),
+              //         );
+              //       },
+              //     );
+              //   },
+              //   child: Icon(Icons.add),
+              // ),
             ],
           )),
         ));

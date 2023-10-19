@@ -1,3 +1,4 @@
+import 'package:crib4uinspect/areaaddScreen.dart';
 import 'package:crib4uinspect/areas_notes.dart';
 import 'package:crib4uinspect/areas_photos.dart';
 import 'package:crib4uinspect/basic_details.dart';
@@ -8,10 +9,14 @@ import 'package:crib4uinspect/login.dart';
 import 'package:crib4uinspect/report.dart';
 import 'package:flutter/material.dart';
 import 'package:rest_api_client/rest_api_client.dart';
+
 void main() {
   runApp(const MyApp());
 }
-final apiClient = RestApiClient(options: RestApiClientOptions(baseUrl: 'https://crib4u.axiomprotect.com:9497'));
+
+final apiClient = RestApiClient(
+    options:
+        RestApiClientOptions(baseUrl: 'https://crib4u.axiomprotect.com:9497'));
 
 // final loginEndpoint = RestApiEndpoint(
 //   method: HttpMethod.post,
@@ -28,7 +33,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: login_page (),
+      home: login_page(),
       title: 'Crib4U',
     );
   }

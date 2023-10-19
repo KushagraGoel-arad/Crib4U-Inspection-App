@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:crib4uinspect/areaadd.dart';
+import 'package:crib4uinspect/reportEntryExit.dart';
 import 'package:http/http.dart' as http;
 import 'package:crib4uinspect/inspection.dart';
 import 'package:crib4uinspect/report.dart';
@@ -19,21 +21,73 @@ class basicDetails extends StatefulWidget {
   final String? createdAt;
   final String? status;
   final String? duration;
-  basicDetails(
-      {Key? key,
-      this.type,
-      this.date,
-      this.endTime,
-      this.startTime,
-      this.summary,
-      this.property,
-      this.manager,
-      this.tenant,
-      this.owner,
-      this.createdAt,
-      this.status,
-      this.duration})
-      : super(key: key);
+  final String? rentReview;
+  final String? followupActions;
+  final String? notes;
+  final bool isSharedWithTenant;
+  final bool isSharedWithOwner;
+  final bool signs_moulds_dampness;
+  final bool pests_vermin;
+  final bool rubbish_bin_left_premises;
+  final bool telephone_line_premises;
+  final bool internet_line_premises;
+  final bool shower_wtr_rate_ltr_minute;
+  final bool internal_basins_wtr_rate_ltr_minute;
+  final bool no_licking_taps;
+  final String? water_meter_reading;
+  final String? cleaning_repair_notes;
+  final String? instalation_wtr_measures_on;
+  final String? paint_premises_external_on;
+  final String? paint_premises_internal_on;
+  final String? landlord_aggred_work_on;
+  final String? flooring_clean_replaced_on;
+  final String? inspectionId;
+  final String? inspectionId1;
+  final String? jwt;
+  final String? propertyId;
+  Map<String, dynamic> repDetails;
+  List<Areas> areasList;
+  basicDetails({
+    Key? key,
+    this.type,
+    this.date,
+    this.endTime,
+    this.startTime,
+    this.summary,
+    this.property,
+    this.manager,
+    this.tenant,
+    this.owner,
+    this.createdAt,
+    this.status,
+    this.duration,
+    this.rentReview,
+    this.followupActions,
+    this.notes,
+    required this.isSharedWithOwner,
+    required this.isSharedWithTenant,
+    required this.signs_moulds_dampness,
+    required this.pests_vermin,
+    required this.rubbish_bin_left_premises,
+    required this.telephone_line_premises,
+    required this.internet_line_premises,
+    required this.shower_wtr_rate_ltr_minute,
+    required this.internal_basins_wtr_rate_ltr_minute,
+    required this.no_licking_taps,
+    this.water_meter_reading,
+    this.cleaning_repair_notes,
+    this.instalation_wtr_measures_on,
+    this.paint_premises_external_on,
+    this.paint_premises_internal_on,
+    this.landlord_aggred_work_on,
+    this.flooring_clean_replaced_on,
+    required this.inspectionId,
+    required this.inspectionId1,
+    required this.jwt,
+    required this.propertyId,
+    required this.repDetails,
+    required this.areasList,
+  }) : super(key: key);
 
   @override
   State<basicDetails> createState() => _basicDetailsState();
@@ -127,12 +181,7 @@ class _basicDetailsState extends State<basicDetails> {
           leading: IconButton(
             icon: Icon(CupertinoIcons.back),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => inspect(),
-                ),
-              );
+              Navigator.pop(context);
             },
           ),
           title: Row(
@@ -213,12 +262,151 @@ class _basicDetailsState extends State<basicDetails> {
                           color: Color.fromRGBO(162, 154, 255, 1),
                         ),
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => report(),
-                            ),
-                          );
+                          if (widget.type == 'Routine') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => report(
+                                  areaList: widget.areasList,
+                                  reportdetails: widget.repDetails,
+                                  propertyId: widget.propertyId,
+                                  jwtToken: widget.jwt,
+                                  followupActions: widget.followupActions ?? '',
+                                  isSharedWithOwner: widget.isSharedWithOwner!,
+                                  isSharedWithTenant:
+                                      widget.isSharedWithTenant!,
+                                  notes: widget.notes ?? '',
+                                  rentReview: widget.rentReview ?? '',
+                                  signs_moulds_dampness:
+                                      widget.signs_moulds_dampness,
+                                  pests_vermin: widget.pests_vermin,
+                                  rubbish_bin_left_premises:
+                                      widget.rubbish_bin_left_premises,
+                                  telephone_line_premises:
+                                      widget.telephone_line_premises,
+                                  internet_line_premises:
+                                      widget.internet_line_premises,
+                                  shower_wtr_rate_ltr_minute:
+                                      widget.shower_wtr_rate_ltr_minute,
+                                  internal_basins_wtr_rate_ltr_minute: widget
+                                      .internal_basins_wtr_rate_ltr_minute,
+                                  no_licking_taps: widget.no_licking_taps,
+                                  water_meter_reading:
+                                      widget.water_meter_reading ?? '',
+                                  cleaning_repair_notes:
+                                      widget.cleaning_repair_notes ?? '',
+                                  instalation_wtr_measures_on:
+                                      widget.instalation_wtr_measures_on ?? '',
+                                  paint_premises_external_on:
+                                      widget.paint_premises_external_on ?? '',
+                                  paint_premises_internal_on:
+                                      widget.paint_premises_internal_on ?? '',
+                                  landlord_aggred_work_on:
+                                      widget.landlord_aggred_work_on ?? '',
+                                  flooring_clean_replaced_on:
+                                      widget.flooring_clean_replaced_on ?? '',
+                                  inspId: widget.inspectionId ?? '',
+                                  reportId: widget.inspectionId1 ?? '',
+                                ),
+                              ),
+                            );
+                          } else if (widget.type == 'Entry' ||
+                              widget.type == 'Exit') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => reportEntryExit(
+                                  areaList: widget.areasList,
+                                  reportdetails: widget.repDetails,
+                                  propertyId: widget.propertyId,
+                                  jwtToken: widget.jwt,
+                                  followupActions: widget.followupActions ?? '',
+                                  isSharedWithOwner: widget.isSharedWithOwner!,
+                                  isSharedWithTenant:
+                                      widget.isSharedWithTenant!,
+                                  notes: widget.notes ?? '',
+                                  rentReview: widget.rentReview ?? '',
+                                  signs_moulds_dampness:
+                                      widget.signs_moulds_dampness,
+                                  pests_vermin: widget.pests_vermin,
+                                  rubbish_bin_left_premises:
+                                      widget.rubbish_bin_left_premises,
+                                  telephone_line_premises:
+                                      widget.telephone_line_premises,
+                                  internet_line_premises:
+                                      widget.internet_line_premises,
+                                  shower_wtr_rate_ltr_minute:
+                                      widget.shower_wtr_rate_ltr_minute,
+                                  internal_basins_wtr_rate_ltr_minute: widget
+                                      .internal_basins_wtr_rate_ltr_minute,
+                                  no_licking_taps: widget.no_licking_taps,
+                                  water_meter_reading:
+                                      widget.water_meter_reading ?? '',
+                                  cleaning_repair_notes:
+                                      widget.cleaning_repair_notes ?? '',
+                                  instalation_wtr_measures_on:
+                                      widget.instalation_wtr_measures_on ?? '',
+                                  paint_premises_external_on:
+                                      widget.paint_premises_external_on ?? '',
+                                  paint_premises_internal_on:
+                                      widget.paint_premises_internal_on ?? '',
+                                  landlord_aggred_work_on:
+                                      widget.landlord_aggred_work_on ?? '',
+                                  flooring_clean_replaced_on:
+                                      widget.flooring_clean_replaced_on ?? '',
+                                  inspId: widget.inspectionId ?? '',
+                                  reportId: widget.inspectionId1 ?? '',
+                                ),
+                              ),
+                            );
+                          }
+
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(
+                          //     builder: (context) => report(
+                          //       areaList:widget.areasList,
+                          //       reportdetails: widget.repDetails,
+                          //       propertyId: widget.propertyId,
+                          //       jwtToken: widget.jwt,
+                          //       followupActions: widget.followupActions ?? '',
+                          //       isSharedWithOwner: widget.isSharedWithOwner!,
+                          //       isSharedWithTenant: widget.isSharedWithTenant!,
+                          //       notes: widget.notes ?? '',
+                          //       rentReview: widget.rentReview ?? '',
+                          //       signs_moulds_dampness:
+                          //           widget.signs_moulds_dampness,
+                          //       pests_vermin: widget.pests_vermin,
+                          //       rubbish_bin_left_premises:
+                          //           widget.rubbish_bin_left_premises,
+                          //       telephone_line_premises:
+                          //           widget.telephone_line_premises,
+                          //       internet_line_premises:
+                          //           widget.internet_line_premises,
+                          //       shower_wtr_rate_ltr_minute:
+                          //           widget.shower_wtr_rate_ltr_minute,
+                          //       internal_basins_wtr_rate_ltr_minute:
+                          //           widget.internal_basins_wtr_rate_ltr_minute,
+                          //       no_licking_taps: widget.no_licking_taps,
+                          //       water_meter_reading:
+                          //           widget.water_meter_reading ?? '',
+                          //       cleaning_repair_notes:
+                          //           widget.cleaning_repair_notes ?? '',
+                          //       instalation_wtr_measures_on:
+                          //           widget.instalation_wtr_measures_on ?? '',
+                          //       paint_premises_external_on:
+                          //           widget.paint_premises_external_on ?? '',
+                          //       paint_premises_internal_on:
+                          //           widget.paint_premises_internal_on ?? '',
+                          //       landlord_aggred_work_on:
+                          //           widget.landlord_aggred_work_on ?? '',
+                          //       flooring_clean_replaced_on:
+                          //           widget.flooring_clean_replaced_on ?? '',
+                          //       inspId: widget.inspectionId ?? '',
+                          //       reportId: widget.inspectionId1 ?? '',
+                          //     ),
+                          //   ),
+                          // );
                         },
                       ),
                     );
@@ -285,99 +473,101 @@ class _basicDetailsState extends State<basicDetails> {
                 ),
               ),
               SizedBox(
-                  height: 80,
-                  width: double.infinity,
-                  child: ListView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: items3.length,
-                    scrollDirection: Axis.vertical,
-                    itemBuilder: (context, index) {
-                      final listItem = items3[index];
-                      Color? inkWellColor = Colors.grey[300]; // Default color
+                height: 80,
+                width: double.infinity,
+                child: ListView.builder(
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: items3.length,
+                  scrollDirection: Axis.vertical,
+                  itemBuilder: (context, index) {
+                    final listItem = items3[index];
+                    Color? entryColor = Colors.grey[300];
+                    Color? exitColor = Colors.grey[300];
+                    Color? routineColor = Colors.grey[300];
 
-                      if (widget.type != null) {
-                        if (widget.type == 'Entry') {
-                          inkWellColor =
-                              Colors.green; // Change color for Entry type
-                        } else if (widget.type == 'Exit') {
-                          inkWellColor =
-                              Colors.red; // Change color for Exit type
-                        } else if (widget.type == 'Routine') {
-                          inkWellColor =
-                              Colors.blue; // Change color for Routine type
-                        }
+                    if (widget.type != null) {
+                      if (widget.type == 'Entry') {
+                        entryColor =
+                            Colors.green; // Change color for Entry type
+                      } else if (widget.type == 'Exit') {
+                        exitColor = Colors.red; // Change color for Exit type
+                      } else if (widget.type == 'Routine') {
+                        routineColor =
+                            Colors.blue; // Change color for Routine type
                       }
+                    }
 
-                      return Card(
-                        child: ListTile(
-                          title: Text(
-                            items3[index],
-                            style: TextStyle(fontSize: 18.0),
-                          ),
-                          subtitle: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () {},
-                                  child: Container(
-                                    height: 30.0,
-                                    color: inkWellColor, // Set the color here
-                                    child: Center(
-                                      child: Text(
-                                        'Entry',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 18.0,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () {},
-                                  child: Container(
-                                    height: 30.0,
-                                    color: inkWellColor, // Set the color here
-                                    child: Center(
-                                      child: Text(
-                                        'Exit',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 18.0,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: InkWell(
-                                  onTap: () {},
-                                  child: Container(
-                                    height: 30.0,
-                                    color: inkWellColor, // Set the color here
-                                    child: Center(
-                                      child: Text(
-                                        'Routine',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 18.0,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          onTap: () {},
+                    return Card(
+                      child: ListTile(
+                        title: Text(
+                          items3[index],
+                          style: TextStyle(fontSize: 18.0),
                         ),
-                      );
-                    },
-                  )),
+                        subtitle: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {},
+                                child: Container(
+                                  height: 30.0,
+                                  color: entryColor,
+                                  child: Center(
+                                    child: Text(
+                                      'Entry',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 18.0,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {},
+                                child: Container(
+                                  height: 30.0,
+                                  color: exitColor,
+                                  child: Center(
+                                    child: Text(
+                                      'Exit',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 18.0,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: InkWell(
+                                onTap: () {},
+                                child: Container(
+                                  height: 30.0,
+                                  color: routineColor,
+                                  child: Center(
+                                    child: Text(
+                                      'Routine',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 18.0,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        onTap: () {},
+                      ),
+                    );
+                  },
+                ),
+              ),
               SizedBox(
                 height: 80,
                 width: double.infinity,

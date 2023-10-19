@@ -10,8 +10,8 @@ import 'package:image_picker_web/image_picker_web.dart';
 import 'package:http/http.dart' as http;
 
 class photos extends StatefulWidget {
-  const photos({super.key,required this.title});
-final String title;
+  const photos({super.key, required this.title});
+  final String title;
   @override
   State<photos> createState() => _photosState();
 }
@@ -23,7 +23,6 @@ class _photosState extends State<photos> {
     final pickedImage = await ImagePickerWeb.getImageInfo;
 
     if (pickedImage != null) {
-      
       final imageData = pickedImage.data;
       final fileName = pickedImage.fileName;
 
@@ -51,7 +50,8 @@ class _photosState extends State<photos> {
       // }
     }
   }
-late final String title=widget.title;
+
+  late final String title = widget.title;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,12 +60,14 @@ late final String title=widget.title;
         backgroundColor: Color.fromRGBO(162, 154, 255, 1),
         leading: IconButton(
           icon: Icon(CupertinoIcons.back),
-          onPressed: () {Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => report()
-                      ),
-                    );},
+          onPressed: () {
+            // Navigator.push(
+            //           context,
+            //           MaterialPageRoute(
+            //             builder: (context) => report()
+            //           ),
+            //         );
+          },
         ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -103,7 +105,9 @@ late final String title=widget.title;
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => areas(title: widget.title,),
+                        builder: (context) => areasEntryExit(
+                          title: widget.title,
+                        ),
                       ),
                     );
                   },
@@ -125,7 +129,9 @@ late final String title=widget.title;
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => photos(title: widget.title,),
+                        builder: (context) => photos(
+                          title: widget.title,
+                        ),
                       ),
                     );
                   },
@@ -147,7 +153,9 @@ late final String title=widget.title;
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => notes(title: widget.title,),
+                        builder: (context) => notes(
+                          title: widget.title,
+                        ),
                       ),
                     );
                   },

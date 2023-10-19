@@ -23,10 +23,10 @@ class _notesState extends State<notes> {
         leading: IconButton(
           icon: Icon(CupertinoIcons.back),
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => report()),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => report()),
+            // );
           },
         ),
         title: Row(
@@ -62,7 +62,7 @@ class _notesState extends State<notes> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => areas(
+                        builder: (context) => areasEntryExit(
                           title: widget.title,
                         ),
                       ),

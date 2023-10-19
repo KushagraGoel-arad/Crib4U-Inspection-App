@@ -4,11 +4,11 @@ import 'package:crib4uinspect/report.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class areas extends StatefulWidget {
-  const areas({super.key, required this.title});
+class areasEntryExit extends StatefulWidget {
+  const areasEntryExit({super.key, required this.title});
   final String title;
   @override
-  State<areas> createState() => _areasState();
+  State<areasEntryExit> createState() => _areasEntryExitState();
 }
 
 enum Selection {
@@ -17,7 +17,7 @@ enum Selection {
   None,
 }
 
-class _areasState extends State<areas> {
+class _areasEntryExitState extends State<areasEntryExit> {
   final List<String> items = [
     '                  ',
     'Door/Walls/Ceiling',
@@ -41,12 +41,7 @@ class _areasState extends State<areas> {
         leading: IconButton(
           icon: Icon(CupertinoIcons.back),
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => report(),
-              ),
-            );
+            Navigator.pop(context);
           },
         ),
         title: Row(
