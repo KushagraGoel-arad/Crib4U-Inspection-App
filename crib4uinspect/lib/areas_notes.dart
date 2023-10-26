@@ -6,16 +6,43 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class notes extends StatefulWidget {
-  const notes({super.key, required this.title});
   final String title;
+  List<Map<String, dynamic>> passNotes;
+  notes({super.key, required this.title, required this.passNotes});
+
   @override
   State<notes> createState() => _notesState();
 }
 
 class _notesState extends State<notes> {
   late final String title = widget.title;
+  String? notess = '';
+  String? tenantComment = '';
+  String? areaName = '';
+  TextEditingController notesController = TextEditingController();
+  TextEditingController tenantCommentController = TextEditingController();
+  Map<String, dynamic> getAreaDetails(String areaName) {
+    final area = widget.passNotes.firstWhere(
+      (area) => area['name'] == areaName,
+      orElse: () => <String, dynamic>{},
+    );
+    return area;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    print(widget.passNotes);
+  }
+
   @override
   Widget build(BuildContext context) {
+    Map<String, dynamic> area = getAreaDetails(
+        areaName!); // Replace 'kitchen' with the desired area name
+    notess = area['notes'];
+    tenantComment = area['tenantComment'];
+    notesController.text = notess!; // Set the value for Notes
+    tenantCommentController.text = tenantComment!;
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 80.0,
@@ -23,6 +50,7 @@ class _notesState extends State<notes> {
         leading: IconButton(
           icon: Icon(CupertinoIcons.back),
           onPressed: () {
+            Navigator.pop(context);
             // Navigator.push(
             //   context,
             //   MaterialPageRoute(builder: (context) => report()),
@@ -44,7 +72,6 @@ class _notesState extends State<notes> {
           ],
         ),
         actions: [
-          
           IconButton(
             icon: Icon(CupertinoIcons.create),
             onPressed: () {},
@@ -64,6 +91,10 @@ class _notesState extends State<notes> {
                       MaterialPageRoute(
                         builder: (context) => areasEntryExit(
                           title: widget.title,
+                          areaDetails: [],
+                          inspectId: '',
+                          reportDetails: {},
+                          reportId: '',
                         ),
                       ),
                     );
@@ -88,6 +119,7 @@ class _notesState extends State<notes> {
                       MaterialPageRoute(
                         builder: (context) => photos(
                           title: widget.title,
+                          passPhotos: [],
                         ),
                       ),
                     );
@@ -112,6 +144,7 @@ class _notesState extends State<notes> {
                       MaterialPageRoute(
                         builder: (context) => notes(
                           title: widget.title,
+                          passNotes: [],
                         ),
                       ),
                     );
@@ -134,7 +167,7 @@ class _notesState extends State<notes> {
           Center(
             child: Container(
               width: 406.0,
-              height: 555.0,
+              height: 600,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8.0),
@@ -157,25 +190,74 @@ class _notesState extends State<notes> {
                   SizedBox(
                     height: 25,
                   ),
-                  Stack(children: [
-                    Container(
-                      width: 300,
-                      height: 400.0,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(8.0),
+                  Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Stack(children: [
+                      Container(
+                        width: 300,
+                        height: 200.0,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
                       ),
-                    ),
-                    Column(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Text("Comments",
-                            style: TextStyle(
-                              color: Colors.grey[500],
-                            )),
-                      ],
-                    )
-                  ]),
+                      Column(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          TextField(
+                              controller: tenantCommentController,
+                              decoration: InputDecoration(
+                                  hintText:
+                                      'Tenant Comment', // Placeholder text
+                                  labelText:
+                                      'Tenant Comment', // Label for the text field
+                                  labelStyle:
+                                      TextStyle(color: Colors.grey[500]),
+                                  enabledBorder: InputBorder
+                                      .none, // Remove the underline when not focused
+                                  focusedBorder: InputBorder.none),
+                              style: TextStyle(
+                                color: Colors.black,
+                              )),
+                        ],
+                      )
+                    ]),
+                  ),
+                  // SizedBox(
+                  //   height: 20,
+                  // ),
+                  Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Stack(children: [
+                      Container(
+                        width: 300,
+                        height: 200.0,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                      Column(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          TextField(
+                              controller: notesController,
+                              decoration: InputDecoration(
+                                  hintText: 'Notes', // Placeholder text
+                                  labelText:
+                                      'Notes', // Label for the text field
+                                  labelStyle:
+                                      TextStyle(color: Colors.grey[500]),
+                                  enabledBorder: InputBorder
+                                      .none, // Remove the underline when not focused
+                                  focusedBorder: InputBorder.none),
+                              style: TextStyle(
+                                color: Colors.black,
+                              )),
+                        ],
+                      )
+                    ]),
+                  ),
                 ],
               ),
             ),

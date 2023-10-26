@@ -47,6 +47,7 @@ class basicDetails extends StatefulWidget {
   final String? propertyId;
   Map<String, dynamic> repDetails;
   List<Areas> areasList;
+  List<Areas> areaData;
   basicDetails({
     Key? key,
     this.type,
@@ -87,6 +88,7 @@ class basicDetails extends StatefulWidget {
     required this.propertyId,
     required this.repDetails,
     required this.areasList,
+    required this.areaData,
   }) : super(key: key);
 
   @override
@@ -94,6 +96,7 @@ class basicDetails extends StatefulWidget {
 }
 
 class _basicDetailsState extends State<basicDetails> {
+  List<Areas> areasList = [];
   final List<String> items = [
     'Inspection Report',
   ];
@@ -131,10 +134,46 @@ class _basicDetailsState extends State<basicDetails> {
     'Tenant',
   ];
   final List<String> items12 = ['Owner'];
+
+  List<Map<String, dynamic>> areaDataList = [];
+
+  List<Map<String, dynamic>> areasListToMap(List<Areas> areasList) {
+    //print("areasList: $areasList");
+    return areasList.map((area) {
+      Map<String, dynamic> areaData = {
+        'name': area.name,
+        'notes': area.notes,
+        'photosNotes': area.photosNotes,
+        'tenantComment': area.tenantComment,
+        'isDeleted': area.isDeleted,
+        'photos': area.photos,
+        'items': area.items.map((item) {
+          return {
+            'name': item.name,
+            'agentComment': item.agentComment,
+            'otherComment': item.otherComment,
+            'isDeleted': item.isDeleted,
+            'conditions': item.conditions.map((condition) {
+              return {
+                'name': condition.name,
+                'value': condition.value,
+              };
+            }).toList(),
+          };
+        }).toList(),
+      };
+      return areaData;
+    }).toList();
+  }
+
   @override
   void initState() {
     super.initState();
-    print('Date: ${widget.date}');
+    //print('Date: ${widget.date}');
+    areaDataList = areasListToMap(widget.areaData);
+
+    // Print the converted data
+    //print('Converted areaData: $areaDataList');
   }
 
   // getUserData() async {
@@ -356,6 +395,7 @@ class _basicDetailsState extends State<basicDetails> {
                                       widget.flooring_clean_replaced_on ?? '',
                                   inspId: widget.inspectionId ?? '',
                                   reportId: widget.inspectionId1 ?? '',
+                                  areadata: areaDataList,
                                 ),
                               ),
                             );

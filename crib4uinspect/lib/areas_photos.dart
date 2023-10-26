@@ -8,52 +8,56 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker_web/image_picker_web.dart';
 import 'package:http/http.dart' as http;
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'dart:html' as html;
 
 class photos extends StatefulWidget {
-  const photos({super.key, required this.title});
   final String title;
+  List<Map<String, dynamic>> passPhotos;
+  photos({super.key, required this.title, required this.passPhotos});
+
   @override
   State<photos> createState() => _photosState();
 }
 
 class _photosState extends State<photos> {
-  List<File> uploadedImages = [];
+  List<String> uploadedImages = [];
+  TextEditingController photosNotesController = TextEditingController();
+  String areaName = '';
+  void uploadImage(html.File file) {
+    // Handle the uploaded image here (you can upload it to a server or display it).
+    final imageUrl = html.Url.createObjectUrlFromBlob(file);
+    setState(() {
+      uploadedImages.add(imageUrl);
+    });
+  }
 
-  Future<void> _selectAndUploadImage() async {
-    final pickedImage = await ImagePickerWeb.getImageInfo;
+  Map<String, dynamic> getAreaDetails(String areaName) {
+    final area = widget.passPhotos.firstWhere(
+      (area) => area['name'] == areaName,
+      orElse: () => <String, dynamic>{},
+    );
+    return area;
+  }
 
-    if (pickedImage != null) {
-      final imageData = pickedImage.data;
-      final fileName = pickedImage.fileName;
+  List<dynamic> getPhotosForArea(String areaName) {
+    final areaDetails = getAreaDetails(areaName);
+    return areaDetails['photos'] ?? [];
+  }
 
-      final file = File(fileName!);
-
-      setState(() {
-        uploadedImages.add(file);
-      });
-
-      // Save the image to the server using API
-      // final response = await http.post(
-      //   Uri.parse('YOUR_API_URL'),
-      //   body: {
-      //     'image': base64Encode(imageBytes),
-      //   },
-      // );
-
-      // if (response.statusCode == 200) {
-      //   // Image uploaded successfully, handle the API response
-      //   final apiResponse = jsonDecode(response.body);
-      //   // ...
-      // } else {
-      //   // Error occurred while uploading the image
-      //   // Handle the error
-      // }
-    }
+  String getPhotosNotesForArea(String areaName) {
+    final areaDetails = getAreaDetails(areaName);
+    return areaDetails['photosNotes'] ?? '';
   }
 
   late final String title = widget.title;
   @override
   Widget build(BuildContext context) {
+    Map<String, dynamic> area = getAreaDetails(areaName);
+    List<dynamic> Photos = getPhotosForArea(areaName);
+    String photosNotes = getPhotosNotesForArea(areaName);
+    photosNotesController.text = photosNotes;
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 80.0,
@@ -102,14 +106,14 @@ class _photosState extends State<photos> {
               Expanded(
                 child: InkWell(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => areasEntryExit(
-                          title: widget.title,
-                        ),
-                      ),
-                    );
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => areasEntryExit(
+                    //       title: widget.title,
+                    //     ),
+                    //   ),
+                    // );
                   },
                   child: Container(
                     height: 50.0,
@@ -131,6 +135,7 @@ class _photosState extends State<photos> {
                       MaterialPageRoute(
                         builder: (context) => photos(
                           title: widget.title,
+                          passPhotos: [],
                         ),
                       ),
                     );
@@ -155,6 +160,7 @@ class _photosState extends State<photos> {
                       MaterialPageRoute(
                         builder: (context) => notes(
                           title: widget.title,
+                          passNotes: [],
                         ),
                       ),
                     );
@@ -216,7 +222,17 @@ class _photosState extends State<photos> {
                     ),
                     Center(
                       child: GestureDetector(
-                        onTap: () => _selectAndUploadImage(),
+                        onTap: () {
+                          final input = html.FileUploadInputElement()
+                            ..accept = 'image/*';
+                          input.click();
+
+                          input.onChange.listen((e) {
+                            final file = input.files!.first;
+                            uploadImage(file);
+                          });
+                          // _selectAndUploadImage();
+                        },
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -238,7 +254,15 @@ class _photosState extends State<photos> {
                                 )),
                             ElevatedButton(
                               onPressed: () {
-                                //_selectAndUploadImage();
+                                final input = html.FileUploadInputElement()
+                                  ..accept = 'image/*';
+                                input.click();
+
+                                input.onChange.listen((e) {
+                                  final file = input.files!.first;
+                                  uploadImage(file);
+                                });
+                                // _selectAndUploadImage();
                               },
                               style: ElevatedButton.styleFrom(
                                 padding: EdgeInsets.symmetric(
@@ -265,29 +289,73 @@ class _photosState extends State<photos> {
                   ),
                   Expanded(
                     child: ListView.builder(
-                      itemCount: uploadedImages.length,
+                      itemCount: uploadedImages.length + Photos.length,
                       itemBuilder: (context, index) {
-                        final uploadedImage = uploadedImages[index];
+                        if (index < uploadedImages.length) {
+                          // Display local uploaded images
+                          final imagePath = uploadedImages[index];
 
-                        return ListTile(
-                          leading: Image.network(
-                            uploadedImage.path,
-                            width: 50,
-                            height: 50,
-                          ),
-                          // title: Text(uploadedImage.name),
-                        );
+                          return ListTile(
+                            leading: Image.network(
+                              imagePath, // Load the local image
+                              width: 100,
+                              height: 100,
+                            ),
+                            // title: Text(uploadedImage.name),
+                          );
+                        } else {
+                          // Display remote photos from the response
+                          final remoteImageIndex =
+                              index - uploadedImages.length;
+                          final remoteImagePath = Photos[remoteImageIndex];
+
+                          return ListTile(
+                            leading: Image.network(
+                              remoteImagePath, // Load the remote image
+                              width: 100,
+                              height: 100,
+                            ),
+                            // You can add a title or other information here if needed.
+                          );
+                        }
                       },
                     ),
                   ),
                   SizedBox(
-                    height: 30,
+                    height: 20,
                   ),
-                  GestureDetector(
-                    onTap: () {},
-                    child: Image.asset(
-                      'images/image 132.png',
-                    ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: 80.0, right: 80, bottom: 20),
+                    child: Stack(children: [
+                      Container(
+                        width: 200,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                      Column(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          TextField(
+                              controller: photosNotesController,
+                              decoration: InputDecoration(
+                                  hintText: 'PhotosNotes', // Placeholder text
+                                  // labelText:
+                                  //     'PhotosNotes', // Label for the text field
+                                  labelStyle:
+                                      TextStyle(color: Colors.grey[500]),
+                                  enabledBorder: InputBorder
+                                      .none, // Remove the underline when not focused
+                                  focusedBorder: InputBorder.none),
+                              style: TextStyle(
+                                color: Colors.black,
+                              )),
+                        ],
+                      )
+                    ]),
                   ),
                 ],
               ),

@@ -50,6 +50,8 @@ dependencies:
   dio: ^4.0.6
   request: ^0.1.1
   requests: ^4.7.0
+  path_provider: ^2.0.2
+  
   
   
   

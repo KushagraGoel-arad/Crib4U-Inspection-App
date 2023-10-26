@@ -469,6 +469,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'areaadd.dart';
+
 class inspect extends StatefulWidget {
   final String? accessToken;
   final String? refreshToken;
@@ -488,7 +489,7 @@ class _inspectState extends State<inspect> {
   Map<String, dynamic> _inspectDetailObj = {};
   Map<String, dynamic> _inspectReportObj = {};
   Map<String, dynamic> _complainceOrUtilities = {};
-
+  Map<String, dynamic> inspection = {};
   DateTime? parseDateTime(dynamic value) {
     if (value == null) {
       return null;
@@ -510,7 +511,7 @@ class _inspectState extends State<inspect> {
       headers: headers,
     );
 
-    print(response.body);
+    //print(response.body);
 
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
@@ -564,7 +565,7 @@ class _inspectState extends State<inspect> {
       headers: headers,
     );
 
-    print(response.body);
+    //print(response.body);
 
     if (response.statusCode == 200) {
       var jsonData = jsonDecode(response.body);
@@ -617,7 +618,7 @@ class _inspectState extends State<inspect> {
       headers: headers,
     );
 
-    print(response.body);
+    //print(response.body);
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
@@ -629,17 +630,79 @@ class _inspectState extends State<inspect> {
         final _obj = basicDetails;
         final _objReport = reportDetails;
 
-        final areas = reportDetails['areas'] as List<dynamic>;
-        final List<Areas> areasList = areas.map((areaData) {
-          return Areas(
-              name: areaData['name'],
-              notes: areaData['notes'],
-              photosNotes: areaData['photosNotes'],
-              tenantComment: areaData['tenantComment'],
-              isDeleted: areaData['isDeleted'],
-              items: areaData['items'],
-              photos: areaData['photos']);
-        }).toList();
+        //   final areas = reportDetails['areas'] as List<dynamic>;
+        //  // final List<Inspection> areaItems=area.map
+        //   final List<Areas> areasList = areas.map((areaData) {
+        //     return Areas(
+        //         name: areaData['name'],
+        //         notes: areaData['notes'],
+        //         photosNotes: areaData['photosNotes'],
+        //         tenantComment: areaData['tenantComment'],
+        //         isDeleted: areaData['isDeleted'],
+        //         items: areaData['items'],
+        //         photos: areaData['photos']);
+        //   }).toList();
+
+        // final areasData = reportDetails['areas'] as List<dynamic>;
+        // final areasList = areasData.map((areaData) {
+        //   final items1 = extractItems(areaData);
+        //   final conditions = extractConditions(areaData);
+        //   print("Print item 1 : ${items1.toString()}");
+        //   List<Area> item2 = items1.map((itemData) {
+        //     return Area(
+        //       name: itemData['name'],
+        //       agentComment: itemData['agentComment'],
+        //       otherComment: itemData['otherComment'],
+        //       isDeleted: itemData['isDeleted'],
+        //       conditions: conditions,
+        //     );
+        //   }).toList();
+        //   print("Print item 2 : ${item2.toString()}");
+        //   return Areas(
+        //     name: areaData['name'],
+        //     notes: areaData['notes'],
+        //     photosNotes: areaData['photosNotes'],
+        //     tenantComment: areaData['tenantComment'],
+        //     isDeleted: areaData['isDeleted'],
+        //     items: item2,
+        //     photos: areaData['photos'],
+        //   );
+        // }).toList();
+        List<Areas> areasList = [];
+        final areasData = reportDetails['areas'];
+
+        if (areasData is List<dynamic>) {
+          areasList = areasData.map((areaData) {
+            final items1 = extractItems(areaData);
+            // final conditions = extractConditions(areaData);
+
+            List<Area> item2 = items1.map((itemData) {
+              final conditions = extractConditions(itemData);
+              return Area(
+                name: itemData?['name'] ?? '',
+                agentComment: itemData?['agentComment'] ?? '',
+                otherComment: itemData?['otherComment'] ?? '',
+                isDeleted: itemData?['isDeleted'] as bool ?? false,
+                conditions: conditions,
+              );
+            }).toList();
+
+            return Areas(
+              name: areaData['name'] ?? '',
+              notes: areaData['notes'] ?? '',
+              photosNotes: areaData['photosNotes'] ?? '',
+              tenantComment: areaData['tenantComment'] ?? '',
+              isDeleted: areaData['isDeleted'] as bool ?? false,
+              items: item2,
+              photos: areaData['photos'] ?? '',
+            );
+          }).toList();
+
+          // Rest of your code
+        } else {
+          // Handle the case where areasData is not of the expected type.
+          // You can throw an error or return a default value.
+        }
 
         String inspectionId = _obj['_id'];
         String inspectionId1 = _objReport['_id'];
@@ -789,9 +852,36 @@ class _inspectState extends State<inspect> {
             'duration': _obj['duration'],
             'createdAt': DateFormat('dd-MM-yyyy hh:mm a').format(createAt),
           };
+          inspection = {'areadata': areasList};
+
+          // Now you have the Inspection object for further use
+          //print("ABCRESGGG:$inspection");
         });
       }
     }
+  }
+
+  List<Condition> extractConditions(Map<String, dynamic> itemData) {
+    //final itemsData = areaData['items'] as List<dynamic>;
+    final List<Condition> allConditions = [];
+
+    //for (var itemData in itemsData) {
+    final conditionsData = itemData['conditions'] as List<dynamic>;
+    final conditions = conditionsData.map((conditionData) {
+      return Condition(
+        name: conditionData['name'],
+        value: conditionData['value'],
+      );
+    }).toList();
+    allConditions.addAll(conditions);
+    // }
+
+    return allConditions;
+  }
+
+  List<dynamic> extractItems(Map<String, dynamic> areaData) {
+    final itemsData = areaData['items'] as List<dynamic>;
+    return itemsData;
   }
 
   @override
@@ -970,6 +1060,7 @@ class _inspectState extends State<inspect> {
                                 flooring_clean_replaced_on:
                                     _complainceOrUtilities[
                                         'flooring_clean_replaced_on'],
+                                areaData: inspection['areadata'],
                               ),
                             ),
                           );

@@ -79,7 +79,8 @@ class report extends StatefulWidget {
 
 class _reportState extends State<report> {
   List<bool> _isExpandedList = [false, false, false, false, false, false];
-  List<Area> areasadd = [];
+  List<Areas> areasadd = [];
+  int selectedAreaIndex = 0;
 
   final List<String> items = [
     'Shared with User',
@@ -114,7 +115,7 @@ class _reportState extends State<report> {
       'Content-Type': 'application/json',
       'accessToken': '${widget.jwtToken}',
     };
-
+    print(widget.jwtToken);
     final Map<String, dynamic> requestBody = {
       "areaName": areaName,
     };
@@ -187,8 +188,24 @@ class _reportState extends State<report> {
   void initState() {
     super.initState();
     // You can initialize the 'areasadd' list from the 'areaList' provided in the widget
-    areasadd = widget.areaList.map((area) => Area(name: area.name)).toList();
+    areasadd = widget.areaList
+        .map((area) => Areas(
+              name: area.name,
+              isDeleted: area.isDeleted ?? false,
+              notes: area.notes ?? '', // Initialize notes from widget.areaList
+              photosNotes: area.photosNotes ??
+                  '', // Initialize photonotes from widget.areaList
+              items: area.items ?? [],
+              photos: area.photos ?? [],
+              tenantComment: area.tenantComment ?? '',
+            ))
+        .toList();
   }
+
+  // void updateSelectedArea(int index) {
+  //   nameController.text = widget.areaList[index].notes;
+  //   descriptionController.text = widget.areaList[index].photosNotes;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -442,83 +459,81 @@ class _reportState extends State<report> {
                   )
                 ],
               ),
-              SizedBox(
-                height: 60,
-                width: double.infinity,
-                child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: items.length,
-                  scrollDirection: Axis.vertical,
-                  itemBuilder: (context, index) {
-                    final listItem = item5[index];
+              // SizedBox(
+              //   height: 60,
+              //   width: double.infinity,
+              //   child: ListView.builder(
+              //     physics: const BouncingScrollPhysics(),
+              //     itemCount: items.length,
+              //     scrollDirection: Axis.vertical,
+              //     itemBuilder: (context, index) {
+              //       final listItem = item5[index];
 
-                    return Card(
-                      child: ListTile(
-                        title: Text(
-                          item5[index],
-                          style: TextStyle(fontSize: 18.0),
-                        ),
-                        trailing: Icon(
-                          Icons.arrow_forward,
-                          color: Color.fromRGBO(162, 154, 255, 1),
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => areasEntryExit(
-                                title: 'Kitchen',
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ),
-              SizedBox(
-                height: 60,
-                width: double.infinity,
-                child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: items.length,
-                  scrollDirection: Axis.vertical,
-                  itemBuilder: (context, index) {
-                    final listItem = item6[index];
+              //       return Card(
+              //         child: ListTile(
+              //           title: Text(
+              //             item5[index],
+              //             style: TextStyle(fontSize: 18.0),
+              //           ),
+              //           trailing: Icon(
+              //             Icons.arrow_forward,
+              //             color: Color.fromRGBO(162, 154, 255, 1),
+              //           ),
+              //           onTap: () {
+              //             Navigator.push(
+              //               context,
+              //               MaterialPageRoute(
+              //                 builder: (context) => areasEntryExit(
+              //                   title: 'Kitchen',
+              //                 ),
+              //               ),
+              //             );
+              //           },
+              //         ),
+              //       );
+              //     },
+              //   ),
+              // ),
+              // SizedBox(
+              //   height: 60,
+              //   width: double.infinity,
+              //   child: ListView.builder(
+              //     physics: const BouncingScrollPhysics(),
+              //     itemCount: items.length,
+              //     scrollDirection: Axis.vertical,
+              //     itemBuilder: (context, index) {
+              //       final listItem = item6[index];
 
-                    return Card(
-                      child: ListTile(
-                        title: Text(
-                          item6[index],
-                          style: TextStyle(fontSize: 18.0),
-                        ),
-                        trailing: Icon(
-                          Icons.arrow_forward,
-                          color: Color.fromRGBO(162, 154, 255, 1),
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => areasEntryExit(
-                                title: 'Dining Room',
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ),
+              //       return Card(
+              //         child: ListTile(
+              //           title: Text(
+              //             item6[index],
+              //             style: TextStyle(fontSize: 18.0),
+              //           ),
+              //           trailing: Icon(
+              //             Icons.arrow_forward,
+              //             color: Color.fromRGBO(162, 154, 255, 1),
+              //           ),
+              //           onTap: () {
+              //             Navigator.push(
+              //               context,
+              //               MaterialPageRoute(
+              //                 builder: (context) => areasEntryExit(
+              //                   title: 'Dining Room',
+              //                 ),
+              //               ),
+              //             );
+              //           },
+              //         ),
+              //       );
+              //     },
+              //   ),
+              // ),
+
               SizedBox(
-                height: null, // or remove the 'height' property
                 width: double.infinity,
                 child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: areasadd.length, // Display all areas from the list
-                  scrollDirection: Axis.vertical,
+                  itemCount: areasadd.length,
                   shrinkWrap: true,
                   itemBuilder: (context, index) {
                     final area = areasadd[index];
@@ -530,61 +545,126 @@ class _reportState extends State<report> {
                           color: Color.fromRGBO(162, 154, 255, 1),
                         ),
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AddAreaScreen(
-                                  reportDetails: widget.reportdetails,
-                                  propId: widget.propertyId,
-                                  areaName: area.name,
-                                  inspID: widget.inspId,
-                                  reportID: widget.reportId,
-                                  areaList: widget.areaList),
-                            ),
-                          );
+                          setState(() {
+                            // Check if selectedAreaIndex is valid
+                            if (selectedAreaIndex < areasadd.length) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AddAreaScreen(
+                                    reportDetails: widget.reportdetails,
+                                    propId: widget.propertyId,
+                                    jwttoken: widget.jwtToken,
+                                    areaName: area.name,
+                                    inspID: widget.inspId,
+                                    reportID: widget.reportId,
+                                    areaList: widget.areaList,
+                                    notes: widget
+                                        .areaList[selectedAreaIndex].notes,
+                                    photonotes: widget
+                                        .areaList[selectedAreaIndex]
+                                        .photosNotes,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              // Handle the case where selectedAreaIndex is out of range
+                              // You may want to display a snackbar or dialog to inform the user.
+                            }
+                          });
                         },
                       ),
                     );
                   },
                 ),
               ),
-              SizedBox(
-                height: null,
-                width: double.infinity,
-                child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: areasadd.length, // Display all areas from the list
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) {
-                    final area = areasadd[index];
-                    return Card(
-                      child: ListTile(
-                        title: Text(area.name),
-                        trailing: Icon(
-                          Icons.arrow_forward,
-                          color: Color.fromRGBO(162, 154, 255, 1),
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AddAreaScreen(
-                                  reportDetails: widget.reportdetails,
-                                  propId: widget.propertyId,
-                                  areaName: area.name,
-                                  inspID: widget.inspId,
-                                  reportID: widget.reportId,
-                                  jwttoken: widget.jwtToken,
-                                  areaList: widget.areaList),
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ),
+              // SizedBox(
+              //   height: null, // or remove the 'height' property
+              //   width: double.infinity,
+              //   child: ListView.builder(
+              //     physics: const BouncingScrollPhysics(),
+              //     itemCount: areasadd.length, // Display all areas from the list
+              //     scrollDirection: Axis.vertical,
+              //     shrinkWrap: true,
+              //     itemBuilder: (context, index) {
+              //       final area = areasadd[index];
+              //       return Card(
+              //         child: ListTile(
+              //           title: Text(area.name),
+              //           trailing: Icon(
+              //             Icons.arrow_forward,
+              //             color: Color.fromRGBO(162, 154, 255, 1),
+              //           ),
+              //           onTap: () {
+              //             setState(() {
+              //               selectedAreaIndex = index;
+              //             });
+              //             Navigator.push(
+              //               context,
+              //               MaterialPageRoute(
+              //                 builder: (context) => AddAreaScreen(
+              //                   reportDetails: widget.reportdetails,
+              //                   propId: widget.propertyId,
+              //                   areaName: area.name,
+              //                   inspID: widget.inspId,
+              //                   reportID: widget.reportId,
+              //                   areaList: widget.areaList,
+              //                   notes: area
+              //                       .notes, // Pass notes for the selected area
+              //                   photonotes: area.photosNotes,
+              //                 ),
+              //               ),
+              //             );
+              //           },
+              //         ),
+              //       );
+              //     },
+              //   ),
+              // ),
+              // SizedBox(
+              //   height: null,
+              //   width: double.infinity,
+              //   child: ListView.builder(
+              //     physics: const BouncingScrollPhysics(),
+              //     itemCount: areasadd.length, // Display all areas from the list
+              //     scrollDirection: Axis.vertical,
+              //     shrinkWrap: true,
+              //     itemBuilder: (context, index) {
+              //       final area = areasadd[index];
+              //       return Card(
+              //         child: ListTile(
+              //           title: Text(area.name),
+              //           trailing: Icon(
+              //             Icons.arrow_forward,
+              //             color: Color.fromRGBO(162, 154, 255, 1),
+              //           ),
+              //           onTap: () {
+              //             setState(() {
+              //               selectedAreaIndex = index;
+              //             });
+              //             Navigator.push(
+              //               context,
+              //               MaterialPageRoute(
+              //                 builder: (context) => AddAreaScreen(
+              //                   reportDetails: widget.reportdetails,
+              //                   propId: widget.propertyId,
+              //                   areaName: area.name,
+              //                   inspID: widget.inspId,
+              //                   reportID: widget.reportId,
+              //                   jwttoken: widget.jwtToken,
+              //                   areaList: widget.areaList,
+              //                   notes: area
+              //                       .notes, // Pass notes for the selected area
+              //                   photonotes: area.photosNotes,
+              //                 ),
+              //               ),
+              //             );
+              //           },
+              //         ),
+              //       );
+              //     },
+              //   ),
+              // ),
               FloatingActionButton(
                 backgroundColor: Color.fromRGBO(127, 117, 240, 1),
                 splashColor: Color.fromRGBO(162, 154, 255, 1),
@@ -605,7 +685,14 @@ class _reportState extends State<report> {
                               // Check for duplicates before adding a new area
                               if (!areasadd
                                   .any((area) => area.name == newAreaName)) {
-                                final newArea = Area(name: newAreaName);
+                                final newArea = Areas(
+                                    name: newAreaName,
+                                    isDeleted: false,
+                                    items: [],
+                                    notes: '',
+                                    photos: [],
+                                    photosNotes: '',
+                                    tenantComment: '');
                                 setState(() {
                                   areasadd.add(newArea);
                                 });
@@ -639,10 +726,11 @@ class _reportState extends State<report> {
   }
 }
 
-class Area {
-  final String name;
+// class Area {
+//   final String name;
+//   final String
 
-  Area({
-    required this.name,
-  });
-}
+//   Area({
+//     required this.name,
+//   });
+// }

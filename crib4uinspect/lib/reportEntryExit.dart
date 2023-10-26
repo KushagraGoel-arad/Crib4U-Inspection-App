@@ -41,6 +41,7 @@ class reportEntryExit extends StatefulWidget {
   final String? propertyId;
   Map<String, dynamic> reportdetails;
   List<Areas> areaList;
+  List<Map<String, dynamic>> areadata;
   reportEntryExit({
     super.key,
     this.accessToken,
@@ -71,6 +72,7 @@ class reportEntryExit extends StatefulWidget {
     required this.propertyId,
     required this.reportdetails,
     required this.areaList,
+    required this.areadata,
   });
 
   @override
@@ -79,7 +81,212 @@ class reportEntryExit extends StatefulWidget {
 
 class _reportEntryExitState extends State<reportEntryExit> {
   List<bool> _isExpandedList = [false, false, false, false, false, false];
-  List<Area> areasadd = [];
+  List<Areas> areasadd = [];
+  List<dynamic> areasData = [];
+  List<Areas> takeareaData = [];
+
+  // List<Areas> createAreasList(List<dynamic> areasData) {
+  //   List<Areas> areasList = areasData.map((areaData) {
+  //     final items1 = extractItems(areaData);
+  //     final conditions = extractConditions(areaData);
+
+  //     List<Area> item2 = items1.map((itemData) {
+  //       return Area(
+  //         name: itemData['name'],
+  //         agentComment: itemData['agentComment'],
+  //         otherComment: itemData['otherComment'],
+  //         isDeleted: itemData['isDeleted'],
+  //         conditions: conditions, // Now correctly typed as List<Condition>
+  //       );
+  //     }).toList();
+
+  //     return Areas(
+  //       name: areaData['name'],
+  //       notes: areaData['notes'],
+  //       photosNotes: areaData['photosNotes'],
+  //       tenantComment: areaData['tenantComment'],
+  //       isDeleted: areaData['isDeleted'],
+  //       items: item2,
+  //       photos: areaData['photos'],
+  //     );
+  //   }).toList();
+  //   print(areasList);
+
+  //   return areasList;
+  // }
+
+  // List<dynamic> extractItems(Map<String, dynamic> areaData) {
+  //   // Implement the logic to extract 'items' from areaData
+  //   return (areaData['items'] as List<dynamic>);
+  // }
+
+  // List<Condition> extractConditions(Map<String, dynamic> areaData) {
+  //   // Implement the logic to extract 'conditions' from areaData as List<Condition>
+  //   return (areaData['conditions'] as List<dynamic>).map((conditionData) {
+  //     return Condition(
+  //       name: conditionData['name'],
+  //       value: conditionData['value'],
+  //     );
+  //   }).toList();
+  // }
+
+  // List<dynamic> createAreasList(List<dynamic> areasData) {
+  //   List<Areas> areasList = areasData.map((areaData) {
+  //     final items1 = extractItems(areaData);
+  //     final conditions = extractConditions(areaData);
+
+  //     List<Area> item2 = items1.map((itemData) {
+  //       return Area(
+  //         name: itemData['name'],
+  //         agentComment: itemData['agentComment'],
+  //         otherComment: itemData['otherComment'],
+  //         isDeleted: itemData['isDeleted'] as bool,
+  //         conditions: conditions,
+  //       );
+  //     }).toList();
+
+  //     return Areas(
+  //       name: areaData['name'],
+  //       notes: areaData['notes'],
+  //       photosNotes: areaData['photosNotes'],
+  //       tenantComment: areaData['tenantComment'],
+  //       isDeleted: areaData['isDeleted'] as bool,
+  //       items: item2,
+  //       photos: areaData['photos'],
+  //     );
+  //   }).toList();
+
+  //   print(areasList);
+
+  //   return areasList;
+  // }
+
+  // List<dynamic> extractItems(Map<String, dynamic> areaData) {
+  //   // Implement the logic to extract 'items' from areaData
+  //   return (areaData['items'] as List<dynamic>);
+  // }
+
+  // List<Condition> extractConditions(Map<String, dynamic> areaData) {
+  //   if (areaData['conditions'] != null) {
+  //     return (areaData['conditions'] as List<dynamic>).map((conditionData) {
+  //       return Condition(
+  //         name: conditionData['name'],
+  //         value: conditionData['value'],
+  //       );
+  //     }).toList();
+  //   } else {
+  //     return []; // Return an empty list if 'conditions' is not present
+  //   }
+  // }
+
+  List<Areas> createAreasList(List<dynamic> areasData) {
+    // print("areasData: $areasData");
+    List<Areas> areasList = areasData.map((areaData) {
+      final items1 = extractItems(areaData);
+      final conditions = extractConditions(areaData);
+
+      List<Area> item2 = items1.map((itemData) {
+        return Area(
+          name: itemData?['name'] ?? '',
+          agentComment: itemData?['agentComment'] ?? '',
+          otherComment: itemData?['otherComment'] ?? '',
+          isDeleted: itemData?['isDeleted'] as bool ?? false,
+          conditions: conditions,
+        );
+      }).toList();
+
+      return Areas(
+        name: areaData['name'] ?? '',
+        notes: areaData['notes'] ?? '',
+        photosNotes: areaData['photosNotes'] ?? '',
+        tenantComment: areaData['tenantComment'] ?? '',
+        isDeleted: areaData['isDeleted'] as bool ?? false,
+        items: item2,
+        photos: areaData['photos'] ?? '',
+      );
+    }).toList();
+
+    // print(areasList);
+
+    return areasList;
+  }
+
+  // List<Areas> createAreasList(List<dynamic> areasData) {
+  //   List<Areas> areasList = areasData.map((areaData) {
+  //     final items1 = extractItems(areaData);
+  //     final conditions = extractConditions(areaData);
+
+  //     List<Area> item2 = items1.map((itemData) {
+  //       return Area(
+  //         name: itemData['name'],
+  //         agentComment: itemData['agentComment'],
+  //         otherComment: itemData['otherComment'],
+  //         isDeleted: itemData['isDeleted'],
+  //         conditions: conditions,
+  //       );
+  //     }).toList();
+
+  //     return Areas(
+  //       name: areaData['name'],
+  //       notes: areaData['notes'],
+  //       photosNotes: areaData['photosNotes'],
+  //       tenantComment: areaData['tenantComment'],
+  //       isDeleted: areaData['isDeleted'],
+  //       items: item2,
+  //       photos: areaData['photos'],
+  //     );
+  //   }).toList();
+
+  //   print(areasList);
+
+  //   return areasList;
+  // }
+
+  List<dynamic> extractItems(Map<String, dynamic> areaData) {
+    // Implement the logic to extract 'items' from areaData
+    if (areaData['items'] != null) {
+      return (areaData['items'] as List<dynamic>);
+    } else {
+      return [];
+    }
+  }
+
+  List<Condition> extractConditions(Map<String, dynamic> areaData) {
+    if (areaData['conditions'] != null) {
+      return (areaData['conditions'] as List<dynamic>).map((conditionData) {
+        return Condition(
+          name: conditionData['name'],
+          value: conditionData['value'],
+        );
+      }).toList();
+    } else {
+      return [];
+    }
+  }
+
+  // Inspection parseResponse(Map<String, dynamic> data) {
+  //   return Inspection(
+  //     name: data['name'] ,
+  //     notes: data['notes'],
+  //     photosNotes: data['photosNotes'],
+  //     tenantComment: data['tenantComment'],
+  //     isDeleted: data['isDeleted'],
+  //     items: (data['items'] as List<dynamic>).map((item) {
+  //       return Area(
+  //         name: item['name'],
+  //         agentComment: item['agentComment'],
+  //         otherComment: item['otherComment'],
+  //         isDeleted: item['isDeleted'],
+  //         conditions: (item['conditions'] as List<dynamic>).map((condition) {
+  //           return Condition(
+  //             name: condition['name'],
+  //             value: condition['value'],
+  //           );
+  //         }).toList(),
+  //       );
+  //     }).toList(),
+  //   );
+  // }
 
   final List<String> items = [
     'Shared with User',
@@ -106,14 +313,15 @@ class _reportEntryExitState extends State<reportEntryExit> {
     'Dining Room',
   ];
 
-  addNewArea(String inspectionId, String reportId, String areaName) async {
-    if (areasadd.any((area) => area.name == areaName)) {
-      // Handle the case where the area name is a duplicate (show an error, etc.)
-      // You may want to display a snackbar or dialog to inform the user.
-      return SnackBar(
-        content: Text("Area name already exists."),
-      );
-    }
+  void addNewArea(String inspectionId, String reportId, String areaName) async {
+    // if (areasadd.any((area) => area.name == areaName)) {
+    //   // Handle the case where the area name is a duplicate (show an error, etc.)
+    //   // You may want to display a snackbar or dialog to inform the user.
+    //   return SnackBar(
+    //     content: Text("Area name already exists."),
+    //   );
+    // }
+    // print("Inspection ID:$inspectionId");
     final String url =
         'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/addNewArea/$inspectionId/$reportId';
 
@@ -138,7 +346,7 @@ class _reportEntryExitState extends State<reportEntryExit> {
       if (response.statusCode == 200 && response.statusCode < 300) {
         final responseBodyJson = jsonDecode(response.body);
         // Process the response data if needed
-        print(responseBodyJson);
+        // print(responseBodyJson);
       } else {
         print('API request failed with status code: ${response.statusCode}');
         print('Response body: ${response.body}');
@@ -193,8 +401,13 @@ class _reportEntryExitState extends State<reportEntryExit> {
   @override
   void initState() {
     super.initState();
-    // You can initialize the 'areasadd' list from the 'areaList' provided in the widget
-    areasadd = widget.areaList.map((area) => Area(name: area.name)).toList();
+
+    if (widget.areadata != null && widget.areadata.isNotEmpty) {
+      takeareaData = createAreasList(widget.areadata);
+      // print(takeareaData);
+    } else {
+      print("takeareaData is null");
+    }
   }
 
   @override
@@ -512,86 +725,18 @@ class _reportEntryExitState extends State<reportEntryExit> {
                   )
                 ],
               ),
-              SizedBox(
-                height: 60,
-                width: double.infinity,
-                child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: items.length,
-                  scrollDirection: Axis.vertical,
-                  itemBuilder: (context, index) {
-                    final listItem = item5[index];
 
-                    return Card(
-                      child: ListTile(
-                        title: Text(
-                          item5[index],
-                          style: TextStyle(fontSize: 18.0),
-                        ),
-                        trailing: Icon(
-                          Icons.arrow_forward,
-                          color: Color.fromRGBO(162, 154, 255, 1),
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => areasEntryExit(
-                                title: 'Kitchen',
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ),
-              SizedBox(
-                height: 60,
-                width: double.infinity,
-                child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: items.length,
-                  scrollDirection: Axis.vertical,
-                  itemBuilder: (context, index) {
-                    final listItem = item6[index];
-
-                    return Card(
-                      child: ListTile(
-                        title: Text(
-                          item6[index],
-                          style: TextStyle(fontSize: 18.0),
-                        ),
-                        trailing: Icon(
-                          Icons.arrow_forward,
-                          color: Color.fromRGBO(162, 154, 255, 1),
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => areasEntryExit(
-                                title: 'Dining Room',
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ),
               SizedBox(
                 height: null, // or remove the 'height' property
                 width: double.infinity,
                 child: ListView.builder(
                   physics: const BouncingScrollPhysics(),
-                  itemCount: areasadd.length, // Display all areas from the list
+                  itemCount:
+                      takeareaData.length, // Display all areas from the list
                   scrollDirection: Axis.vertical,
                   shrinkWrap: true,
                   itemBuilder: (context, index) {
-                    final area = areasadd[index];
+                    final area = takeareaData[index];
                     return Card(
                       child: ListTile(
                         title: Text(area.name),
@@ -605,6 +750,12 @@ class _reportEntryExitState extends State<reportEntryExit> {
                             MaterialPageRoute(
                               builder: (context) => areasEntryExit(
                                 title: area.name,
+                                areaDetails: widget.areadata,
+                                jwtToken:widget.jwtToken,
+                                reportDetails:widget.reportdetails,
+                                inspectId:widget.inspId,
+                                reportId:widget.reportId
+                                //     parseResponse(widget.reportdetails),
                               ),
                             ),
                           );
@@ -614,38 +765,7 @@ class _reportEntryExitState extends State<reportEntryExit> {
                   },
                 ),
               ),
-              SizedBox(
-                height: null,
-                width: double.infinity,
-                child: ListView.builder(
-                  physics: const BouncingScrollPhysics(),
-                  itemCount: areasadd.length, // Display all areas from the list
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) {
-                    final area = areasadd[index];
-                    return Card(
-                      child: ListTile(
-                        title: Text(area.name),
-                        trailing: Icon(
-                          Icons.arrow_forward,
-                          color: Color.fromRGBO(162, 154, 255, 1),
-                        ),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => areasEntryExit(
-                                title: area.name,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
-                ),
-              ),
+
               FloatingActionButton(
                 backgroundColor: Color.fromRGBO(127, 117, 240, 1),
                 splashColor: Color.fromRGBO(162, 154, 255, 1),
@@ -661,29 +781,35 @@ class _reportEntryExitState extends State<reportEntryExit> {
                           height: 700,
                           child: AddAreaDialog(
                             existingAreaNames:
-                                areasadd.map((area) => area.name).toList(),
+                                takeareaData.map((area) => area.name).toList(),
                             onAreaAdded: (newAreaName) {
                               // Check for duplicates before adding a new area
                               if (!areasadd
                                   .any((area) => area.name == newAreaName)) {
-                                final newArea = Area(name: newAreaName);
+                                final newArea = Areas(
+                                  name: newAreaName,
+                                  isDeleted: false,
+                                  items: [],
+                                  notes: '',
+                                  photos: [],
+                                  photosNotes: '',
+                                  tenantComment: '',
+                                );
                                 setState(() {
-                                  areasadd.add(newArea);
+                                  takeareaData.add(newArea);
                                 });
-                                // Call the addNewArea function here with the areaName
                                 addNewArea(widget.inspId, widget.reportId,
-                                    newAreaName);
+                                    newAreaName); // Call the addNewArea function here with the areaName
                               } else {
                                 // Handle the case where the area name is a duplicate (show an error, etc.)
                                 // You may want to display a snackbar or dialog to inform the user.
                               }
                             },
                             onAreaDeleted: (areaName) {
-                              // Handle deleting existing area here
+                              // Handle deleting an existing area here
                               setState(() {
-                                areasadd.removeWhere(
+                                takeareaData.removeWhere(
                                     (area) => area.name == areaName);
-                                // Implement the logic for deleting an area from the server
                               });
                             },
                           ),
@@ -694,6 +820,7 @@ class _reportEntryExitState extends State<reportEntryExit> {
                 },
                 child: Icon(Icons.add),
               ),
+
               // FloatingActionButton(
               //   backgroundColor: Color.fromRGBO(127, 117, 240, 1),
               //   splashColor: Color.fromRGBO(162, 154, 255, 1),
@@ -739,12 +866,4 @@ class _reportEntryExitState extends State<reportEntryExit> {
           )),
         ));
   }
-}
-
-class Area {
-  final String name;
-
-  Area({
-    required this.name,
-  });
 }
