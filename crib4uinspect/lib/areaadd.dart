@@ -7,8 +7,8 @@
 // // }
 class Areas {
   final String name;
-  final String notes;
-  final String photosNotes;
+  String notes;
+  String photosNotes;
   final String tenantComment;
   bool isDeleted;
   List<Area> items; // List of Item

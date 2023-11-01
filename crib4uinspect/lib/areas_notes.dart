@@ -1,14 +1,28 @@
+import 'dart:convert';
+
 import 'package:crib4uinspect/areas_photos.dart';
 import 'package:crib4uinspect/diningRoom.dart';
 import 'package:crib4uinspect/report.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class notes extends StatefulWidget {
   final String title;
   List<Map<String, dynamic>> passNotes;
-  notes({super.key, required this.title, required this.passNotes});
+  String? jwt1 = '';
+  Map<String, dynamic> repdetail = {};
+  String inspectID = '';
+  String reportID = '';
+  notes(
+      {super.key,
+      required this.title,
+      required this.passNotes,
+      this.jwt1,
+      required this.repdetail,
+      required this.inspectID,
+      required this.reportID});
 
   @override
   State<notes> createState() => _notesState();
@@ -29,6 +43,33 @@ class _notesState extends State<notes> {
     return area;
   }
 
+  Future<void> saveReportData(String inspectID, String reportID) async {
+    final url = Uri.parse(
+      'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/saveInspctionReport/$inspectID/$reportID',
+    );
+
+    try {
+      final response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'accessToken': '${widget.jwt1}',
+        },
+        body: jsonEncode({
+          'ReportDetails': widget.repdetail
+        }), // Convert the map directly to a JSON string
+      );
+
+      if (response.statusCode == 200) {
+        // Report data saved successfully
+      } else {
+        // Failed to save report data
+      }
+    } catch (e) {
+      // Handle exceptions
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -41,8 +82,8 @@ class _notesState extends State<notes> {
         areaName!); // Replace 'kitchen' with the desired area name
     notess = area['notes'];
     tenantComment = area['tenantComment'];
-    notesController.text = notess!; // Set the value for Notes
-    tenantCommentController.text = tenantComment!;
+    notesController.text = notess ?? ''; // Set the value for Notes
+    tenantCommentController.text = tenantComment ?? '';
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 80.0,
@@ -86,6 +127,7 @@ class _notesState extends State<notes> {
               Expanded(
                 child: InkWell(
                   onTap: () {
+                    // _saveData(context);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -114,12 +156,16 @@ class _notesState extends State<notes> {
               Expanded(
                 child: InkWell(
                   onTap: () {
+                    //_saveData(context);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => photos(
                           title: widget.title,
                           passPhotos: [],
+                          repdetail1: {},
+                          inspectID1: '',
+                          reportID1: '',
                         ),
                       ),
                     );
@@ -145,6 +191,9 @@ class _notesState extends State<notes> {
                         builder: (context) => notes(
                           title: widget.title,
                           passNotes: [],
+                          repdetail: {},
+                          inspectID: '',
+                          reportID: '',
                         ),
                       ),
                     );
@@ -262,8 +311,193 @@ class _notesState extends State<notes> {
               ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: ElevatedButton(
+              onPressed: () => _saveData(context),
+              child: Text('Save Data'),
+            ),
+          ),
         ],
       ),
     );
   }
+
+  void _saveData(BuildContext context) async {
+    //String agentComment = agentCommentController.text;
+//     setState(() {
+// // Update this value
+//     });
+
+    try {
+      final areas = widget.repdetail['areas'] as List;
+
+      if (widget.repdetail.containsKey('areas') &&
+          widget.repdetail['areas'] is List) {
+        // Cast the 'areas' to a List
+        var areasList = widget.repdetail['areas'] as List;
+
+        // Find the index of the area with the matching 'name'
+        var areaIndex =
+            areasList.indexWhere((area) => area['name'] == widget.title);
+
+        if (areaIndex != -1) {
+          // Update the area data at the found index
+          var areaToUpdate = areasList[areaIndex];
+          areaToUpdate['notes'] = notesController.text;
+          areaToUpdate['photosNotes'] = '';
+          areaToUpdate['tenantComment'] = tenantCommentController.text;
+          areaToUpdate['isDeleted'] = true;
+
+          // Update 'items' based on the provided response
+           areaToUpdate['items'] = [
+            {
+              "name": "Windows/screens",
+              "agentComment": '',
+              "otherComment": "",
+              "conditions": [
+                {"name": "Clean", "value": ''},
+                {"name": "Undamaged", "value": ''},
+                {"name": "Working", "value": ''},
+              ],
+            },
+            {
+              "name": "Blinds/curtains",
+              "agentComment": '',
+              "otherComment": "",
+              "conditions": [
+                {"name": "Clean", "value": ''},
+                {"name": "Undamaged", "value": ''},
+                {"name": "Working", "value": ''},
+              ],
+            },
+            {
+              "name": "Fans/light fittings",
+              "agentComment": '',
+              "otherComment": "",
+              "conditions": [
+                {"name": "Clean", "value": ''},
+                {"name": "Undamaged", "value": ''},
+                {"name": "Working", "value": ''},
+              ],
+            },
+            {
+              "name": "Floor/floor coverings",
+              "agentComment": '',
+              "otherComment": "",
+              "conditions": [
+                {"name": "Clean", "value": ''},
+                {"name": "Undamaged", "value": ''},
+                {"name": "Working", "value": ''},
+              ],
+            },
+            {
+              "name": "Wardrobe/drawers/shelves",
+              "agentComment": '',
+              "otherComment": "",
+              "conditions": [
+                {"name": "Clean", "value": ''},
+                {"name": "Undamaged", "value": ''},
+                {"name": "Working", "value": ''},
+              ],
+            },
+            {
+              "name": "Air conditioner",
+              "agentComment": '',
+              "otherComment": "",
+              "conditions": [
+                {"name": "Clean", "value": ''},
+                {"name": "Undamaged", "value": ''},
+                {"name": "Working", "value": ''},
+              ],
+            },
+            {
+              "name": "Power points",
+              "agentComment": '',
+              "otherComment": "",
+              "conditions": [
+                {"name": "Clean", "value": ''},
+                {"name": "Undamaged", "value": ''},
+                {"name": "Working", "value": ''},
+              ],
+            },
+            {
+              "name": "Other",
+              "agentComment": '',
+              "otherComment": "",
+              "conditions": [
+                {"name": "Clean", "value": ''},
+                {"name": "Undamaged", "value": ''},
+                {"name": "Working", "value": ''},
+              ],
+            },
+          ];
+
+          //print("Clean: : $cleanValue");
+          areaToUpdate['photos'] = []; // Clear the 'photos' list
+        }
+      }
+
+      await saveReportData(
+        widget.inspectID,
+        widget.reportID,
+      );
+      //agentCommentController.clear();
+      // cleanValue = "";
+      // undamagedValue = "";
+      // workingValue = "";
+      //Navigator.pop(context);
+    } catch (e) {
+      // Handle any errors that occur during the API call.
+    }
+  }
 }
+
+
+
+    // final areaName1 = response["name"];
+    // final isDeleted = response["isDeleted"];
+    // final items = response["items"] as List<Map<String, dynamic>>;
+    // final photos = response["photos"] as List;
+    // for (final item in items) {
+    //   final itemName = item["name"];
+    //   final agentComment = item["agentComment"];
+    //   final isItemDeleted = item["isDeleted"];
+    //   final conditions = item["conditions"] as List<Map<String, dynamic>>;
+
+    //   print("Area Name: $areaName1");
+    //   print("Is Deleted: $isDeleted");
+    //   print("Item Name: $itemName");
+    //   print("Agent Comment: $agentComment");
+    //   print("Is Item Deleted: $isItemDeleted");
+
+    //   for (final condition in conditions) {
+    //     final conditionName = condition["name"];
+    //     final conditionValue = condition["value"];
+
+    //     print("Condition Name: $conditionName");
+    //     print("Condition Value: $conditionValue");
+    //   }
+    // }
+    // for (final photo in photos) {
+    //   // Access properties of each photo
+    //   final photoUrl = photo["url"];
+    //   final photoCaption = photo["name"];
+    //   final photonotes = photo["notes"];
+    //   print("Photo URL: $photoUrl");
+    //   print("Photo Caption: $photoCaption");
+    //   print("Photo notes: $photonotes");
+//     // }
+//     try {
+//       final areas = widget.repdetail['areas'] as List;
+//       if (areas != null) {
+//         areas.add(reportData);
+//       } else {
+//         // Create a new "areas" field if it doesn't exist
+//         widget.repdetail['areas'] = [reportData];
+//       }
+//       await saveReportData(widget.inspectID, widget.reportID);
+//       Navigator.pop(context);
+//     } catch (e) {}
+//   }
+// }

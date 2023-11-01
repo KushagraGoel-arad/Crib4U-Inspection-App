@@ -754,7 +754,8 @@ class _reportEntryExitState extends State<reportEntryExit> {
                                 jwtToken:widget.jwtToken,
                                 reportDetails:widget.reportdetails,
                                 inspectId:widget.inspId,
-                                reportId:widget.reportId
+                                reportId:widget.reportId,
+                                propId: widget.propertyId,
                                 //     parseResponse(widget.reportdetails),
                               ),
                             ),

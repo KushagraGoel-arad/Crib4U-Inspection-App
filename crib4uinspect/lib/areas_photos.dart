@@ -14,8 +14,22 @@ import 'dart:html' as html;
 
 class photos extends StatefulWidget {
   final String title;
+  String? jwt = '';
+  String inspectID1 = '';
+  String reportID1 = '';
+
   List<Map<String, dynamic>> passPhotos;
-  photos({super.key, required this.title, required this.passPhotos});
+  Map<String, dynamic> repdetail1 = {};
+  String? propertID;
+  photos(
+      {super.key,
+      required this.title,
+      required this.passPhotos,
+      this.jwt,
+      required this.repdetail1,
+      required this.inspectID1,
+      required this.reportID1,
+      this.propertID});
 
   @override
   State<photos> createState() => _photosState();
@@ -25,12 +39,105 @@ class _photosState extends State<photos> {
   List<String> uploadedImages = [];
   TextEditingController photosNotesController = TextEditingController();
   String areaName = '';
+  String? imagePath;
+
   void uploadImage(html.File file) {
     // Handle the uploaded image here (you can upload it to a server or display it).
     final imageUrl = html.Url.createObjectUrlFromBlob(file);
     setState(() {
       uploadedImages.add(imageUrl);
     });
+  }
+
+  Future<String> postImages(
+    String inspID,
+    String reportID,
+    String? propertID,
+    String? name1,
+    List<String> imageBytes, // Binary image data
+  ) async {
+    try {
+      final url = Uri.parse(
+          'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/updateReportImages/$propertID/$inspID/$reportID');
+
+      final request = http.MultipartRequest(
+        'POST',
+        url,
+      );
+
+      if (imageBytes.isNotEmpty) {
+        // Check if the file has a valid image extension
+        // You can add more extensions if needed
+        final allowedExtensions = [".png", ".jpg", ".jpeg"];
+        final filename = 'image.jpg'; // Change the filename as needed
+        final ext = filename.split('.').last;
+        if (allowedExtensions.contains(".$ext")) {
+          final multipartFile = http.MultipartFile.fromBytes(
+            'images',
+            imageBytes as List<int>,
+            filename: filename,
+          );
+          print("Multipart file $multipartFile");
+          request.files.add(multipartFile);
+        } else {
+          // Handle the case when an invalid image extension is provided.
+          throw Exception('Invalid image file extension');
+        }
+      } else {
+        // Handle the case when no image is provided.
+        throw Exception('No image provided');
+      }
+
+      // Add the 'areaName' field
+      request.fields['areaName'] = name1 ?? '';
+      // request.fields['images'] =
+      //     imageBytes ;
+
+      // Add the JWT token to the request headers
+      request.headers['accesstoken'] =
+          widget.jwt ?? ''; // Use an empty string if jwttoken is null
+
+      // Set the Content-Type header to "multipart/form-data"
+      request.headers['Content-Type'] = 'multipart/form-data';
+
+      final response = await request.send();
+      if (response.statusCode == 200) {
+        final responseBody = await response.stream.bytesToString();
+        final imagePath = json.decode(responseBody)['imagePath'];
+        return imagePath;
+      } else {
+        throw Exception('Failed to upload images');
+      }
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  Future<void> saveReportData(String inspectID1, String reportID1) async {
+    final url = Uri.parse(
+      'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/saveInspctionReport/$inspectID1/$reportID1',
+    );
+
+    try {
+      final response = await http.post(
+        url,
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'accessToken': '${widget.jwt}',
+        },
+        body: jsonEncode({
+          'ReportDetails': widget.repdetail1
+        }), // Convert the map directly to a JSON string
+      );
+
+      if (response.statusCode == 200) {
+        // Report data saved successfully
+      } else {
+        // Failed to save report data
+      }
+    } catch (e) {
+      // Handle exceptions
+    }
   }
 
   Map<String, dynamic> getAreaDetails(String areaName) {
@@ -43,7 +150,7 @@ class _photosState extends State<photos> {
 
   List<dynamic> getPhotosForArea(String areaName) {
     final areaDetails = getAreaDetails(areaName);
-    return areaDetails['photos'] ?? [];
+    return areaDetails['photos'] ?? [] as List<dynamic>;
   }
 
   String getPhotosNotesForArea(String areaName) {
@@ -106,14 +213,18 @@ class _photosState extends State<photos> {
               Expanded(
                 child: InkWell(
                   onTap: () {
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => areasEntryExit(
-                    //       title: widget.title,
-                    //     ),
-                    //   ),
-                    // );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => areasEntryExit(
+                          title: widget.title,
+                          areaDetails: [],
+                          inspectId: '',
+                          reportDetails: {},
+                          reportId: '',
+                        ),
+                      ),
+                    );
                   },
                   child: Container(
                     height: 50.0,
@@ -130,12 +241,16 @@ class _photosState extends State<photos> {
               Expanded(
                 child: InkWell(
                   onTap: () {
+                    //_saveData(context);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => photos(
                           title: widget.title,
                           passPhotos: [],
+                          repdetail1: {},
+                          inspectID1: '',
+                          reportID1: '',
                         ),
                       ),
                     );
@@ -155,12 +270,16 @@ class _photosState extends State<photos> {
               Expanded(
                 child: InkWell(
                   onTap: () {
+                    //_saveData(context);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => notes(
                           title: widget.title,
                           passNotes: [],
+                          inspectID: '',
+                          repdetail: {},
+                          reportID: '',
                         ),
                       ),
                     );
@@ -361,8 +480,162 @@ class _photosState extends State<photos> {
               ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: ElevatedButton(
+              onPressed: () => _saveData(context),
+              child: Text('Save Data'),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: ElevatedButton(
+              onPressed: () => _saveArea(context),
+              child: Text('Save photo'),
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  void _saveArea(BuildContext context) async {
+    imagePath = await postImages(widget.inspectID1, widget.reportID1,
+        widget.propertID, widget.title, uploadedImages // Binary image data
+        );
+    print("Image PathL $imagePath");
+    // Only navigate if the image upload is successful
+  }
+
+  void _saveData(BuildContext context) async {
+    //String agentComment = agentCommentController.text;
+//     setState(() {
+// // Update this value
+//     });
+
+    try {
+      final areas = widget.repdetail1['areas'] as List;
+
+      if (widget.repdetail1.containsKey('areas') &&
+          widget.repdetail1['areas'] is List) {
+        // Cast the 'areas' to a List
+        var areasList = widget.repdetail1['areas'] as List;
+
+        // Find the index of the area with the matching 'name'
+        var areaIndex =
+            areasList.indexWhere((area) => area['name'] == widget.title);
+
+        if (areaIndex != -1) {
+          // Update the area data at the found index
+          var areaToUpdate = areasList[areaIndex];
+          areaToUpdate['notes'] = '';
+          areaToUpdate['photosNotes'] = photosNotesController.text;
+          areaToUpdate['tenantComment'] = '';
+          areaToUpdate['isDeleted'] = true;
+
+          // Update 'items' based on the provided response
+          areaToUpdate['items'] = [
+            {
+              "name": "Windows/screens",
+              "agentComment": '',
+              "otherComment": "",
+              "conditions": [
+                {"name": "Clean", "value": ''},
+                {"name": "Undamaged", "value": ''},
+                {"name": "Working", "value": ''},
+              ],
+            },
+            {
+              "name": "Blinds/curtains",
+              "agentComment": '',
+              "otherComment": "",
+              "conditions": [
+                {"name": "Clean", "value": ''},
+                {"name": "Undamaged", "value": ''},
+                {"name": "Working", "value": ''},
+              ],
+            },
+            {
+              "name": "Fans/light fittings",
+              "agentComment": '',
+              "otherComment": "",
+              "conditions": [
+                {"name": "Clean", "value": ''},
+                {"name": "Undamaged", "value": ''},
+                {"name": "Working", "value": ''},
+              ],
+            },
+            {
+              "name": "Floor/floor coverings",
+              "agentComment": '',
+              "otherComment": "",
+              "conditions": [
+                {"name": "Clean", "value": ''},
+                {"name": "Undamaged", "value": ''},
+                {"name": "Working", "value": ''},
+              ],
+            },
+            {
+              "name": "Wardrobe/drawers/shelves",
+              "agentComment": '',
+              "otherComment": "",
+              "conditions": [
+                {"name": "Clean", "value": ''},
+                {"name": "Undamaged", "value": ''},
+                {"name": "Working", "value": ''},
+              ],
+            },
+            {
+              "name": "Air conditioner",
+              "agentComment": '',
+              "otherComment": "",
+              "conditions": [
+                {"name": "Clean", "value": ''},
+                {"name": "Undamaged", "value": ''},
+                {"name": "Working", "value": ''},
+              ],
+            },
+            {
+              "name": "Power points",
+              "agentComment": '',
+              "otherComment": "",
+              "conditions": [
+                {"name": "Clean", "value": ''},
+                {"name": "Undamaged", "value": ''},
+                {"name": "Working", "value": ''},
+              ],
+            },
+            {
+              "name": "Other",
+              "agentComment": '',
+              "otherComment": "",
+              "conditions": [
+                {"name": "Clean", "value": ''},
+                {"name": "Undamaged", "value": ''},
+                {"name": "Working", "value": ''},
+              ],
+            },
+          ];
+
+          //print("Clean: : $cleanValue");
+          areaToUpdate['photos'] = [
+            {'url': imagePath, 'name': "", 'notes': ""}
+          ]; // Clear the 'photos' list
+        }
+      }
+
+      await saveReportData(
+        widget.inspectID1,
+        widget.reportID1,
+      );
+
+      //agentCommentController.clear();
+      // cleanValue = "";
+      // undamagedValue = "";
+      // workingValue = "";
+      //Navigator.pop(context);
+    } catch (e) {
+      // Handle any errors that occur during the API call.
+    }
   }
 }

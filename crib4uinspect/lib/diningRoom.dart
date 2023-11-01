@@ -16,6 +16,7 @@ class areasEntryExit extends StatefulWidget {
   String inspectId;
   List<Map<String, dynamic>> areaDetails;
   String reportId;
+  String? propId;
   areasEntryExit({
     super.key,
     required this.title,
@@ -24,6 +25,7 @@ class areasEntryExit extends StatefulWidget {
     required this.reportDetails,
     required this.inspectId,
     required this.reportId,
+    this.propId,
     //required this.inspectionData
   });
 
@@ -48,19 +50,75 @@ class _areasEntryExitState extends State<areasEntryExit> {
   //   'Power points',
   //   'other'
   // ];
+
   List<Map<String, dynamic>> itemsForArea = [];
   Selection selectedOption = Selection.None;
+  List<Map<String, dynamic>> conditionsForItem = [];
+  String itemName = "";
+  String areaName = "";
+  String? cleanValue = "";
+  int selectedAreaIndex = 0;
+  String? undamagedValue = '';
+  var cleanValue1;
+  var workingValue1;
+  var undamagedValue1;
+  String? workingValue = '';
+  String? agentCommentValue = '';
+  String? _agentComment;
+  List<TextEditingController> agentCommentControllers = [];
 
+  // var a;
+  // var b;
+  // var c;
   late final String title = widget.title;
   late Map<String, Selection> itemSelections;
 
-  List<Map<String, dynamic>> getItemsForAreaName(String areaName) {
+  List<Map<String, dynamic>> getItemsForAreaName(areaName) {
     final area = widget.areaDetails.firstWhere(
       (area) => area['name'] == areaName,
       orElse: () => <String, dynamic>{},
     );
     // print("area : $area");
+    // print("areaName : $areaName");
     return area['items'] ?? [];
+  }
+
+  void updateAgentCommentForItem(int index, String comment) {
+    Map<String, dynamic> _obj = itemsForArea[index];
+    print("_obj: $_obj");
+    //print("_obj: $_obj");
+
+    if (_obj != null) {
+      setState(() {
+        print("Comment: $comment");
+        itemsForArea[index]['agentComment'] = comment;
+      });
+
+      // print("Comment: $comment");
+
+      // setState(() {
+      //   cleanValue = getConditionValueForName(_cList, 'Clean');
+      //   undamagedValue = getConditionValueForName(_cList, 'Undamaged');
+      //   workingValue = getConditionValueForName(_cList, 'Working');
+      // });
+      //print("_cList 2: $_cList");
+    }
+    // return true;
+    // Map<String, dynamic> item = itemsForArea[index];
+
+    // if (item != null) {
+    //   item['agentComment'] = comment;
+    //   // Update the agentCommentControllers text
+    //   agentCommentControllers[index].text = comment;
+    // }
+    // // Map<String, dynamic> _obj1 = itemsForArea[index];
+
+    // // if (_obj1 != null) {
+    // //   var agentComment = _obj1['agentComment'] as Map<String, dynamic>? ?? {};
+    // //   agentComment['value'] = comment;
+    // //   itemsForArea[index]['agentComment'] = agentCommentControllers[index];
+    // // }
+    // print("AGENT COMMENT: ${agentCommentControllers[index]}");
   }
 
   bool updateItemCondition(
@@ -83,13 +141,19 @@ class _areasEntryExitState extends State<areasEntryExit> {
           } else {
             _cList[i]['value'] = "Y";
           }
+          if (conditionName == 'Clean') {
+            cleanValue = _cList[i]['value'];
+          } else if (conditionName == 'Undamaged') {
+            undamagedValue = _cList[i]['value'];
+          } else if (conditionName == 'Working') {
+            workingValue = _cList[i]['value'];
+          }
           break;
         }
       }
       if (_cList != null && _cList.length > 0) {
         itemsForArea[index]['conditions'] = _cList;
       }
-      //print("_cList 2: $_cList");
     }
     return true;
   }
@@ -116,7 +180,7 @@ class _areasEntryExitState extends State<areasEntryExit> {
     ) as Map<String, dynamic>;
 
     return {
-      'agentComment': item['agentComment'] ?? '',
+      'agentComment': item['agentComment'] ?? 'uts',
     };
   }
 
@@ -128,7 +192,7 @@ class _areasEntryExitState extends State<areasEntryExit> {
       (cond) => cond['name'] == conditionName,
       orElse: () => <String, dynamic>{},
     ) as Map<String, dynamic>;
-    return condition['value'] ?? '';
+    return (condition['value'] ?? '').toString();
   }
 
   Map<String, String> getNameValueForCondition(
@@ -154,7 +218,7 @@ class _areasEntryExitState extends State<areasEntryExit> {
     final url = Uri.parse(
       'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/saveInspctionReport/$inspectId/$reportId',
     );
-
+    //print("report details:${widget.reportDetails}");
     try {
       final response = await http.post(
         url,
@@ -173,6 +237,7 @@ class _areasEntryExitState extends State<areasEntryExit> {
         // Failed to save report data
       }
     } catch (e) {
+      print('API Request Error: $e');
       // Handle exceptions
     }
   }
@@ -181,7 +246,20 @@ class _areasEntryExitState extends State<areasEntryExit> {
   void initState() {
     super.initState();
     itemSelections = {};
+    // updateSelectedArea(selectedAreaIndex);
+    // Initialize agentCommentControllers based on the number of items
+    agentCommentControllers = List.generate(
+      widget.areaDetails.length,
+      (index) => TextEditingController(
+          text: widget.areaDetails[index]['agentComment']),
+    );
   }
+
+  // void updateSelectedArea(int index) {
+  //   // agentCommentController.text = widget.areaDetails[index].agentComments ??
+  //   //     ''; // Use null check operator and provide a default value
+  //   //descriptionController.text = widget.areaList[index].photosNotes ?? '';
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -240,12 +318,19 @@ class _areasEntryExitState extends State<areasEntryExit> {
               Expanded(
                 child: InkWell(
                   onTap: () {
+                    //_saveData(context);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => photos(
-                            title: widget.title,
-                            passPhotos: widget.areaDetails),
+                          title: widget.title,
+                          passPhotos: widget.areaDetails,
+                          jwt: widget.jwtToken,
+                          repdetail1: widget.reportDetails,
+                          inspectID1: widget.inspectId,
+                          reportID1: widget.reportId,
+                          propertID: widget.propId,
+                        ),
                       ),
                     );
                   },
@@ -264,11 +349,18 @@ class _areasEntryExitState extends State<areasEntryExit> {
               Expanded(
                 child: InkWell(
                   onTap: () {
+                    // _saveData(context);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => notes(
-                            title: widget.title, passNotes: widget.areaDetails),
+                          title: widget.title,
+                          passNotes: widget.areaDetails,
+                          jwt1: widget.jwtToken,
+                          repdetail: widget.reportDetails,
+                          inspectID: widget.inspectId,
+                          reportID: widget.reportId,
+                        ),
                       ),
                     );
                   },
@@ -298,24 +390,30 @@ class _areasEntryExitState extends State<areasEntryExit> {
                   // final selectedOption = itemSelections[item];
                   final areaDetail = itemsForArea[index];
                   //print("areaItems: $areaDetail");
-                  final itemName = areaDetail['name'];
+                  itemName = areaDetail['name'];
+                  _agentComment = areaDetail['agentComment'] ?? "";
                   //print("Itemname: $itemName");
-                  final selectedOption = itemSelections[itemName];
+                  // final selectedOption = itemSelections[itemName];
                   //print("itemSelections: $itemSelections");
                   final conditionsForItem =
                       getConditionsForItemName(itemsForArea, itemName);
-                  final cleanValue = getNameValueForCondition(
+                  cleanValue = getNameValueForCondition(
                       conditionsForItem, 'Clean')['value'];
 
-                  final undamagedValue = getNameValueForCondition(
+                  undamagedValue = getNameValueForCondition(
                       conditionsForItem, 'Undamaged')['value'];
 
-                  final workingValue = getNameValueForCondition(
+                  workingValue = getNameValueForCondition(
                       conditionsForItem, 'Working')['value'];
 
-                  Map<String, String> agentComment =
-                      getAgentCommentForItemName(itemsForArea, itemName);
-                  String? agentCommentValue = agentComment['agentComment'];
+                  // print("cleanValue: $cleanValue");
+                  // print("Undamaged Value: $undamagedValue");
+                  // print("Working Value: $workingValue");
+                  // TextEditingController controller =
+                  //     agentCommentControllers[index];
+                  // Map<String, String> agentComment =
+                  //     getAgentCommentForItemName(itemsForArea, itemName);
+                  // String? agentCommentValue = agentComment['agentComment'];
 
                   return Card(
                     child: Container(
@@ -441,19 +539,11 @@ class _areasEntryExitState extends State<areasEntryExit> {
                                     GestureDetector(
                                       onTap: () {
                                         setState(() {
-                                          updateItemCondition(
-                                              index, 'Working', workingValue!);
-                                          // if (selectedOption == Selection.Yes) {
-                                          //   itemSelections[itemName] =
-                                          //       Selection.No;
-                                          // } else if (selectedOption ==
-                                          //     Selection.No) {
-                                          //   itemSelections[itemName] =
-                                          //       Selection.None;
-                                          // } else {
-                                          //   itemSelections[itemName] =
-                                          //       Selection.Yes;
-                                          // }
+                                          final updatedWorkingValue =
+                                              workingValue ??
+                                                  ""; 
+                                          updateItemCondition(index, 'Working',
+                                              updatedWorkingValue);
                                         });
                                       },
                                       child: Container(
@@ -475,7 +565,7 @@ class _areasEntryExitState extends State<areasEntryExit> {
                                               ),
                                               child: Center(
                                                 child: Text(
-                                                  workingValue!,
+                                                  workingValue ?? "",
                                                   style:
                                                       TextStyle(fontSize: 18.0),
                                                 ),
@@ -490,10 +580,26 @@ class _areasEntryExitState extends State<areasEntryExit> {
                                 SizedBox(
                                   width: 20,
                                 ),
-                                TextField(
-                                  decoration: InputDecoration(
-                                    labelText: agentCommentValue,
-                                  ),
+                                StatefulBuilder(
+                                  builder: (context, setState) {
+                                    return TextField(
+                                      controller: (index <
+                                              agentCommentControllers.length)
+                                          ? agentCommentControllers[index]
+                                          : TextEditingController(),
+                                      onChanged: (value) {
+                                        if (index <
+                                            agentCommentControllers.length) {
+                                          setState(() {
+                                            updateAgentCommentForItem(
+                                                index, value);
+                                          });
+                                        }
+                                      },
+                                      decoration: InputDecoration(
+                                          labelText: _agentComment),
+                                    );
+                                  },
                                 ),
                               ],
                             ),
@@ -506,63 +612,76 @@ class _areasEntryExitState extends State<areasEntryExit> {
               ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: ElevatedButton(
+              onPressed: () {
+                _saveData(context);
+              },
+              child: Text('Save Data'),
+            ),
+          ),
         ],
       ),
     );
   }
+  // void updateSelectedArea(int index) {
+  //   agentCommentController.text = widget.areaList[index]. ??
+  //       ''; // Use null check operator and provide a default value
+
+  // }
 
   void _saveData(BuildContext context) async {
-    // if (nameController.text.isNotEmpty) {
-    // Create a new reportData with the data from nameController and descriptionController
-    final response = {
-      "name": "kitchen",
-      "notes": "",
-      "photosNotes": "",
-      "tenantComment": "",
-      "isDeleted": false,
-      "items": [
-        {
-          "name": "Doors/walls/ceiling",
-          "agentComment": "",
-          "otherComment": "",
-          "isDeleted": false,
-          "conditions": [
-            {"name": "Clean", "value": "Y"},
-            {"name": "Undamaged", "value": ""},
-            {"name": "Working", "value": ""}
-          ]
-        },
-        // Add more items as needed
-      ]
-    };
+    //String agentComment = agentCommentController.text;
+//     setState(() {
+// // Update this value
+//     });
 
-    final areaName = response["name"];
-    final isDeleted = response["isDeleted"];
-    final items = response["items"] as List<Map<String, dynamic>>;
-
-    for (final item in items) {
-      final itemName = item["name"];
-      final agentComment = item["agentComment"];
-      final isItemDeleted = item["isDeleted"];
-      final conditions = item["conditions"] as List<Map<String, dynamic>>;
-
-      print("Area Name: $areaName");
-      print("Is Deleted: $isDeleted");
-      print("Item Name: $itemName");
-      print("Agent Comment: $agentComment");
-      print("Is Item Deleted: $isItemDeleted");
-
-      for (final condition in conditions) {
-        final conditionName = condition["name"];
-        final conditionValue = condition["value"];
-
-        print("Condition Name: $conditionName");
-        print("Condition Value: $conditionValue");
-      }
-    }
     try {
-      await saveReportData(widget.inspectId, widget.reportId);
-      Navigator.pop(context);
-    } catch (e) {}
+      final areas = widget.reportDetails['areas'] as List;
+
+      if (widget.reportDetails.containsKey('areas') &&
+          widget.reportDetails['areas'] is List) {
+        // Cast the 'areas' to a List
+        var areasList = widget.reportDetails['areas'] as List;
+
+        // Find the index of the area with the matching 'name'
+        var areaIndex =
+            areasList.indexWhere((area) => area['name'] == widget.title);
+        print('area index : $areaIndex');
+        if (areaIndex != -1) {
+          var areaToUpdate = areasList[areaIndex];
+          areaToUpdate['notes'] = "";
+          areaToUpdate['photosNotes'] = '';
+          areaToUpdate['tenantComment'] = "";
+          areaToUpdate['isDeleted'] = false;
+          // print("area to update: ${areaToUpdate['items']}");
+
+          areaToUpdate['items'] = itemsForArea;
+          //print('Before For : $itemsForArea');
+          // for (int index = 0; index < itemsForArea.length; index++) {
+          //   print('after For : $index');
+          //   updateAgentCommentForItem(
+          //       index, agentCommentControllers[index].text);
+
+          // }
+          //print("Item comment : ${agentCommentControllers[areaIndex].text}");
+
+          areaToUpdate['photos'] = []; // Clear the 'photos' list
+        }
+      }
+
+      await saveReportData(
+        widget.inspectId,
+        widget.reportId,
+      );
+      //agentCommentController.clear();
+      // cleanValue = "";
+      // undamagedValue = "";
+      // workingValue = "";
+      //Navigator.pop(context);
+    } catch (e) {
+      // Handle any errors that occur during the API call.
+    }
   }
 }
