@@ -11,6 +11,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'areaaddScreen.dart';
 import 'compliance.dart';
+import 'package:universal_html/html.dart'
+    as html; 
 
 class report extends StatefulWidget {
   final String? accessToken;
@@ -113,9 +115,9 @@ class _reportState extends State<report> {
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
-      'accessToken': '${widget.jwtToken}',
+      'accessToken': '${html.window.sessionStorage['accessToken']}',
     };
-    print(widget.jwtToken);
+    
     final Map<String, dynamic> requestBody = {
       "areaName": areaName,
     };

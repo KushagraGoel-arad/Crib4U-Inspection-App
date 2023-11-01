@@ -8,6 +8,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import 'package:universal_html/html.dart'
+    as html; 
+
 class areasEntryExit extends StatefulWidget {
   // final Inspection inspectionData;
   final String title;
@@ -224,7 +227,7 @@ class _areasEntryExitState extends State<areasEntryExit> {
         url,
         headers: <String, String>{
           'Content-Type': 'application/json',
-          'accessToken': '${widget.jwtToken}',
+          'accessToken': '${html.window.sessionStorage['accessToken']}',
         },
         body: jsonEncode({
           'ReportDetails': widget.reportDetails
