@@ -149,7 +149,7 @@ class _reportState extends State<report> {
     };
     final Body = jsonEncode({
       "propertyId": {
-        "_id": "64928545561b3e18c05a7ae1",
+        "_id": widget.propertyId,
         "property_basic_details": {
           "_id": "64928545561b3e18c05a7adc",
           "reference": "PR2YXHNNB",

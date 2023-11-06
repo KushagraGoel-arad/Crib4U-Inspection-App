@@ -57,6 +57,48 @@ class _login_pageState extends State<login_page> {
     html.window.sessionStorage.remove('refreshToken');
   }
 
+  void showErrorDialog(String errorMessage) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Error"),
+          content: Text(errorMessage),
+          actions: <Widget>[
+            TextButton(
+              child: Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the error dialog
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showSuccessDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Success"),
+          content: Text("Login Successful"),
+          actions: <Widget>[
+            TextButton(
+              child: Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the success dialog
+
+                // Show the second dialog or navigate to the next page
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> main() async {
     final Headers = {
       'Content-Type': 'application/json',
@@ -80,29 +122,40 @@ class _login_pageState extends State<login_page> {
     if (response.statusCode == 200) {
       Map<String, dynamic> responseBodyJson = jsonDecode(response.body);
       final responseData = responseBodyJson['detail'];
+      final resultMessage = responseBodyJson['detail'];
 
-      // Access accessToken and refreshToken from the response
-      var accessToken = responseData['accessToken'];
-      var refreshToken = responseData['refreshToken'];
-      storeTokens(accessToken, refreshToken);
+      if (resultMessage != null) {
+        print('Result Message: $resultMessage');
+      } else {
+        print('Result Message is null.');
+      }
+      if (responseBodyJson['resultCode'] == 1) {
+        // Access accessToken and refreshToken from the response
+        var accessToken = responseData['accessToken'];
+        var refreshToken = responseData['refreshToken'];
+        storeTokens(accessToken, refreshToken);
 
-      // setCookie('accessToken', accessToken, 2);
-      // setCookie('refreshToken', refreshToken, 2);
-      // // Set the accessToken and refreshToken in TokenStorage
-      // TokenStorage.accessToken = accessToken;
-      // TokenStorage.refreshToken = refreshToken;
+        // setCookie('accessToken', accessToken, 2);
+        // setCookie('refreshToken', refreshToken, 2);
+        // // Set the accessToken and refreshToken in TokenStorage
+        // TokenStorage.accessToken = accessToken;
+        // TokenStorage.refreshToken = refreshToken;
 
-      print('accessToken: $accessToken');
-      print('refreshToken: $refreshToken');
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) =>
-              inspect(accessToken: accessToken, refreshToken: refreshToken),
-        ),
-      );
+        print('accessToken: $accessToken');
+        print('refreshToken: $refreshToken');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                inspect(accessToken: accessToken, refreshToken: refreshToken),
+          ),
+        );
+        showSuccessDialog();
+      } else {
+        showErrorDialog('Login Success');
+      }
     } else {
+      showErrorDialog('${response.statusCode}');
       print('API request failed with status code: ${response.statusCode}');
       //print('Response body: ${response.Body}');
     }
