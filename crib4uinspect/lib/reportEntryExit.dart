@@ -12,6 +12,9 @@ import 'package:flutter/material.dart';
 import 'areaaddScreen.dart';
 import 'compliance.dart';
 
+import 'package:universal_html/html.dart'
+    as html; 
+
 class reportEntryExit extends StatefulWidget {
   final String? accessToken;
   final String? refreshToken;
@@ -327,7 +330,7 @@ class _reportEntryExitState extends State<reportEntryExit> {
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',
-      'accessToken': '${widget.jwtToken}',
+      'accessToken': '${html.window.sessionStorage['accessToken']}',
     };
 
     final Map<String, dynamic> requestBody = {

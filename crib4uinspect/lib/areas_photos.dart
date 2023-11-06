@@ -95,7 +95,7 @@ class _photosState extends State<photos> {
 
       // Add the JWT token to the request headers
       request.headers['accesstoken'] =
-          widget.jwt ?? ''; // Use an empty string if jwttoken is null
+          html.window.sessionStorage['accessToken'] ?? ''; // Use an empty string if jwttoken is null
 
       // Set the Content-Type header to "multipart/form-data"
       request.headers['Content-Type'] = 'multipart/form-data';
@@ -123,7 +123,7 @@ class _photosState extends State<photos> {
         url,
         headers: <String, String>{
           'Content-Type': 'application/json',
-          'accessToken': '${widget.jwt}',
+          'accessToken': '${html.window.sessionStorage['accessToken']}',
         },
         body: jsonEncode({
           'ReportDetails': widget.repdetail1

@@ -6,7 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'areaadd.dart';
-
+import 'package:universal_html/html.dart'
+    as html; 
 class inspect extends StatefulWidget {
   final String? accessToken;
   final String? refreshToken;
@@ -39,7 +40,7 @@ class _inspectState extends State<inspect> {
   Future<void> active() async {
     final headers = {
       'Content-Type': 'application/json',
-      'accessToken': '${widget.accessToken}',
+      'accessToken': '${html.window.sessionStorage['accessToken']}',
     };
 
     var response = await http.get(
@@ -93,7 +94,7 @@ class _inspectState extends State<inspect> {
   Future<void> inspected() async {
     final headers = {
       'Content-Type': 'application/json',
-      'accessToken': '${widget.accessToken}',
+      'accessToken': '${html.window.sessionStorage['accessToken']}',
       'refreshToken': '${widget.refreshToken}',
     };
 
@@ -148,7 +149,7 @@ class _inspectState extends State<inspect> {
   Future<void> detailsOfInspection(String inspectionId) async {
     final headers = {
       'Content-Type': 'application/json',
-      'accessToken': '${widget.accessToken}',
+      'accessToken': '${html.window.sessionStorage['accessToken']}',
       'refreshToken': '${widget.refreshToken}' // Use accessToken from widget
     };
     var response = await http.get(
@@ -540,7 +541,7 @@ class _inspectState extends State<inspect> {
                               builder: (context) => basicDetails(
                                 areasList: _inspectReportObj['areas'],
                                 repDetails: _inspectReportObj['ReportDetails'],
-                                jwt: widget.accessToken,
+                                jwt: html.window.sessionStorage['accessToken'],
                                 inspectionId1: _inspectDetailObj['_id'],
                                 inspectionId: _inspectReportObj['_id'],
                                 propertyId: _inspectDetailObj['_id1'],
