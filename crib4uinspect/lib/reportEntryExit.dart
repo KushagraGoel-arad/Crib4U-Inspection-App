@@ -12,8 +12,7 @@ import 'package:flutter/material.dart';
 import 'areaaddScreen.dart';
 import 'compliance.dart';
 
-import 'package:universal_html/html.dart'
-    as html; 
+import 'package:universal_html/html.dart' as html;
 
 class reportEntryExit extends StatefulWidget {
   final String? accessToken;
@@ -87,100 +86,11 @@ class _reportEntryExitState extends State<reportEntryExit> {
   List<Areas> areasadd = [];
   List<dynamic> areasData = [];
   List<Areas> takeareaData = [];
-
-  // List<Areas> createAreasList(List<dynamic> areasData) {
-  //   List<Areas> areasList = areasData.map((areaData) {
-  //     final items1 = extractItems(areaData);
-  //     final conditions = extractConditions(areaData);
-
-  //     List<Area> item2 = items1.map((itemData) {
-  //       return Area(
-  //         name: itemData['name'],
-  //         agentComment: itemData['agentComment'],
-  //         otherComment: itemData['otherComment'],
-  //         isDeleted: itemData['isDeleted'],
-  //         conditions: conditions, // Now correctly typed as List<Condition>
-  //       );
-  //     }).toList();
-
-  //     return Areas(
-  //       name: areaData['name'],
-  //       notes: areaData['notes'],
-  //       photosNotes: areaData['photosNotes'],
-  //       tenantComment: areaData['tenantComment'],
-  //       isDeleted: areaData['isDeleted'],
-  //       items: item2,
-  //       photos: areaData['photos'],
-  //     );
-  //   }).toList();
-  //   print(areasList);
-
-  //   return areasList;
-  // }
-
-  // List<dynamic> extractItems(Map<String, dynamic> areaData) {
-  //   // Implement the logic to extract 'items' from areaData
-  //   return (areaData['items'] as List<dynamic>);
-  // }
-
-  // List<Condition> extractConditions(Map<String, dynamic> areaData) {
-  //   // Implement the logic to extract 'conditions' from areaData as List<Condition>
-  //   return (areaData['conditions'] as List<dynamic>).map((conditionData) {
-  //     return Condition(
-  //       name: conditionData['name'],
-  //       value: conditionData['value'],
-  //     );
-  //   }).toList();
-  // }
-
-  // List<dynamic> createAreasList(List<dynamic> areasData) {
-  //   List<Areas> areasList = areasData.map((areaData) {
-  //     final items1 = extractItems(areaData);
-  //     final conditions = extractConditions(areaData);
-
-  //     List<Area> item2 = items1.map((itemData) {
-  //       return Area(
-  //         name: itemData['name'],
-  //         agentComment: itemData['agentComment'],
-  //         otherComment: itemData['otherComment'],
-  //         isDeleted: itemData['isDeleted'] as bool,
-  //         conditions: conditions,
-  //       );
-  //     }).toList();
-
-  //     return Areas(
-  //       name: areaData['name'],
-  //       notes: areaData['notes'],
-  //       photosNotes: areaData['photosNotes'],
-  //       tenantComment: areaData['tenantComment'],
-  //       isDeleted: areaData['isDeleted'] as bool,
-  //       items: item2,
-  //       photos: areaData['photos'],
-  //     );
-  //   }).toList();
-
-  //   print(areasList);
-
-  //   return areasList;
-  // }
-
-  // List<dynamic> extractItems(Map<String, dynamic> areaData) {
-  //   // Implement the logic to extract 'items' from areaData
-  //   return (areaData['items'] as List<dynamic>);
-  // }
-
-  // List<Condition> extractConditions(Map<String, dynamic> areaData) {
-  //   if (areaData['conditions'] != null) {
-  //     return (areaData['conditions'] as List<dynamic>).map((conditionData) {
-  //       return Condition(
-  //         name: conditionData['name'],
-  //         value: conditionData['value'],
-  //       );
-  //     }).toList();
-  //   } else {
-  //     return []; // Return an empty list if 'conditions' is not present
-  //   }
-  // }
+  // String accessType = '';
+  // String status = '';
+  // String inspectionDate = '';
+  String reportID = '';
+  List<dynamic> details1 = [];
 
   List<Areas> createAreasList(List<dynamic> areasData) {
     // print("areasData: $areasData");
@@ -359,31 +269,114 @@ class _reportEntryExitState extends State<reportEntryExit> {
     }
   }
 
-  copy() async {
+  Future<void> deleteArea(
+      String inspectionId, String reportId, String areaName) async {
+    final Uri uri = Uri.https(
+      'crib4u.axiomprotect.com:9497',
+      '/api/prop_gateway/inspect/deleteArea/$inspectionId/$reportId',
+    );
+
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'accessToken': '${html.window.sessionStorage['accessToken']}',
+    };
+
+    final Map<String, String> body = {
+      'areaName': areaName,
+    };
+
+    final String jsonBody = jsonEncode(body);
+
+    final response = await http.post(
+      uri,
+      headers: headers,
+      body: jsonBody,
+    );
+
+    if (response.statusCode == 200) {
+      // Request was successful, you can handle the response here
+      print('Area deleted successfully');
+      // If there's a response body, you can also parse it
+      if (response.body.isNotEmpty) {
+        final responseData = jsonDecode(response.body);
+        print('Response data: $responseData');
+      }
+    } else {
+      // Request failed, handle the error here
+      print('Failed to delete area. Status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+    }
+  }
+
+  Future<void> getReportList(String? propertyTraceId) async {
+    final Uri uri = Uri.https(
+      'crib4u.axiomprotect.com:9497',
+      '/api/prop_gateway/inspect/getReportList/$propertyTraceId',
+    );
+
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'accessToken': '${html.window.sessionStorage['accessToken']}',
+    };
+
+    final response = await http.get(
+      uri,
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      // Request was successful, you can handle the response here
+      print('Report list retrieved successfully');
+
+      // If there's a response body, you can also parse it
+      if (response.body.isNotEmpty) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['resultCode'] == 1) {
+          details1 = responseData['details'];
+
+          //Extract and print the details for each inspection
+          for (var inspection in details1) {
+            // accessType = inspection['type'];
+            // status = inspection['status'];
+            // inspectionDate = inspection['inspectionDate'];
+            reportID = inspection['reportId'];
+
+          }
+        }
+      }
+    } else {
+      // Request failed, handle the error here
+      print(
+        'Failed to retrieve report list. Status code: ${response.statusCode}',
+      );
+      print('Response body: ${response.body}');
+    }
+  }
+
+  void copy(
+    String inspectionId,
+    String reportId,
+  ) async {
     final Headers = {
       'Content-Type': 'application/json',
-      'authorization': 'Basic c3R1ZHlkb3RlOnN0dWR5ZG90ZTEyMw=='
+      'accessToken': '${html.window.sessionStorage['accessToken']}',
     };
     final Body = jsonEncode({
       "propertyId": {
-        "_id": "64928545561b3e18c05a7ae1",
+        "_id": widget.propertyId,
         "property_basic_details": {
-          "_id": "64928545561b3e18c05a7adc",
-          "reference": "PR2YXHNNB",
-          "address": {
-            "line_two": "Mosman Park",
-            "line_one": "30, Harvey Street",
-            "zip_code": "6012"
-          }
+          "_id": "",
+          "reference": "",
+          "address": {"line_two": "", "line_one": "", "zip_code": ""}
         }
       },
-      "copyReportId": "64a25218af9f3121438639c7"
+      "copyReportId": reportID
     });
     print(Body);
 
     final response = await http.post(
         Uri.parse(
-            'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/copyReport/YOUR_INSPECTION_ID/REPORT_ID'),
+            'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/copyReport/$inspectionId/$reportId'),
         body: Body,
         headers: Headers);
 
@@ -392,13 +385,60 @@ class _reportEntryExitState extends State<reportEntryExit> {
     if (response.statusCode == 200 && response.statusCode < 300) {
       final responseBodyJson = jsonDecode(response.body);
 
-      final responseData = responseBodyJson['data'];
+      //final responseData = responseBodyJson['data'];
       //
-      print(responseData);
+
     } else {
       print('API request failed with status code: ${response.statusCode}');
       print('Response body: ${response.body}');
     }
+  }
+
+  void showSuccessDialog(List details) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return IntrinsicHeight(
+          
+          child: AlertDialog(
+            title: Text("Report List"),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: details.map((detail) {
+                final accessType = detail['type'];
+                final status = detail['status'];
+                final inspectionDate = detail['inspectionDate'];
+
+                return ListTile(
+                  title: Text("($accessType)"),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Status: $status"),
+                      Text("Inspection Date: $inspectionDate"),
+                    ],
+                  ),
+                  trailing: IconButton(
+                    icon: Icon(Icons.copy),
+                    onPressed: () {
+                      copy(widget.inspId, widget.reportId);
+                    },
+                  ),
+                );
+              }).toList(),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: Text("OK"),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the success dialog
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -448,7 +488,8 @@ class _reportEntryExitState extends State<reportEntryExit> {
             IconButton(
               icon: Icon(Icons.copy),
               onPressed: () {
-                copy();
+                showSuccessDialog(details1);
+                getReportList(widget.propertyId);
               },
             ),
             IconButton(
@@ -754,10 +795,10 @@ class _reportEntryExitState extends State<reportEntryExit> {
                               builder: (context) => areasEntryExit(
                                 title: area.name,
                                 areaDetails: widget.areadata,
-                                jwtToken:widget.jwtToken,
-                                reportDetails:widget.reportdetails,
-                                inspectId:widget.inspId,
-                                reportId:widget.reportId,
+                                jwtToken: widget.jwtToken,
+                                reportDetails: widget.reportdetails,
+                                inspectId: widget.inspId,
+                                reportId: widget.reportId,
                                 propId: widget.propertyId,
                                 //     parseResponse(widget.reportdetails),
                               ),
@@ -809,11 +850,13 @@ class _reportEntryExitState extends State<reportEntryExit> {
                                 // You may want to display a snackbar or dialog to inform the user.
                               }
                             },
-                            onAreaDeleted: (areaName) {
+                            onAreaDeleted: (NewareaName) {
                               // Handle deleting an existing area here
                               setState(() {
+                                deleteArea(widget.inspId, widget.reportId,
+                                    NewareaName);
                                 takeareaData.removeWhere(
-                                    (area) => area.name == areaName);
+                                    (area) => area.name == NewareaName);
                               });
                             },
                           ),

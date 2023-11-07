@@ -11,8 +11,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'areaaddScreen.dart';
 import 'compliance.dart';
-import 'package:universal_html/html.dart'
-    as html; 
+import 'package:universal_html/html.dart' as html;
 
 class report extends StatefulWidget {
   final String? accessToken;
@@ -117,7 +116,7 @@ class _reportState extends State<report> {
       'Content-Type': 'application/json',
       'accessToken': '${html.window.sessionStorage['accessToken']}',
     };
-    
+
     final Map<String, dynamic> requestBody = {
       "areaName": areaName,
     };
@@ -144,7 +143,10 @@ class _reportState extends State<report> {
     }
   }
 
-  copy() async {
+  void copy(
+    String inspectionId,
+    String reportId,
+  ) async {
     final Headers = {
       'Content-Type': 'application/json',
       'authorization': 'Basic c3R1ZHlkb3RlOnN0dWR5ZG90ZTEyMw=='
@@ -153,22 +155,18 @@ class _reportState extends State<report> {
       "propertyId": {
         "_id": widget.propertyId,
         "property_basic_details": {
-          "_id": "64928545561b3e18c05a7adc",
-          "reference": "PR2YXHNNB",
-          "address": {
-            "line_two": "Mosman Park",
-            "line_one": "30, Harvey Street",
-            "zip_code": "6012"
-          }
+          "_id": "",
+          "reference": "",
+          "address": {"line_two": "", "line_one": "", "zip_code": ""}
         }
       },
-      "copyReportId": "64a25218af9f3121438639c7"
+      "copyReportId": ""
     });
     print(Body);
 
     final response = await http.post(
         Uri.parse(
-            'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/copyReport/YOUR_INSPECTION_ID/REPORT_ID'),
+            'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/copyReport/$inspectionId/$reportId'),
         body: Body,
         headers: Headers);
 
@@ -244,7 +242,7 @@ class _reportState extends State<report> {
             IconButton(
               icon: Icon(Icons.copy),
               onPressed: () {
-                copy();
+                copy(widget.inspId, widget.reportId);
               },
             ),
             IconButton(

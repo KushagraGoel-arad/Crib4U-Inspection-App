@@ -89,9 +89,7 @@ class _login_pageState extends State<login_page> {
               child: Text("OK"),
               onPressed: () {
                 Navigator.of(context).pop(); // Close the success dialog
-
-                // Show the second dialog or navigate to the next page
-              },
+            },
             ),
           ],
         );

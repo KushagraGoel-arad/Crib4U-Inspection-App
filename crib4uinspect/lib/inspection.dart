@@ -6,8 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'areaadd.dart';
-import 'package:universal_html/html.dart'
-    as html; 
+import 'package:universal_html/html.dart' as html;
+
 class inspect extends StatefulWidget {
   final String? accessToken;
   final String? refreshToken;
@@ -146,6 +146,26 @@ class _inspectState extends State<inspect> {
     }
   }
 
+  void showErrorDialog(String errorMessage) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Error"),
+          content: Text(errorMessage),
+          actions: <Widget>[
+            TextButton(
+              child: Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the error dialog
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> detailsOfInspection(String inspectionId) async {
     final headers = {
       'Content-Type': 'application/json',
@@ -172,44 +192,6 @@ class _inspectState extends State<inspect> {
         final _obj = basicDetails;
         final _objReport = reportDetails;
 
-        //   final areas = reportDetails['areas'] as List<dynamic>;
-        //  // final List<Inspection> areaItems=area.map
-        //   final List<Areas> areasList = areas.map((areaData) {
-        //     return Areas(
-        //         name: areaData['name'],
-        //         notes: areaData['notes'],
-        //         photosNotes: areaData['photosNotes'],
-        //         tenantComment: areaData['tenantComment'],
-        //         isDeleted: areaData['isDeleted'],
-        //         items: areaData['items'],
-        //         photos: areaData['photos']);
-        //   }).toList();
-
-        // final areasData = reportDetails['areas'] as List<dynamic>;
-        // final areasList = areasData.map((areaData) {
-        //   final items1 = extractItems(areaData);
-        //   final conditions = extractConditions(areaData);
-        //   print("Print item 1 : ${items1.toString()}");
-        //   List<Area> item2 = items1.map((itemData) {
-        //     return Area(
-        //       name: itemData['name'],
-        //       agentComment: itemData['agentComment'],
-        //       otherComment: itemData['otherComment'],
-        //       isDeleted: itemData['isDeleted'],
-        //       conditions: conditions,
-        //     );
-        //   }).toList();
-        //   print("Print item 2 : ${item2.toString()}");
-        //   return Areas(
-        //     name: areaData['name'],
-        //     notes: areaData['notes'],
-        //     photosNotes: areaData['photosNotes'],
-        //     tenantComment: areaData['tenantComment'],
-        //     isDeleted: areaData['isDeleted'],
-        //     items: item2,
-        //     photos: areaData['photos'],
-        //   );
-        // }).toList();
         List<Areas> areasList = [];
         final areasData = reportDetails['areas'];
 
@@ -399,6 +381,8 @@ class _inspectState extends State<inspect> {
           // Now you have the Inspection object for further use
           //print("ABCRESGGG:$inspection");
         });
+      } else {
+        showErrorDialog('${response.statusCode}');
       }
     }
   }
