@@ -47,6 +47,8 @@ class _inspectState extends State<inspect> {
   Future<List<Map<String, dynamic>>> active() async {
     final headers = {
       'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
       'accessToken': '${html.window.sessionStorage['accessToken']}',
     };
 
@@ -104,6 +106,8 @@ class _inspectState extends State<inspect> {
   Future<List<Map<String, dynamic>>> schedule() async {
     final headers = {
       'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
       'accessToken': '${html.window.sessionStorage['accessToken']}',
     };
 
@@ -161,8 +165,9 @@ class _inspectState extends State<inspect> {
   Future<List<Map<String, dynamic>>> inspected() async {
     final headers = {
       'Content-Type': 'application/json',
-      'accessToken': '${html.window.sessionStorage['accessToken']}',
-      'refreshToken': '${widget.refreshToken}',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'accessToken': '${html.window.sessionStorage['accessToken']}'
     };
 
     var response = await http.get(

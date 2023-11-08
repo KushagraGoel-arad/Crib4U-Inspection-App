@@ -15,8 +15,8 @@ app.use(express.static(path.join(__dirname, 'crib4uinspect')));
 
 
 const PORT = 8022;
-const HOST = '127.0.0.1';
+const HOST = 'localhost' || '127.0.0.1';
 
-app.listen(PORT,HOST, () => console.info("SERVER", `Flutter Server listening! [${PORT}]`));
+app.listen(PORT, () => console.info("SERVER", `Flutter Server listening! [http://${HOST}:${PORT}]`));
 
 module.exports = app;
