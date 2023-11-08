@@ -1027,6 +1027,7 @@ class _AddAreaScreenState extends State<AddAreaScreen> {
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Text(
+              
               widget.areaName,
               style: TextStyle(fontSize: 50),
             ),

@@ -82,7 +82,8 @@ class _reportState extends State<report> {
   List<bool> _isExpandedList = [false, false, false, false, false, false];
   List<Areas> areasadd = [];
   int selectedAreaIndex = 0;
-
+  String reportID = '';
+  List<dynamic> details1 = [];
   final List<String> items = [
     'Shared with User',
   ];
@@ -143,13 +144,96 @@ class _reportState extends State<report> {
     }
   }
 
+  Future<void> deleteArea(
+      String inspectionId, String reportId, String areaName) async {
+    final Uri uri = Uri.https(
+      'crib4u.axiomprotect.com:9497',
+      '/api/prop_gateway/inspect/deleteArea/$inspectionId/$reportId',
+    );
+
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'accessToken': '${html.window.sessionStorage['accessToken']}',
+    };
+
+    final Map<String, String> body = {
+      'areaName': areaName,
+    };
+
+    final String jsonBody = jsonEncode(body);
+
+    final response = await http.post(
+      uri,
+      headers: headers,
+      body: jsonBody,
+    );
+
+    if (response.statusCode == 200) {
+      // Request was successful, you can handle the response here
+      print('Area deleted successfully');
+      // If there's a response body, you can also parse it
+      if (response.body.isNotEmpty) {
+        final responseData = jsonDecode(response.body);
+        print('Response data: $responseData');
+      }
+    } else {
+      // Request failed, handle the error here
+      print('Failed to delete area. Status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+    }
+  }
+
+  Future<void> getReportList(String? propertyTraceId) async {
+    final Uri uri = Uri.https(
+      'crib4u.axiomprotect.com:9497',
+      '/api/prop_gateway/inspect/getReportList/$propertyTraceId',
+    );
+
+    final Map<String, String> headers = {
+      'Content-Type': 'application/json',
+      'accessToken': '${html.window.sessionStorage['accessToken']}',
+    };
+
+    final response = await http.get(
+      uri,
+      headers: headers,
+    );
+
+    if (response.statusCode == 200) {
+      // Request was successful, you can handle the response here
+      print('Report list retrieved successfully');
+
+      // If there's a response body, you can also parse it
+      if (response.body.isNotEmpty) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['resultCode'] == 1) {
+          details1 = responseData['details'];
+
+          //Extract and print the details for each inspection
+          for (var inspection in details1) {
+            // accessType = inspection['type'];
+            // status = inspection['status'];
+            // inspectionDate = inspection['inspectionDate'];
+            reportID = inspection['reportId'];
+          }
+        }
+      }
+    } else {
+      // Request failed, handle the error here
+      print(
+        'Failed to retrieve report list. Status code: ${response.statusCode}',
+      );
+      print('Response body: ${response.body}');
+    }
+  }
+
   void copy(
     String inspectionId,
     String reportId,
   ) async {
     final Headers = {
       'Content-Type': 'application/json',
-      'authorization': 'Basic c3R1ZHlkb3RlOnN0dWR5ZG90ZTEyMw=='
+      'accessToken': '${html.window.sessionStorage['accessToken']}',
     };
     final Body = jsonEncode({
       "propertyId": {
@@ -160,7 +244,7 @@ class _reportState extends State<report> {
           "address": {"line_two": "", "line_one": "", "zip_code": ""}
         }
       },
-      "copyReportId": ""
+      "copyReportId": reportID
     });
     print(Body);
 
@@ -175,13 +259,59 @@ class _reportState extends State<report> {
     if (response.statusCode == 200 && response.statusCode < 300) {
       final responseBodyJson = jsonDecode(response.body);
 
-      final responseData = responseBodyJson['data'];
+      //final responseData = responseBodyJson['data'];
       //
-      print(responseData);
+
     } else {
       print('API request failed with status code: ${response.statusCode}');
       print('Response body: ${response.body}');
     }
+  }
+
+  void showSuccessDialog(List details) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return IntrinsicHeight(
+          child: AlertDialog(
+            title: Text("Report List"),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: details.map((detail) {
+                final accessType = detail['type'];
+                final status = detail['status'];
+                final inspectionDate = detail['inspectionDate'];
+
+                return ListTile(
+                  title: Text("($accessType)"),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Status: $status"),
+                      Text("Inspection Date: $inspectionDate"),
+                    ],
+                  ),
+                  trailing: IconButton(
+                    icon: Icon(Icons.copy),
+                    onPressed: () {
+                      copy(widget.inspId, widget.reportId);
+                    },
+                  ),
+                );
+              }).toList(),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: Text("OK"),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the success dialog
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -242,7 +372,8 @@ class _reportState extends State<report> {
             IconButton(
               icon: Icon(Icons.copy),
               onPressed: () {
-                copy(widget.inspId, widget.reportId);
+                showSuccessDialog(details1);
+                getReportList(widget.propertyId);
               },
             ),
             IconButton(
@@ -704,11 +835,13 @@ class _reportState extends State<report> {
                                 // You may want to display a snackbar or dialog to inform the user.
                               }
                             },
-                            onAreaDeleted: (areaName) {
+                            onAreaDeleted: (NewareaName) {
                               // Handle deleting existing area here
                               setState(() {
+                                deleteArea(widget.inspId, widget.reportId,
+                                    NewareaName);
                                 areasadd.removeWhere(
-                                    (area) => area.name == areaName);
+                                    (area) => area.name == NewareaName);
                                 // Implement the logic for deleting an area from the server
                               });
                             },

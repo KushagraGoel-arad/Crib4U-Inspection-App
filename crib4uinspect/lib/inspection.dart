@@ -20,7 +20,7 @@ class inspect extends StatefulWidget {
 }
 
 class _inspectState extends State<inspect> {
-  List<String> items = ["Active", "Schedule"];
+  List<String> items = ["Active", "Schedule", "Inspected"];
   int current = 0;
   List<Task> tasks = [];
   List<Map<String, dynamic>> _tableRows = [];
@@ -28,6 +28,7 @@ class _inspectState extends State<inspect> {
   Map<String, dynamic> _inspectReportObj = {};
   Map<String, dynamic> _complainceOrUtilities = {};
   Map<String, dynamic> inspection = {};
+  List<Map<String, dynamic>>? activeData;
   // String? accessToken = _login_pageState().getAccessToken();
   //   String? refreshToken = _login_pageState().getRefreshToken();
   DateTime? parseDateTime(dynamic value) {
@@ -37,7 +38,13 @@ class _inspectState extends State<inspect> {
     return DateTime.parse(value);
   }
 
-  Future<void> active() async {
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   active();
+  // }
+
+  Future<List<Map<String, dynamic>>> active() async {
     final headers = {
       'Content-Type': 'application/json',
       'accessToken': '${html.window.sessionStorage['accessToken']}',
@@ -88,10 +95,70 @@ class _inspectState extends State<inspect> {
           });
         }
       }
+
+      return _tableRows;
     }
+    return [];
   }
 
-  Future<void> inspected() async {
+  Future<List<Map<String, dynamic>>> schedule() async {
+    final headers = {
+      'Content-Type': 'application/json',
+      'accessToken': '${html.window.sessionStorage['accessToken']}',
+    };
+
+    var response = await http.get(
+      Uri.https(
+        'crib4u.axiomprotect.com:9497',
+        '/api/prop_gateway/inspect/list/schedule',
+      ),
+      headers: headers,
+    );
+
+    //print(response.body);
+
+    if (response.statusCode == 200) {
+      var jsonData = jsonDecode(response.body);
+
+      _tableRows.clear(); // Clear the previous data
+
+      List<dynamic> jData = jsonData['details'];
+      if (jData.length > 0) {
+        for (int i = 0; i < jData.length; i++) {
+          dynamic _obj = jData[i];
+          String inspectionId = _obj['_id'];
+
+          String propertyName =
+              '${_obj['property']['property_basic_details']['address']['line_one']} ${_obj['property']['property_basic_details']['address']['line_two']}';
+          String tenantName =
+              '${_obj['tenant']['users'][0]['name']['firstName'] ?? ''} ${_obj['tenant']['users'][0]['name']['lastName'] ?? ''}';
+          String managerName =
+              '${_obj['manager']['name']['firstName'] ?? ''} ${_obj['manager']['name']['lastName'] ?? ''}';
+
+          DateTime date = DateTime.parse(_obj['date']);
+          DateTime startTime = DateTime.parse(_obj['date']);
+          DateTime createAt = DateTime.parse(_obj['createdAt']);
+
+          _tableRows.add({
+            '_id': inspectionId,
+            'inspectionOn':
+                '${DateFormat('dd-MM-yyyy').format(date)} ${DateFormat('hh:mm a').format(startTime)}',
+            'type': _obj['type'],
+            'summary': _obj['summary'],
+            'property': propertyName,
+            'manager': managerName,
+            'tenant': tenantName,
+            'createdAt': DateFormat('dd-MM-yyyy hh:mm a').format(createAt),
+          });
+        }
+      }
+
+      return _tableRows;
+    }
+    return [];
+  }
+
+  Future<List<Map<String, dynamic>>> inspected() async {
     final headers = {
       'Content-Type': 'application/json',
       'accessToken': '${html.window.sessionStorage['accessToken']}',
@@ -143,7 +210,9 @@ class _inspectState extends State<inspect> {
           });
         }
       }
+      return _tableRows;
     }
+    return [];
   }
 
   void showErrorDialog(String errorMessage) {
@@ -464,11 +533,31 @@ class _inspectState extends State<inspect> {
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       onTap: () {
-                        inspected();
-                        //active();
-                        setState(() {
-                          current = index;
-                        });
+                        if (index == 0) {
+                          active().then((data) {
+                            setState(() {
+                              current = index;
+                              _tableRows = data;
+                            });
+                            //print("Data active: $data");
+                          });
+                        } else if (index == 1) {
+                          schedule().then((data) {
+                            setState(() {
+                              current = index;
+                              _tableRows = data;
+                            });
+                            // print("Data inspected: $data");
+                          });
+                        } else if (index == 2) {
+                          inspected().then((data) {
+                            setState(() {
+                              current = index;
+                              _tableRows = data;
+                            });
+                            //print("Data inspected: $data");
+                          });
+                        }
                       },
                       child: AnimatedContainer(
                         duration: Duration(milliseconds: 300),
