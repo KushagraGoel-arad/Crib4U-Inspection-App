@@ -83,6 +83,7 @@ class _reportState extends State<report> {
   List<Areas> areasadd = [];
   int selectedAreaIndex = 0;
   String reportID = '';
+  String inspectionID = '';
   List<dynamic> details1 = [];
   final List<String> items = [
     'Shared with User',
@@ -213,9 +214,10 @@ class _reportState extends State<report> {
           for (var inspection in details1) {
             // accessType = inspection['type'];
             // status = inspection['status'];
-            // inspectionDate = inspection['inspectionDate'];
+            inspectionID = inspection['inspectionId'];
             reportID = inspection['reportId'];
           }
+          showSuccessDialog(details1);
         }
       }
     } else {
@@ -244,7 +246,7 @@ class _reportState extends State<report> {
           "address": {"line_two": "", "line_one": "", "zip_code": ""}
         }
       },
-      "copyReportId": reportID
+      "copyReportId": reportId
     });
     print(Body);
 
@@ -294,7 +296,7 @@ class _reportState extends State<report> {
                   trailing: IconButton(
                     icon: Icon(Icons.copy),
                     onPressed: () {
-                      copy(widget.inspId, widget.reportId);
+                      copy(inspectionID, reportID);
                     },
                   ),
                 );
@@ -372,7 +374,6 @@ class _reportState extends State<report> {
             IconButton(
               icon: Icon(Icons.copy),
               onPressed: () {
-                showSuccessDialog(details1);
                 getReportList(widget.propertyId);
               },
             ),

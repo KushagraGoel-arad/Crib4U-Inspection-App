@@ -57,6 +57,7 @@ class _AddAreaDialogState extends State<AddAreaDialog> {
                     icon: Icon(Icons.delete),
                     onPressed: () {
                       widget.onAreaDeleted(areaName);
+                      
                     },
                   ),
                 );

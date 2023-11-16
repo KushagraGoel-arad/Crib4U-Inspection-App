@@ -48,14 +48,119 @@ class _photosState extends State<photos> {
     setState(() {
       uploadedImages.add(imageUrl);
     });
+    _saveArea(context);
   }
 
-  Future<String> postImages(
+  // Future<String> postImages(
+  //   String inspID,
+  //   String reportID,
+  //   String? propertID,
+  //   String? name1,
+  //   List<String> imageBytes, // Base64-encoded image data
+  // ) async {
+  //   try {
+  //     final url = Uri.parse(
+  //         'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/updateReportImages/$propertID/$inspID/$reportID');
+
+  //     final request = http.MultipartRequest(
+  //       'POST',
+  //       url,
+  //     );
+
+  //     if (imageBytes.isNotEmpty) {
+  //       final filename = 'image.jpg';
+
+  //       for (int i = 0; i < imageBytes.length; i++) {
+  //         final imageBytesAsUint8List = Uint8List.fromList(
+  //           base64.decode(imageBytes[i]),
+  //         );
+  //         final multipartFile = http.MultipartFile.fromBytes(
+  //           'images',
+  //           imageBytesAsUint8List,
+  //           filename: '$filename$i',
+  //         );
+  //         request.files.add(multipartFile);
+  //       }
+  //     } else {
+  //       throw Exception('No images provided');
+  //     }
+
+  //     request.fields['areaName'] = name1 ?? '';
+  //     request.headers['accesstoken'] =
+  //         html.window.sessionStorage['accessToken'] ?? '';
+  //     final response = await request.send();
+  //     if (response.statusCode == 200) {
+  //       final responseBody = await response.stream.bytesToString();
+  //       final imagePath = json.decode(responseBody)['imagePath'];
+  //       return imagePath;
+  //     } else {
+  //       throw Exception('Failed to upload images');
+  //     }
+  //   } catch (e) {
+  //     throw e;
+  //   }
+  // }
+
+  // Future<String?> postImages(
+  //   String inspID,
+  //   String reportID,
+  //   String? propertID,
+  //   String? name1,
+  //   List<String> imageBytes,
+  // ) async {
+  //   try {
+  //     final url = Uri.parse(
+  //         'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/updateReportImages/$propertID/$inspID/$reportID');
+
+  //     final request = http.MultipartRequest(
+  //       'POST',
+  //       url,
+  //     );
+
+  //     if (imageBytes.isNotEmpty) {
+  //       final filename = 'image.jpg';
+
+  //       for (int i = 0; i < imageBytes.length; i++) {
+  //         final imageBytesAsUint8List = Uint8List.fromList(
+  //           base64.decode(imageBytes[i]),
+  //         );
+  //         final multipartFile = http.MultipartFile.fromBytes(
+  //           'images',
+  //           imageBytesAsUint8List,
+  //           filename: '$filename$i',
+  //         );
+  //         request.files.add(multipartFile);
+  //       }
+  //     } else {
+  //       throw Exception('No images provided');
+  //     }
+
+  //     request.fields['areaName'] = name1 ?? '';
+  //     request.headers['accesstoken'] =
+  //         html.window.sessionStorage['accessToken'] ?? '';
+
+  //     final response = await request.send();
+  //     final responseBody = await response.stream.bytesToString();
+
+  //     if (response.statusCode == 200) {
+  //       final imagePath = json.decode(responseBody)['imagePath'];
+  //       return imagePath;
+  //     } else {
+  //       print('Failed to upload images. Status code: ${response.statusCode}');
+  //       print('Response body: $responseBody');
+  //       return null; // Return null or throw an exception based on your needs
+  //     }
+  //   } catch (e) {
+  //     print('Error in postImages: $e');
+  //     return null; // Return null or throw an exception based on your needs
+  //   }
+  // }
+  Future<String?> postImages(
     String inspID,
     String reportID,
     String? propertID,
     String? name1,
-    List<String> imageBytes, // Base64-encoded image data
+    List<String> imageBytes,
   ) async {
     try {
       final url = Uri.parse(
@@ -89,128 +194,25 @@ class _photosState extends State<photos> {
           html.window.sessionStorage['accessToken'] ?? '';
 
       final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+
+      print('Response status code: ${response.statusCode}');
+      print('Response body: $responseBody');
+
       if (response.statusCode == 200) {
-        final responseBody = await response.stream.bytesToString();
         final imagePath = json.decode(responseBody)['imagePath'];
+        print('Image path: $imagePath');
         return imagePath;
       } else {
-        throw Exception('Failed to upload images');
+        print('Failed to upload images. Status code: ${response.statusCode}');
+        print('Response body: $responseBody');
+        return null;
       }
     } catch (e) {
-      throw e;
+      print('Error in postImages: $e');
+      return null;
     }
   }
-  // Future<String> postImages(
-  //   String inspID,
-  //   String reportID,
-  //   String? propertID,
-  //   String? name1,
-  //   List<String> imageBytes, // Base64-encoded image data
-  // ) async {
-  //   try {
-  //     final url = Uri.parse(
-  //         'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/updateReportImages/$propertID/$inspID/$reportID');
-
-  //     final request = http.MultipartRequest(
-  //       'POST',
-  //       url,
-  //     );
-
-  //     if (imageBytes.isNotEmpty) {
-  //       final allowedExtensions = [".png", ".jpg", ".jpeg"];
-  //       final filename = 'image.jpg';
-
-  //       for (int i = 0; i < imageBytes.length; i++) {
-  //         final imageBytesAsUint8List = Uint8List.fromList(
-  //           base64.decode(imageBytes[i]),
-  //         );
-  //         final multipartFile = http.MultipartFile.fromBytes(
-  //           'images',
-  //           imageBytesAsUint8List,
-  //           filename: '$filename$i', // You can modify the filename as needed
-  //         );
-  //         request.files.add(multipartFile);
-  //       }
-  //     } else {
-  //       throw Exception('No images provided');
-  //     }
-
-  //     request.fields['areaName'] = name1 ?? '';
-  //     request.headers['accesstoken'] =
-  //         html.window.sessionStorage['accessToken'] ?? '';
-  //     request.headers['Content-Type'] = 'multipart/form-data';
-
-  //     final response = await request.send();
-  //     if (response.statusCode == 200) {
-  //       final responseBody = await response.stream.bytesToString();
-  //       final imagePath = json.decode(responseBody)['imagePath'];
-  //       return imagePath;
-  //     } else {
-  //       throw Exception('Failed to upload images');
-  //     }
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
-//  Future<String> postImages(
-//     String inspID,
-//     String reportID,
-//     String? propertID,
-//     String? name1,
-//     List<String> imageBytes, // Binary image data
-// ) async {
-//     try {
-//         final url = Uri.parse(
-//             'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/updateReportImages/$propertID/$inspID/$reportID');
-
-//         final request = http.MultipartRequest(
-//             'POST',
-//             url,
-//         );
-
-//         if (imageBytes.isNotEmpty) {
-//             final allowedExtensions = [".png", ".jpg", ".jpeg"];
-//             final filename = 'image.jpg'; // Change the filename as needed
-//             final ext = filename.split('.').last;
-//             if (allowedExtensions.contains(".$ext")) {
-//                 // Convert List<String> to List<int> by decoding Base64 data
-//                 final imageBytesAsInt = imageBytes.map((stringByte) {
-//                     final decoded = base64.decode(stringByte);
-//                     return Uint8List.fromList(decoded);
-//                 }).toList();
-
-//                 final multipartFile = http.MultipartFile.fromBytes(
-//                     'images',
-//                     imageBytesAsInt,
-//                     filename: filename,
-//                 );
-//                 print("Multipart file $multipartFile");
-//                 request.files.add(multipartFile);
-//             } else {
-//                 throw Exception('Invalid image file extension');
-//             }
-//         } else {
-//             throw Exception('No image provided');
-//         }
-
-//         request.fields['areaName'] = name1 ?? '';
-
-//         request.headers['accesstoken'] =
-//             html.window.sessionStorage['accessToken'] ?? '';
-
-//         final response = await request.send();
-//         if (response.statusCode == 200) {
-//             final responseBody = await response.stream.bytesToString();
-//             final imagePath = json.decode(responseBody)['imagePath'];
-//             return imagePath;
-//         } else {
-//             throw Exception('Failed to upload images');
-//         }
-//     } catch (e) {
-//         throw e;
-//     }
-// }
 
   Future<void> saveReportData(String inspectID1, String reportID1) async {
     final url = Uri.parse(
@@ -586,17 +588,36 @@ class _photosState extends State<photos> {
               child: Text('Save Data'),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: ElevatedButton(
-              onPressed: () => _saveArea(context),
-              child: Text('Save photo'),
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.all(20.0),
+          //   child: ElevatedButton(
+          //     onPressed: () => _saveArea(context),
+          //     child: Text('Save photo'),
+          //   ),
+          // ),
         ],
       ),
     );
   }
+// Future<void> _saveArea(BuildContext context) async {
+
+//     try {
+//       String base64Image = base64.encode(!);
+
+//       imagePath = await postImages(
+//         widget.inspectID1,
+//         widget.reportID1,
+//         widget.propertID,
+//         widget.title,
+//         [base64Image],
+//       );
+
+//     } catch (e) {
+//       // Handle the error or display an error message here.
+//       print('Error: $e');
+//     }
+
+// }
 
   void _saveArea(BuildContext context) async {
     imagePath = await postImages(widget.inspectID1, widget.reportID1,
@@ -630,7 +651,7 @@ class _photosState extends State<photos> {
           areaToUpdate['notes'] = '';
           areaToUpdate['photosNotes'] = photosNotesController.text;
           areaToUpdate['tenantComment'] = '';
-          areaToUpdate['isDeleted'] = true;
+          //areaToUpdate['isDeleted'] = true;
 
           // Update 'items' based on the provided response
           areaToUpdate['items'] = [

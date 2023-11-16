@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:crib4uinspect/areaadd.dart';
+import 'package:crib4uinspect/login.dart';
 import 'package:crib4uinspect/reportEntryExit.dart';
 import 'package:http/http.dart' as http;
 import 'package:crib4uinspect/inspection.dart';
@@ -239,9 +240,15 @@ class _basicDetailsState extends State<basicDetails> {
           ),
           actions: [
             IconButton(
-              icon: Icon(CupertinoIcons.create),
+              icon: Icon(Icons.logout_rounded),
               onPressed: () {
-                //  edit button press
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => login_page(),
+                  ),
+                );
+                // Handle search button press
               },
             ),
           ],

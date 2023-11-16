@@ -715,6 +715,8 @@
 
 import 'dart:typed_data';
 
+import 'package:crib4uinspect/edit.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -727,6 +729,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:image_picker_web/image_picker_web.dart';
+import 'package:universal_html/html.dart' as html;
 
 class Area51 {
   final String name;
@@ -882,7 +885,8 @@ class _AddAreaScreenState extends State<AddAreaScreen> {
 
       // Add the JWT token to the request headers
       request.headers['accesstoken'] =
-          widget.jwttoken ?? ''; // Use an empty string if jwttoken is null
+          html.window.sessionStorage['accessToken'] ??
+              ''; // Use an empty string if jwttoken is null
 
       // Set the Content-Type header to "multipart/form-data"
       request.headers['Content-Type'] = 'multipart/form-data';
@@ -1002,7 +1006,7 @@ class _AddAreaScreenState extends State<AddAreaScreen> {
         url,
         headers: <String, String>{
           'Content-Type': 'application/json',
-          'accessToken': '${widget.jwttoken}',
+          'accessToken': '${html.window.sessionStorage['accessToken']}',
         },
         body: jsonEncode({
           'ReportDetails': widget.reportDetails
@@ -1022,16 +1026,45 @@ class _AddAreaScreenState extends State<AddAreaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        toolbarHeight: 80.0,
+        backgroundColor: Color.fromRGBO(162, 154, 255, 1),
+        leading: IconButton(
+          icon: Icon(CupertinoIcons.back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              widget.areaName,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w500,
+                fontSize: 37.0,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          // IconButton(
+          //   icon: Icon(CupertinoIcons.create),
+          //   onPressed: () {
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(
+          //         builder: (context) => edit(),
+          //       ),
+          //     );
+          //   },
+          // ),
+        ],
+      ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Text(
-              
-              widget.areaName,
-              style: TextStyle(fontSize: 50),
-            ),
-          ),
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Container(
@@ -1088,13 +1121,13 @@ class _AddAreaScreenState extends State<AddAreaScreen> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: ElevatedButton(
-              onPressed: () => _saveArea(context),
-              child: Text('Save Image'),
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.all(20.0),
+          //   child: ElevatedButton(
+          //     onPressed: () => _saveArea(context),
+          //     child: Text('Save Image'),
+          //   ),
+          // ),
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: ElevatedButton(
@@ -1114,6 +1147,7 @@ class _AddAreaScreenState extends State<AddAreaScreen> {
       setState(() {
         imageFile = imageInfo.data;
       });
+      _saveArea(context);
     }
   }
 
@@ -1138,7 +1172,7 @@ class _AddAreaScreenState extends State<AddAreaScreen> {
           areaToUpdate['notes'] = nameController.text;
           areaToUpdate['photonotes'] = descriptionController.text;
           areaToUpdate['tenantComment'] = "";
-          areaToUpdate['isDeleted'] = true;
+          // areaToUpdate['isDeleted'] = true;
           areaToUpdate['items'] = [];
           areaToUpdate['photos'] = [
             {'url': imagePath, 'name': "", 'notes': ""}

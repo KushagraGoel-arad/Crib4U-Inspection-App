@@ -90,6 +90,7 @@ class _reportEntryExitState extends State<reportEntryExit> {
   // String status = '';
   // String inspectionDate = '';
   String reportID = '';
+  String inspectionID = '';
   List<dynamic> details1 = [];
 
   List<Areas> createAreasList(List<dynamic> areasData) {
@@ -103,7 +104,7 @@ class _reportEntryExitState extends State<reportEntryExit> {
           name: itemData?['name'] ?? '',
           agentComment: itemData?['agentComment'] ?? '',
           otherComment: itemData?['otherComment'] ?? '',
-          isDeleted: itemData?['isDeleted'] as bool ?? false,
+          isDeleted: itemData?['isDeleted'] as bool,
           conditions: conditions,
         );
       }).toList();
@@ -113,7 +114,7 @@ class _reportEntryExitState extends State<reportEntryExit> {
         notes: areaData['notes'] ?? '',
         photosNotes: areaData['photosNotes'] ?? '',
         tenantComment: areaData['tenantComment'] ?? '',
-        isDeleted: areaData['isDeleted'] as bool ?? false,
+        isDeleted: areaData['isDeleted'] as bool,
         items: item2,
         photos: areaData['photos'] ?? '',
       );
@@ -338,10 +339,10 @@ class _reportEntryExitState extends State<reportEntryExit> {
           for (var inspection in details1) {
             // accessType = inspection['type'];
             // status = inspection['status'];
-            // inspectionDate = inspection['inspectionDate'];
+            inspectionID = inspection['inspectionId'];
             reportID = inspection['reportId'];
-
           }
+          showSuccessDialog(details1);
         }
       }
     } else {
@@ -370,7 +371,7 @@ class _reportEntryExitState extends State<reportEntryExit> {
           "address": {"line_two": "", "line_one": "", "zip_code": ""}
         }
       },
-      "copyReportId": reportID
+      "copyReportId": reportId
     });
     print(Body);
 
@@ -399,7 +400,6 @@ class _reportEntryExitState extends State<reportEntryExit> {
       context: context,
       builder: (BuildContext context) {
         return IntrinsicHeight(
-          
           child: AlertDialog(
             title: Text("Report List"),
             content: Column(
@@ -421,7 +421,7 @@ class _reportEntryExitState extends State<reportEntryExit> {
                   trailing: IconButton(
                     icon: Icon(Icons.copy),
                     onPressed: () {
-                      copy(widget.inspId, widget.reportId);
+                      copy(inspectionID, reportID);
                     },
                   ),
                 );
@@ -488,7 +488,7 @@ class _reportEntryExitState extends State<reportEntryExit> {
             IconButton(
               icon: Icon(Icons.copy),
               onPressed: () {
-                showSuccessDialog(details1);
+                // showSuccessDialog(details1);
                 getReportList(widget.propertyId);
               },
             ),

@@ -514,8 +514,9 @@ class _inspectState extends State<inspect> {
         ),
         actions: [
           IconButton(
-            icon: Icon(CupertinoIcons.create),
+            icon: Icon(Icons.logout_rounded),
             onPressed: () {
+              Navigator.pop(context);
               // Handle search button press
             },
           ),
