@@ -8,6 +8,7 @@ import 'package:crib4uinspect/report.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:universal_html/html.dart' as html;
 
 class basicDetails extends StatefulWidget {
   final String? type;
@@ -242,6 +243,7 @@ class _basicDetailsState extends State<basicDetails> {
             IconButton(
               icon: Icon(Icons.logout_rounded),
               onPressed: () {
+                html.window.sessionStorage.clear();
                 Navigator.push(
                   context,
                   MaterialPageRoute(

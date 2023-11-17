@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 class AddAreaDialog extends StatefulWidget {
   final List<String> existingAreaNames;
   final Function(String) onAreaAdded;
-  final Function(String) onAreaDeleted;
+  // final Function(String) onAreaDeleted;
 
   AddAreaDialog({
     required this.existingAreaNames,
     required this.onAreaAdded,
-    required this.onAreaDeleted,
+    // required this.onAreaDeleted,
   });
 
   @override
@@ -39,6 +39,7 @@ class _AddAreaDialogState extends State<AddAreaDialog> {
               widget.onAreaAdded(areaName);
               _areaNameController.clear();
             }
+            Navigator.pop(context);
           },
           child: Text('Add Area'),
         ),
@@ -53,13 +54,13 @@ class _AddAreaDialogState extends State<AddAreaDialog> {
                 final areaName = widget.existingAreaNames[index];
                 return ListTile(
                   title: Text(areaName),
-                  trailing: IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: () {
-                      widget.onAreaDeleted(areaName);
-                      
-                    },
-                  ),
+                  // trailing: IconButton(
+                  //   icon: Icon(Icons.delete),
+                  //   onPressed: () {
+                  //    // widget.onAreaDeleted(areaName);
+
+                  //   },
+                  // ),
                 );
               },
             ),

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:crib4uinspect/areas_photos.dart';
 import 'package:crib4uinspect/diningRoom.dart';
 import 'package:crib4uinspect/report.dart';
+import 'package:crib4uinspect/reportEntryExit.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -92,7 +93,38 @@ class _notesState extends State<notes> {
         leading: IconButton(
           icon: Icon(CupertinoIcons.back),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => reportEntryExit(
+                      followupActions: '',
+                      isSharedWithOwner: false,
+                      isSharedWithTenant: false,
+                      notes: '',
+                      rentReview: '',
+                      signs_moulds_dampness: false,
+                      pests_vermin: false,
+                      rubbish_bin_left_premises: false,
+                      telephone_line_premises: false,
+                      internet_line_premises: false,
+                      shower_wtr_rate_ltr_minute: false,
+                      internal_basins_wtr_rate_ltr_minute: false,
+                      no_licking_taps: false,
+                      water_meter_reading: '',
+                      cleaning_repair_notes: '',
+                      instalation_wtr_measures_on: '',
+                      paint_premises_external_on: 'paint_premises_external_on',
+                      paint_premises_internal_on: 'paint_premises_internal_on',
+                      landlord_aggred_work_on: 'landlord_aggred_work_on',
+                      flooring_clean_replaced_on: 'flooring_clean_replaced_on',
+                      inspId: widget.inspectID,
+                      reportId: widget.reportID,
+                      jwtToken: widget.jwt1,
+                      propertyId: '',
+                      reportdetails: widget.repdetail,
+                      areaList: [],
+                      areadata: [])),
+            );
             // Navigator.push(
             //   context,
             //   MaterialPageRoute(builder: (context) => report()),
@@ -114,10 +146,10 @@ class _notesState extends State<notes> {
           ],
         ),
         actions: [
-          IconButton(
-            icon: Icon(CupertinoIcons.create),
-            onPressed: () {},
-          ),
+          // IconButton(
+          //   icon: Icon(CupertinoIcons.create),
+          //   onPressed: () {},
+          // ),
         ],
       ),
       body: Column(
@@ -134,10 +166,10 @@ class _notesState extends State<notes> {
                       MaterialPageRoute(
                         builder: (context) => areasEntryExit(
                           title: widget.title,
-                          areaDetails: [],
-                          inspectId: '',
-                          reportDetails: {},
-                          reportId: '',
+                          areaDetails: widget.passNotes,
+                          inspectId: widget.inspectID,
+                          reportDetails: widget.repdetail,
+                          reportId: widget.reportID,
                         ),
                       ),
                     );
@@ -163,10 +195,10 @@ class _notesState extends State<notes> {
                       MaterialPageRoute(
                         builder: (context) => photos(
                           title: widget.title,
-                          passPhotos: [],
-                          repdetail1: {},
-                          inspectID1: '',
-                          reportID1: '',
+                          passPhotos: widget.passNotes,
+                          repdetail1: widget.repdetail,
+                          inspectID1: widget.inspectID,
+                          reportID1: widget.reportID,
                         ),
                       ),
                     );
@@ -191,10 +223,10 @@ class _notesState extends State<notes> {
                       MaterialPageRoute(
                         builder: (context) => notes(
                           title: widget.title,
-                          passNotes: [],
-                          repdetail: {},
-                          inspectID: '',
-                          reportID: '',
+                          passNotes: widget.passNotes,
+                          repdetail: widget.repdetail,
+                          inspectID: widget.inspectID,
+                          reportID: widget.reportID,
                         ),
                       ),
                     );

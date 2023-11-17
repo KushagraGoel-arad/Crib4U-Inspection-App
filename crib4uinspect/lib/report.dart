@@ -85,6 +85,8 @@ class _reportState extends State<report> {
   String reportID = '';
   String inspectionID = '';
   List<dynamic> details1 = [];
+  bool isDeleteIconVisible = false;
+
   final List<String> items = [
     'Shared with User',
   ];
@@ -296,12 +298,68 @@ class _reportState extends State<report> {
                   trailing: IconButton(
                     icon: Icon(Icons.copy),
                     onPressed: () {
+                      Navigator.of(context).pop();
                       copy(inspectionID, reportID);
                     },
                   ),
                 );
               }).toList(),
             ),
+            // actions: <Widget>[
+            //   TextButton(
+            //     child: Text("OK"),
+            //     onPressed: () {
+            //       Navigator.of(context).pop(); // Close the success dialog
+            //     },
+            //   ),
+            // ],
+          ),
+        );
+      },
+    );
+  }
+
+  _showDeleteConfirmationDialog(
+      BuildContext context, String areaName, int index) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Delete Area"),
+          content: Text("Are you sure you want to delete this area?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                // Delete the area and update the UI
+                deleteArea(widget.inspId, widget.reportId, areaName);
+                setState(() {
+                  areasadd.removeAt(index);
+                });
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text("Delete"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  
+  void showErrorBox(String errorMessage) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return IntrinsicHeight(
+          child: AlertDialog(
+            title: Text("Error"),
+            content: Text(errorMessage),
             actions: <Widget>[
               TextButton(
                 child: Text("OK"),
@@ -334,11 +392,6 @@ class _reportState extends State<report> {
         .toList();
   }
 
-  // void updateSelectedArea(int index) {
-  //   nameController.text = widget.areaList[index].notes;
-  //   descriptionController.text = widget.areaList[index].photosNotes;
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -348,12 +401,7 @@ class _reportState extends State<report> {
           leading: IconButton(
             icon: Icon(CupertinoIcons.back),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => inspect(),
-                ),
-              );
+              Navigator.pop(context);
             },
           ),
           title: Row(
@@ -378,13 +426,49 @@ class _reportState extends State<report> {
               },
             ),
             IconButton(
-              icon: Icon(CupertinoIcons.create),
+              icon: Icon(CupertinoIcons.add_circled_solid),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => edit(),
-                  ),
+                setState(() {
+                  isDeleteIconVisible = true;
+                });
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      backgroundColor: Colors.transparent,
+                      content: SizedBox(
+                        width: 800,
+                        height: 700,
+                        child: AddAreaDialog(
+                          existingAreaNames:
+                              areasadd.map((area) => area.name).toList(),
+                          onAreaAdded: (newAreaName) {
+                            // Check for duplicates before adding a new area
+                            if (!areasadd
+                                .any((area) => area.name == newAreaName)) {
+                              final newArea = Areas(
+                                  name: newAreaName,
+                                  isDeleted: false,
+                                  items: [],
+                                  notes: '',
+                                  photos: [],
+                                  photosNotes: '',
+                                  tenantComment: '');
+                              setState(() {
+                                areasadd.add(newArea);
+                              });
+                              // Call the addNewArea function here with the areaName
+                              addNewArea(
+                                  widget.inspId, widget.reportId, newAreaName);
+                            } else {
+                              // Handle the case where the area name is a duplicate (show an error, etc.)
+                              // You may want to display a snackbar or dialog to inform the user.
+                            }
+                          },
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
             ),
@@ -676,6 +760,20 @@ class _reportState extends State<report> {
                           Icons.arrow_forward,
                           color: Color.fromRGBO(162, 154, 255, 1),
                         ),
+                        leading: isDeleteIconVisible
+                            ? IconButton(
+                                icon: Icon(
+                                  CupertinoIcons.minus_circle,
+                                  color: Colors
+                                      .red, // Customize the color if needed
+                                ),
+                                onPressed: () => _showDeleteConfirmationDialog(
+                                    context, area.name, index),
+                              )
+                            : Icon(
+                                Icons.home,
+                                color: Color.fromRGBO(162, 154, 255, 1),
+                              ),
                         onTap: () {
                           setState(() {
                             // Check if selectedAreaIndex is valid
@@ -797,63 +895,64 @@ class _reportState extends State<report> {
               //     },
               //   ),
               // ),
-              FloatingActionButton(
-                backgroundColor: Color.fromRGBO(127, 117, 240, 1),
-                splashColor: Color.fromRGBO(162, 154, 255, 1),
-                onPressed: () {
-                  // Show the dialog to add a new area
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        backgroundColor: Colors.transparent,
-                        content: SizedBox(
-                          width: 800,
-                          height: 700,
-                          child: AddAreaDialog(
-                            existingAreaNames:
-                                areasadd.map((area) => area.name).toList(),
-                            onAreaAdded: (newAreaName) {
-                              // Check for duplicates before adding a new area
-                              if (!areasadd
-                                  .any((area) => area.name == newAreaName)) {
-                                final newArea = Areas(
-                                    name: newAreaName,
-                                    isDeleted: false,
-                                    items: [],
-                                    notes: '',
-                                    photos: [],
-                                    photosNotes: '',
-                                    tenantComment: '');
-                                setState(() {
-                                  areasadd.add(newArea);
-                                });
-                                // Call the addNewArea function here with the areaName
-                                addNewArea(widget.inspId, widget.reportId,
-                                    newAreaName);
-                              } else {
-                                // Handle the case where the area name is a duplicate (show an error, etc.)
-                                // You may want to display a snackbar or dialog to inform the user.
-                              }
-                            },
-                            onAreaDeleted: (NewareaName) {
-                              // Handle deleting existing area here
-                              setState(() {
-                                deleteArea(widget.inspId, widget.reportId,
-                                    NewareaName);
-                                areasadd.removeWhere(
-                                    (area) => area.name == NewareaName);
-                                // Implement the logic for deleting an area from the server
-                              });
-                            },
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-                child: Icon(Icons.add),
-              ),
+
+              // FloatingActionButton(
+              //   backgroundColor: Color.fromRGBO(127, 117, 240, 1),
+              //   splashColor: Color.fromRGBO(162, 154, 255, 1),
+              //   onPressed: () {
+              //     // Show the dialog to add a new area
+              //     showDialog(
+              //       context: context,
+              //       builder: (context) {
+              //         return AlertDialog(
+              //           backgroundColor: Colors.transparent,
+              //           content: SizedBox(
+              //             width: 800,
+              //             height: 700,
+              //             child: AddAreaDialog(
+              //               existingAreaNames:
+              //                   areasadd.map((area) => area.name).toList(),
+              //               onAreaAdded: (newAreaName) {
+              //                 // Check for duplicates before adding a new area
+              //                 if (!areasadd
+              //                     .any((area) => area.name == newAreaName)) {
+              //                   final newArea = Areas(
+              //                       name: newAreaName,
+              //                       isDeleted: false,
+              //                       items: [],
+              //                       notes: '',
+              //                       photos: [],
+              //                       photosNotes: '',
+              //                       tenantComment: '');
+              //                   setState(() {
+              //                     areasadd.add(newArea);
+              //                   });
+              //                   // Call the addNewArea function here with the areaName
+              //                   addNewArea(widget.inspId, widget.reportId,
+              //                       newAreaName);
+              //                 } else {
+              //                   // Handle the case where the area name is a duplicate (show an error, etc.)
+              //                   // You may want to display a snackbar or dialog to inform the user.
+              //                 }
+              //               },
+              //               // onAreaDeleted: (NewareaName) {
+              //               //   // Handle deleting existing area here
+              //               //   setState(() {
+              //               //     deleteArea(widget.inspId, widget.reportId,
+              //               //         NewareaName);
+              //               //     areasadd.removeWhere(
+              //               //         (area) => area.name == NewareaName);
+              //               //     // Implement the logic for deleting an area from the server
+              //               //   });
+              //               // },
+              //             ),
+              //           ),
+              //         );
+              //       },
+              //     );
+              //   },
+              //   child: Icon(Icons.add),
+              // ),
             ],
           )),
         ));

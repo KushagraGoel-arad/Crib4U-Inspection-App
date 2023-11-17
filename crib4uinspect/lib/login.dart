@@ -89,7 +89,7 @@ class _login_pageState extends State<login_page> {
               child: Text("OK"),
               onPressed: () {
                 Navigator.of(context).pop(); // Close the success dialog
-            },
+              },
             ),
           ],
         );
@@ -153,7 +153,7 @@ class _login_pageState extends State<login_page> {
         showErrorDialog('Login Success');
       }
     } else {
-      showErrorDialog('${response.statusCode}');
+      showErrorDialog('${response.body}');
       print('API request failed with status code: ${response.statusCode}');
       //print('Response body: ${response.Body}');
     }

@@ -52,12 +52,7 @@ class _editState extends State<edit> {
           leading: IconButton(
             icon: Icon(CupertinoIcons.back),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => inspect(),
-                ),
-              );
+              Navigator.pop(context);
             },
           ),
           title: Row(
@@ -95,11 +90,11 @@ class _editState extends State<edit> {
 
                     return Card(
                       child: ListTile(
-                        leading: IconButton(
-                          icon: Icon(CupertinoIcons.minus_circle_fill,
-                              color: Colors.red),
-                          onPressed: () {},
-                        ),
+                        // leading: IconButton(
+                        //   icon: Icon(CupertinoIcons.minus_circle_fill,
+                        //       color: Colors.red),
+                        //   onPressed: () {},
+                        // ),
                         title: Text(
                           items[index],
                           style: TextStyle(fontSize: 18.0),
@@ -126,11 +121,11 @@ class _editState extends State<edit> {
 
                     return Card(
                       child: ListTile(
-                        leading: IconButton(
-                          icon: Icon(CupertinoIcons.minus_circle_fill,
-                              color: Colors.red),
-                          onPressed: () {},
-                        ),
+                        // leading: IconButton(
+                        //   icon: Icon(CupertinoIcons.minus_circle_fill,
+                        //       color: Colors.red),
+                        //   onPressed: () {},
+                        // ),
                         title: Text(
                           item1[index],
                           style: TextStyle(fontSize: 18.0),

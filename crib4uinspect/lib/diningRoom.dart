@@ -4,33 +4,46 @@ import 'package:crib4uinspect/areaadd.dart';
 import 'package:crib4uinspect/areas_notes.dart';
 import 'package:crib4uinspect/areas_photos.dart';
 import 'package:crib4uinspect/report.dart';
+import 'package:crib4uinspect/reportEntryExit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:universal_html/html.dart'
-    as html; 
+import 'package:universal_html/html.dart' as html;
 
 class areasEntryExit extends StatefulWidget {
   // final Inspection inspectionData;
   final String title;
   String? jwtToken;
-  Map<String, dynamic> reportDetails;
+  Map<String, dynamic>? reportDetails;
   String inspectId;
-  List<Map<String, dynamic>> areaDetails;
-  String reportId;
+  List<Map<String, dynamic>>? areaDetails;
+  String? reportId;
   String? propId;
-  areasEntryExit({
-    super.key,
-    required this.title,
-    required this.areaDetails,
-    this.jwtToken,
-    required this.reportDetails,
-    required this.inspectId,
-    required this.reportId,
-    this.propId,
-    //required this.inspectionData
-  });
+  final String? accessToken;
+  final String? refreshToken;
+  final String? followupActions;
+  bool? isSharedWithOwner;
+  bool? isSharedWithTenant;
+  final String? notes;
+  final String? rentReview;
+  areasEntryExit(
+      {super.key,
+      required this.title,
+      required this.areaDetails,
+      this.jwtToken,
+      required this.reportDetails,
+      required this.inspectId,
+      required this.reportId,
+      this.propId,
+      this.accessToken,
+      this.refreshToken,
+      this.followupActions,
+      this.notes,
+      this.rentReview
+
+      //required this.inspectionData
+      });
 
   @override
   State<areasEntryExit> createState() => _areasEntryExitState();
@@ -77,7 +90,7 @@ class _areasEntryExitState extends State<areasEntryExit> {
   late Map<String, Selection> itemSelections;
 
   List<Map<String, dynamic>> getItemsForAreaName(areaName) {
-    final area = widget.areaDetails.firstWhere(
+    final area = widget.areaDetails!.firstWhere(
       (area) => area['name'] == areaName,
       orElse: () => <String, dynamic>{},
     );
@@ -133,7 +146,7 @@ class _areasEntryExitState extends State<areasEntryExit> {
     if (_obj != null) {
       var _cList = _obj['conditions'] ?? [];
       //print("_cList: $_cList");
-      for (int i = 0; i < _cList.length; i++) {
+      for (int i = 0; i < _cList.hashCode; i++) {
         //print("_cList of i: ${_cList[i]}");
 
         if (_cList[i]['name'] == conditionName) {
@@ -252,9 +265,9 @@ class _areasEntryExitState extends State<areasEntryExit> {
     // updateSelectedArea(selectedAreaIndex);
     // Initialize agentCommentControllers based on the number of items
     agentCommentControllers = List.generate(
-      widget.areaDetails.length,
+      widget.areaDetails!.length,
       (index) => TextEditingController(
-          text: widget.areaDetails[index]['agentComment']),
+          text: widget.areaDetails![index]['agentComment']),
     );
   }
 
@@ -274,7 +287,38 @@ class _areasEntryExitState extends State<areasEntryExit> {
         leading: IconButton(
           icon: Icon(CupertinoIcons.back),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => reportEntryExit(
+                      followupActions: '',
+                      isSharedWithOwner: false,
+                      isSharedWithTenant: false,
+                      notes: '',
+                      rentReview: '',
+                      signs_moulds_dampness: false,
+                      pests_vermin: false,
+                      rubbish_bin_left_premises: false,
+                      telephone_line_premises: false,
+                      internet_line_premises: false,
+                      shower_wtr_rate_ltr_minute: false,
+                      internal_basins_wtr_rate_ltr_minute: false,
+                      no_licking_taps: false,
+                      water_meter_reading: '',
+                      cleaning_repair_notes: '',
+                      instalation_wtr_measures_on: '',
+                      paint_premises_external_on: 'paint_premises_external_on',
+                      paint_premises_internal_on: 'paint_premises_internal_on',
+                      landlord_aggred_work_on: 'landlord_aggred_work_on',
+                      flooring_clean_replaced_on: 'flooring_clean_replaced_on',
+                      inspId: '',
+                      reportId: '',
+                      jwtToken: '',
+                      propertyId: '',
+                      reportdetails: {},
+                      areaList: [],
+                      areadata: [])),
+            );
           },
         ),
         title: Row(
@@ -292,10 +336,10 @@ class _areasEntryExitState extends State<areasEntryExit> {
           ],
         ),
         actions: [
-          IconButton(
-            icon: Icon(CupertinoIcons.create),
-            onPressed: () {},
-          ),
+          // IconButton(
+          //   icon: Icon(CupertinoIcons.create),
+          //   onPressed: () {},
+          // ),
         ],
       ),
       body: Column(
@@ -327,11 +371,11 @@ class _areasEntryExitState extends State<areasEntryExit> {
                       MaterialPageRoute(
                         builder: (context) => photos(
                           title: widget.title,
-                          passPhotos: widget.areaDetails,
+                          passPhotos: widget.areaDetails!,
                           jwt: widget.jwtToken,
-                          repdetail1: widget.reportDetails,
+                          repdetail1: widget.reportDetails!,
                           inspectID1: widget.inspectId,
-                          reportID1: widget.reportId,
+                          reportID1: widget.reportId!,
                           propertID: widget.propId,
                         ),
                       ),
@@ -358,11 +402,11 @@ class _areasEntryExitState extends State<areasEntryExit> {
                       MaterialPageRoute(
                         builder: (context) => notes(
                           title: widget.title,
-                          passNotes: widget.areaDetails,
+                          passNotes: widget.areaDetails!,
                           jwt1: widget.jwtToken,
-                          repdetail: widget.reportDetails,
+                          repdetail: widget.reportDetails!,
                           inspectID: widget.inspectId,
-                          reportID: widget.reportId,
+                          reportID: widget.reportId!,
                         ),
                       ),
                     );
@@ -543,8 +587,7 @@ class _areasEntryExitState extends State<areasEntryExit> {
                                       onTap: () {
                                         setState(() {
                                           final updatedWorkingValue =
-                                              workingValue ??
-                                                  ""; 
+                                              workingValue ?? "";
                                           updateItemCondition(index, 'Working',
                                               updatedWorkingValue);
                                         });
@@ -641,12 +684,12 @@ class _areasEntryExitState extends State<areasEntryExit> {
 //     });
 
     try {
-      final areas = widget.reportDetails['areas'] as List;
+      final areas = widget.reportDetails!['areas'] as List;
 
-      if (widget.reportDetails.containsKey('areas') &&
-          widget.reportDetails['areas'] is List) {
+      if (widget.reportDetails!.containsKey('areas') &&
+          widget.reportDetails!['areas'] is List) {
         // Cast the 'areas' to a List
-        var areasList = widget.reportDetails['areas'] as List;
+        var areasList = widget.reportDetails!['areas'] as List;
 
         // Find the index of the area with the matching 'name'
         var areaIndex =
@@ -676,7 +719,7 @@ class _areasEntryExitState extends State<areasEntryExit> {
 
       await saveReportData(
         widget.inspectId,
-        widget.reportId,
+        widget.reportId!,
       );
       //agentCommentController.clear();
       // cleanValue = "";

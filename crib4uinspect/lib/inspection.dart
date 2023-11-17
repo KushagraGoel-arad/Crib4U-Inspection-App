@@ -516,6 +516,7 @@ class _inspectState extends State<inspect> {
           IconButton(
             icon: Icon(Icons.logout_rounded),
             onPressed: () {
+              html.window.sessionStorage.clear();
               Navigator.pop(context);
               // Handle search button press
             },
@@ -704,14 +705,14 @@ class _inspectState extends State<inspect> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Color.fromRGBO(127, 117, 240, 1),
-        splashColor: Color.fromRGBO(162, 154, 255, 1),
-        child: Icon(Icons.add),
-        onPressed: () {
-          // _addTask();
-        },
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   backgroundColor: Color.fromRGBO(127, 117, 240, 1),
+      //   splashColor: Color.fromRGBO(162, 154, 255, 1),
+      //   child: Icon(Icons.add),
+      //   onPressed: () {
+      //     // _addTask();
+      //   },
+      // ),
     );
   }
 }

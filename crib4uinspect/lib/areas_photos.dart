@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:crib4uinspect/areas_notes.dart';
 import 'package:crib4uinspect/diningRoom.dart';
 import 'package:crib4uinspect/report.dart';
+import 'package:crib4uinspect/reportEntryExit.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -273,12 +274,38 @@ class _photosState extends State<photos> {
         leading: IconButton(
           icon: Icon(CupertinoIcons.back),
           onPressed: () {
-            // Navigator.push(
-            //           context,
-            //           MaterialPageRoute(
-            //             builder: (context) => report()
-            //           ),
-            //         );
+        Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => reportEntryExit(
+                      followupActions: '',
+                      isSharedWithOwner: false,
+                      isSharedWithTenant: false,
+                      notes: '',
+                      rentReview: '',
+                      signs_moulds_dampness: false,
+                      pests_vermin: false,
+                      rubbish_bin_left_premises: false,
+                      telephone_line_premises: false,
+                      internet_line_premises: false,
+                      shower_wtr_rate_ltr_minute: false,
+                      internal_basins_wtr_rate_ltr_minute: false,
+                      no_licking_taps: false,
+                      water_meter_reading: '',
+                      cleaning_repair_notes: '',
+                      instalation_wtr_measures_on: '',
+                      paint_premises_external_on: 'paint_premises_external_on',
+                      paint_premises_internal_on: 'paint_premises_internal_on',
+                      landlord_aggred_work_on: 'landlord_aggred_work_on',
+                      flooring_clean_replaced_on: 'flooring_clean_replaced_on',
+                      inspId: widget.inspectID1,
+                      reportId: widget.reportID1,
+                      jwtToken: widget.jwt,
+                      propertyId: widget.propertID,
+                      reportdetails: widget.repdetail1,
+                      areaList: [],
+                      areadata: [])),
+            );
           },
         ),
         title: Row(
@@ -296,14 +323,14 @@ class _photosState extends State<photos> {
           ],
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.copy),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: Icon(CupertinoIcons.create),
-            onPressed: () {},
-          ),
+          // IconButton(
+          //   icon: Icon(Icons.copy),
+          //   onPressed: () {},
+          // ),
+          // IconButton(
+          //   icon: Icon(CupertinoIcons.create),
+          //   onPressed: () {},
+          // ),
         ],
       ),
       body: Column(
@@ -319,10 +346,10 @@ class _photosState extends State<photos> {
                       MaterialPageRoute(
                         builder: (context) => areasEntryExit(
                           title: widget.title,
-                          areaDetails: [],
-                          inspectId: '',
-                          reportDetails: {},
-                          reportId: '',
+                          areaDetails: widget.passPhotos,
+                          inspectId: widget.inspectID1,
+                          reportDetails: widget.repdetail1,
+                          reportId: widget.reportID1,
                         ),
                       ),
                     );
@@ -348,10 +375,10 @@ class _photosState extends State<photos> {
                       MaterialPageRoute(
                         builder: (context) => photos(
                           title: widget.title,
-                          passPhotos: [],
-                          repdetail1: {},
-                          inspectID1: '',
-                          reportID1: '',
+                          passPhotos: widget.passPhotos,
+                          repdetail1: widget.repdetail1,
+                          inspectID1: widget.inspectID1,
+                          reportID1: widget.reportID1,
                         ),
                       ),
                     );
@@ -377,10 +404,10 @@ class _photosState extends State<photos> {
                       MaterialPageRoute(
                         builder: (context) => notes(
                           title: widget.title,
-                          passNotes: [],
-                          inspectID: '',
-                          repdetail: {},
-                          reportID: '',
+                          passNotes: widget.passPhotos,
+                          inspectID: widget.inspectID1,
+                          repdetail: widget.repdetail1,
+                          reportID: widget.reportID1,
                         ),
                       ),
                     );
