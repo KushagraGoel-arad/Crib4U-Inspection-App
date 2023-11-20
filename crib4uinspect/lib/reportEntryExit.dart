@@ -93,6 +93,8 @@ class _reportEntryExitState extends State<reportEntryExit> {
   String msg = '';
   String inspectionID = '';
   List<dynamic> details1 = [];
+  dynamic details3;
+  dynamic details4;
   bool isDeleteIconVisible = false;
   List<Areas> createAreasList(List<dynamic> areasData) {
     // print("areasData: $areasData");
@@ -259,12 +261,14 @@ class _reportEntryExitState extends State<reportEntryExit> {
         body: requestBodyJson,
       );
 
+      final responseBodyJson = jsonDecode(response.body);
+      if (response.body.isNotEmpty) {
+        msg = responseBodyJson['message'];
+        return msg; // Return the message
+      }
       if (response.statusCode == 200 && response.statusCode < 300) {
         final responseBodyJson = jsonDecode(response.body);
-        if (response.body.contains('message')) {
-          msg = responseBodyJson['message'];
-          return msg; // Return the message
-        }
+
         // Process the response data if needed
         // print(responseBodyJson);
       } else {
@@ -301,19 +305,23 @@ class _reportEntryExitState extends State<reportEntryExit> {
       headers: headers,
       body: jsonBody,
     );
-
+    if (response.body.isNotEmpty) {
+      final responseData = jsonDecode(response.body);
+      details4 = responseData['detail'];
+      print('Response data: $responseData');
+    }
     if (response.statusCode == 200) {
-      showErrorBox('Area deleted successfully');
       // Request was successful, you can handle the response here
       print('Area deleted successfully');
       // If there's a response body, you can also parse it
       if (response.body.isNotEmpty) {
         final responseData = jsonDecode(response.body);
-        print('Response data: $responseData');
+        dynamic det = responseData['message'];
+        showSuccess(det);
+        print('details: $det');
       }
     } else {
-      showErrorBox(
-          'Failed to delete area. Status code: ${response.statusCode}');
+      showErrorBox(details4);
       // Request failed, handle the error here
       print('Failed to delete area. Status code: ${response.statusCode}');
       print('Response body: ${response.body}');
@@ -335,6 +343,8 @@ class _reportEntryExitState extends State<reportEntryExit> {
       uri,
       headers: headers,
     );
+    final responseData = jsonDecode(response.body);
+    details3 = responseData['details'];
 
     if (response.statusCode == 200) {
       // Request was successful, you can handle the response here
@@ -357,8 +367,7 @@ class _reportEntryExitState extends State<reportEntryExit> {
         }
       }
     } else {
-      showErrorBox(
-          'Failed to retrieve report list. Status code: ${response.statusCode}');
+      showErrorBox(details3);
       // Request failed, handle the error here
       print(
         'Failed to retrieve report list. Status code: ${response.statusCode}',
@@ -425,12 +434,15 @@ class _reportEntryExitState extends State<reportEntryExit> {
             'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/copyReport/$inspectionId/$reportId'),
         body: Body,
         headers: Headers);
-
+    final responseBodyJson = jsonDecode(response.body);
+    final deta = responseBodyJson['message'];
+    showErrorBox(deta);
     //http.StreamedResponse response = await request.send();
     print(response);
     if (response.statusCode == 200 && response.statusCode < 300) {
       final responseBodyJson = jsonDecode(response.body);
-
+      final details = responseBodyJson['message'];
+      showSuccess(details);
       //final responseData = responseBodyJson['data'];
       //
 
@@ -482,6 +494,26 @@ class _reportEntryExitState extends State<reportEntryExit> {
             //   ),
             // ],
           ),
+        );
+      },
+    );
+  }
+
+  void showSuccess(String details) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return IntrinsicHeight(
+          child: AlertDialog(title: Text("Success"), content: Text(details)
+              // actions: <Widget>[
+              //   TextButton(
+              //     child: Text("OK"),
+              //     onPressed: () {
+              //       Navigator.of(context).pop(); // Close the success dialog
+              //     },
+              //   ),
+              // ],
+              ),
         );
       },
     );
@@ -584,12 +616,6 @@ class _reportEntryExitState extends State<reportEntryExit> {
                                 .any((area) => area.name == newAreaName)) {
                               final newArea = Areas(
                                 name: newAreaName,
-                                isDeleted: false,
-                                items: [],
-                                notes: '',
-                                photos: [],
-                                photosNotes: '',
-                                tenantComment: '',
                               );
                               setState(() {
                                 takeareaData.add(newArea);

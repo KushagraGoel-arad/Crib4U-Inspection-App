@@ -1082,75 +1082,77 @@ class _CompliancePageState extends State<CompliancePage> {
             fontSize: 37.0,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.copy),
-            onPressed: () {
-              // Handle copy button press
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.create),
-            onPressed: () {
-              // Handle create button press
-            },
-          ),
-        ],
+        // actions: [
+        //   IconButton(
+        //     icon: Icon(Icons.copy),
+        //     onPressed: () {
+        //       // Handle copy button press
+        //     },
+        //   ),
+        //   IconButton(
+        //     icon: Icon(Icons.create),
+        //     onPressed: () {
+        //       // Handle create button press
+        //     },
+        //   ),
+        // ],
       ),
-      body: ListView.builder(
-        itemCount: items.length,
-        itemBuilder: (context, index) {
-          return Card(
-            margin: EdgeInsets.all(10.0),
-            child: ExpansionTile(
-              title: Text(items[index]),
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    for (int i = 0; i < _checklistItems[index].length; i++)
-                      CheckboxListTile(
-                        title: Text(getChecklistItemTitle(index, i)),
-                        value: getChecklistItemValue(index, i),
-                        onChanged: (newValue) {
-                          updateChecklistItemValue(index, i, newValue);
-                        },
-                      ),
-                    if (index >= 2 && index <= 7)
-                      Row(
-                        children: [
-                          Text(getDateFieldTitle(index)),
-                          Align(
-                            alignment: Alignment.topRight,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Container(
-                                width: 165,
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: buildDateTextField(index),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(Icons.calendar_today),
-                                      onPressed: () => _selectDate(index),
-                                    ),
-                                  ],
+      body: SingleChildScrollView(
+        child: ListView.builder(
+          itemCount: items.length,
+          itemBuilder: (context, index) {
+            return Card(
+              margin: EdgeInsets.all(10.0),
+              child: ExpansionTile(
+                title: Text(items[index]),
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (int i = 0; i < _checklistItems[index].length; i++)
+                        CheckboxListTile(
+                          title: Text(getChecklistItemTitle(index, i)),
+                          value: getChecklistItemValue(index, i),
+                          onChanged: (newValue) {
+                            updateChecklistItemValue(index, i, newValue);
+                          },
+                        ),
+                      if (index >= 2 && index <= 7)
+                        Row(
+                          children: [
+                            Text(getDateFieldTitle(index)),
+                            Align(
+                              alignment: Alignment.topRight,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                  width: 165,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: buildDateTextField(index),
+                                      ),
+                                      IconButton(
+                                        icon: Icon(Icons.calendar_today),
+                                        onPressed: () => _selectDate(index),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        },
+                          ],
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }

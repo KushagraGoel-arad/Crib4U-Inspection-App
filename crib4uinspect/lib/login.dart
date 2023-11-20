@@ -23,6 +23,7 @@ class _login_pageState extends State<login_page> {
   var password = "";
   String? accessToken; // Declare accessToken variable
   String? refreshToken;
+  dynamic responseData;
   // final apiClient = RestApiClient(
   //   options:
   //       RestApiClientOptions(baseUrl: 'https://crib4u.axiomprotect.com:9497'),
@@ -115,13 +116,15 @@ class _login_pageState extends State<login_page> {
 
     print(response);
     print("Response Data:");
+    Map<String, dynamic> responseBody = jsonDecode(response.body);
+    responseData = responseBody['detail'];
     //print(response.data);
-    //print(response.headers);
+    print(response.headers);
     if (response.statusCode == 200) {
       Map<String, dynamic> responseBodyJson = jsonDecode(response.body);
       final responseData = responseBodyJson['detail'];
       final resultMessage = responseBodyJson['detail'];
-
+      print("responseData: is : $responseData");
       if (resultMessage != null) {
         print('Result Message: $resultMessage');
       } else {
@@ -153,7 +156,7 @@ class _login_pageState extends State<login_page> {
         showErrorDialog('Login Success');
       }
     } else {
-      showErrorDialog('${response.body}');
+      showErrorDialog(responseData);
       print('API request failed with status code: ${response.statusCode}');
       //print('Response body: ${response.Body}');
     }
@@ -163,104 +166,106 @@ class _login_pageState extends State<login_page> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        child: Column(children: [
-          SizedBox(
-            height: 150,
-          ),
-          Text(
-            "Crib4U",
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              color: Color.fromRGBO(162, 154, 255, 1),
-              fontSize: 80,
+        child: SingleChildScrollView(
+          child: Column(children: [
+            SizedBox(
+              height: 150,
             ),
-          ),
-          SizedBox(height: 130),
-          Center(
-            child: Container(
-              width: 316,
-              child: Column(
-                children: [
-                  TextField(
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(
-                          color: Color.fromRGBO(162, 154, 255, 1),
-                          width: 2.0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(
-                          color: Color.fromRGBO(162, 154, 255, 1),
-                          width: 2.0,
-                        ),
-                      ),
-                      hintText: 'Username',
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 12.0,
-                        horizontal: 16.0,
-                      ),
-                    ),
-                    onChanged: (value) {
-                      email = value;
-                    },
-                  ),
-                  SizedBox(height: 30),
-                  TextField(
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(
-                          color: Color.fromRGBO(162, 154, 255, 1),
-                          width: 2.0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                        borderSide: BorderSide(
-                          color: Color.fromRGBO(162, 154, 255, 1),
-                          width: 2.0,
-                        ),
-                      ),
-                      hintText: 'Password',
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 12.0,
-                        horizontal: 16.0,
-                      ),
-                    ),
-                    onChanged: (value) {
-                      password = value;
-                    },
-                  ),
-                  SizedBox(height: 90),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(12),
-                        ),
-                      ),
-                      backgroundColor: Color.fromRGBO(162, 154, 255, 1),
-                    ),
-                    onPressed: () {
-                      main();
-                    },
-                    child: Text(
-                      "Login",
-                      style: TextStyle(
-                        fontSize: 25,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
+            Text(
+              "Crib4U",
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: Color.fromRGBO(162, 154, 255, 1),
+                fontSize: 80,
               ),
             ),
-          ),
-        ]),
+            SizedBox(height: 130),
+            Center(
+              child: Container(
+                width: 316,
+                child: Column(
+                  children: [
+                    TextField(
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: BorderSide(
+                            color: Color.fromRGBO(162, 154, 255, 1),
+                            width: 2.0,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: BorderSide(
+                            color: Color.fromRGBO(162, 154, 255, 1),
+                            width: 2.0,
+                          ),
+                        ),
+                        hintText: 'Username',
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 12.0,
+                          horizontal: 16.0,
+                        ),
+                      ),
+                      onChanged: (value) {
+                        email = value;
+                      },
+                    ),
+                    SizedBox(height: 30),
+                    TextField(
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: BorderSide(
+                            color: Color.fromRGBO(162, 154, 255, 1),
+                            width: 2.0,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                          borderSide: BorderSide(
+                            color: Color.fromRGBO(162, 154, 255, 1),
+                            width: 2.0,
+                          ),
+                        ),
+                        hintText: 'Password',
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 12.0,
+                          horizontal: 16.0,
+                        ),
+                      ),
+                      onChanged: (value) {
+                        password = value;
+                      },
+                    ),
+                    SizedBox(height: 90),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(12),
+                          ),
+                        ),
+                        backgroundColor: Color.fromRGBO(162, 154, 255, 1),
+                      ),
+                      onPressed: () {
+                        main();
+                      },
+                      child: Text(
+                        "Login",
+                        style: TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ]),
+        ),
       ),
     );
   }

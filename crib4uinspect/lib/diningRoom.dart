@@ -27,23 +27,24 @@ class areasEntryExit extends StatefulWidget {
   bool? isSharedWithTenant;
   final String? notes;
   final String? rentReview;
-  areasEntryExit(
-      {super.key,
-      required this.title,
-      required this.areaDetails,
-      this.jwtToken,
-      required this.reportDetails,
-      required this.inspectId,
-      required this.reportId,
-      this.propId,
-      this.accessToken,
-      this.refreshToken,
-      this.followupActions,
-      this.notes,
-      this.rentReview
 
-      //required this.inspectionData
-      });
+  areasEntryExit({
+    super.key,
+    required this.title,
+    required this.areaDetails,
+    this.jwtToken,
+    required this.reportDetails,
+    required this.inspectId,
+    required this.reportId,
+    this.propId,
+    this.accessToken,
+    this.refreshToken,
+    this.followupActions,
+    this.notes,
+    this.rentReview,
+
+    //required this.inspectionData
+  });
 
   @override
   State<areasEntryExit> createState() => _areasEntryExitState();
@@ -311,13 +312,13 @@ class _areasEntryExitState extends State<areasEntryExit> {
                       paint_premises_internal_on: 'paint_premises_internal_on',
                       landlord_aggred_work_on: 'landlord_aggred_work_on',
                       flooring_clean_replaced_on: 'flooring_clean_replaced_on',
-                      inspId: '',
-                      reportId: '',
-                      jwtToken: '',
-                      propertyId: '',
-                      reportdetails: {},
+                      inspId: widget.inspectId,
+                      reportId: widget.reportId!,
+                      jwtToken: widget.jwtToken,
+                      propertyId: widget.propId,
+                      reportdetails: widget.reportDetails!,
                       areaList: [],
-                      areadata: [])),
+                      areadata: widget.areaDetails!)),
             );
           },
         ),
@@ -335,339 +336,340 @@ class _areasEntryExitState extends State<areasEntryExit> {
             ),
           ],
         ),
-        actions: [
-          // IconButton(
-          //   icon: Icon(CupertinoIcons.create),
-          //   onPressed: () {},
-          // ),
-        ],
       ),
-      body: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(
-                child: InkWell(
-                  onTap: () {},
-                  child: Container(
-                    height: 50.0,
-                    color: Color.fromRGBO(162, 154, 255, 1),
-                    child: Center(
-                      child: Text(
-                        'Items',
-                        style: TextStyle(color: Colors.white, fontSize: 18.0),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    //_saveData(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => photos(
-                          title: widget.title,
-                          passPhotos: widget.areaDetails!,
-                          jwt: widget.jwtToken,
-                          repdetail1: widget.reportDetails!,
-                          inspectID1: widget.inspectId,
-                          reportID1: widget.reportId!,
-                          propertID: widget.propId,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    height: 50.0,
-                    color: Color.fromRGBO(162, 154, 255, 1),
-                    child: Center(
-                      child: Text(
-                        'Photos',
-                        style: TextStyle(color: Colors.white, fontSize: 18.0),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    // _saveData(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => notes(
-                          title: widget.title,
-                          passNotes: widget.areaDetails!,
-                          jwt1: widget.jwtToken,
-                          repdetail: widget.reportDetails!,
-                          inspectID: widget.inspectId,
-                          reportID: widget.reportId!,
-                        ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    height: 50.0,
-                    color: Color.fromRGBO(162, 154, 255, 1),
-                    child: Center(
-                      child: Text(
-                        'Notes',
-                        style: TextStyle(color: Colors.white, fontSize: 18.0),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 50.0),
-          Center(
-            child: Container(
-              width: 406.0,
-              height: 566.0,
-              child: ListView.builder(
-                itemCount: itemsForArea.length,
-                itemBuilder: (context, index) {
-                  // final item = items[index];
-                  // final selectedOption = itemSelections[item];
-                  final areaDetail = itemsForArea[index];
-                  //print("areaItems: $areaDetail");
-                  itemName = areaDetail['name'];
-                  _agentComment = areaDetail['agentComment'] ?? "";
-                  //print("Itemname: $itemName");
-                  // final selectedOption = itemSelections[itemName];
-                  //print("itemSelections: $itemSelections");
-                  final conditionsForItem =
-                      getConditionsForItemName(itemsForArea, itemName);
-                  cleanValue = getNameValueForCondition(
-                      conditionsForItem, 'Clean')['value'];
-
-                  undamagedValue = getNameValueForCondition(
-                      conditionsForItem, 'Undamaged')['value'];
-
-                  workingValue = getNameValueForCondition(
-                      conditionsForItem, 'Working')['value'];
-
-                  // print("cleanValue: $cleanValue");
-                  // print("Undamaged Value: $undamagedValue");
-                  // print("Working Value: $workingValue");
-                  // TextEditingController controller =
-                  //     agentCommentControllers[index];
-                  // Map<String, String> agentComment =
-                  //     getAgentCommentForItemName(itemsForArea, itemName);
-                  // String? agentCommentValue = agentComment['agentComment'];
-
-                  return Card(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () {},
                     child: Container(
-                      child: ExpansionTile(
-                        title: Text(
-                          itemName,
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color: Color.fromRGBO(102, 88, 252, 1),
+                      height: 50.0,
+                      color: Color.fromRGBO(162, 154, 255, 1),
+                      child: Center(
+                        child: Text(
+                          'Items',
+                          style: TextStyle(color: Colors.white, fontSize: 18.0),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      //_saveData(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => photos(
+                            title: widget.title,
+                            passPhotos: widget.areaDetails!,
+                            jwt: widget.jwtToken,
+                            repdetail1: widget.reportDetails!,
+                            inspectID1: widget.inspectId,
+                            reportID1: widget.reportId!,
+                            propertID: widget.propId,
+                            areaDet:widget.areaDetails
                           ),
                         ),
-                        trailing: IconButton(
-                          onPressed: () {},
-                          icon: Icon(
-                            Icons.arrow_forward,
-                            color: Color.fromRGBO(162, 154, 255, 1),
+                      );
+                    },
+                    child: Container(
+                      height: 50.0,
+                      color: Color.fromRGBO(162, 154, 255, 1),
+                      child: Center(
+                        child: Text(
+                          'Photos',
+                          style: TextStyle(color: Colors.white, fontSize: 18.0),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      // _saveData(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => notes(
+                            title: widget.title,
+                            passNotes: widget.areaDetails!,
+                            jwt1: widget.jwtToken,
+                            repdetail: widget.reportDetails!,
+                            inspectID: widget.inspectId,
+                            reportID: widget.reportId!,
+                            areaData:widget.areaDetails
                           ),
                         ),
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          updateItemCondition(
-                                              index, 'Clean', cleanValue!);
-                                          // if (selectedOption == Selection.Yes) {
-                                          //   itemSelections[itemName] =
-                                          //       Selection.No;
-                                          // } else if (selectedOption ==
-                                          //     Selection.No) {
-                                          //   itemSelections[itemName] =
-                                          //       Selection.None;
-                                          // } else {
-                                          //   itemSelections[itemName] =
-                                          //       Selection.Yes;
-                                          // }
-                                        });
-                                      },
-                                      child: Container(
-                                        height: 70,
-                                        child: Column(
-                                          children: [
-                                            Text("Clean"),
-                                            Container(
-                                              width: 40,
-                                              height: 40,
-                                              decoration: BoxDecoration(
-                                                border: Border.all(
-                                                  color: Color.fromRGBO(
-                                                      162, 154, 255, 1),
-                                                  width: 2.0,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(8.0),
-                                              ),
-                                              child: Center(
-                                                child: Text(
-                                                  cleanValue!,
-                                                  style:
-                                                      TextStyle(fontSize: 18.0),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(width: 10),
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          updateItemCondition(index,
-                                              'Undamaged', undamagedValue!);
-                                          // if (selectedOption == Selection.Yes) {
-                                          //   itemSelections[itemName] =
-                                          //       Selection.No;
-                                          // } else if (selectedOption ==
-                                          //     Selection.No) {
-                                          //   itemSelections[itemName] =
-                                          //       Selection.None;
-                                          // } else {
-                                          //   itemSelections[itemName] =
-                                          //       Selection.Yes;
-                                          // }
-                                        });
-                                      },
-                                      child: Container(
-                                        height: 70,
-                                        child: Column(
-                                          children: [
-                                            Text("Undamaged"),
-                                            Container(
-                                              width: 40,
-                                              height: 40,
-                                              decoration: BoxDecoration(
-                                                border: Border.all(
-                                                  color: Color.fromRGBO(
-                                                      162, 154, 255, 1),
-                                                  width: 2.0,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(8.0),
-                                              ),
-                                              child: Center(
-                                                child: Text(
-                                                  undamagedValue!,
-                                                  style:
-                                                      TextStyle(fontSize: 18.0),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(width: 10),
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          final updatedWorkingValue =
-                                              workingValue ?? "";
-                                          updateItemCondition(index, 'Working',
-                                              updatedWorkingValue);
-                                        });
-                                      },
-                                      child: Container(
-                                        height: 70,
-                                        child: Column(
-                                          children: [
-                                            Text("Working"),
-                                            Container(
-                                              width: 40,
-                                              height: 40,
-                                              decoration: BoxDecoration(
-                                                border: Border.all(
-                                                  color: Color.fromRGBO(
-                                                      162, 154, 255, 1),
-                                                  width: 2.0,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(8.0),
-                                              ),
-                                              child: Center(
-                                                child: Text(
-                                                  workingValue ?? "",
-                                                  style:
-                                                      TextStyle(fontSize: 18.0),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                SizedBox(
-                                  width: 20,
-                                ),
-                                StatefulBuilder(
-                                  builder: (context, setState) {
-                                    return TextField(
-                                      controller: (index <
-                                              agentCommentControllers.length)
-                                          ? agentCommentControllers[index]
-                                          : TextEditingController(),
-                                      onChanged: (value) {
-                                        if (index <
-                                            agentCommentControllers.length) {
-                                          setState(() {
-                                            updateAgentCommentForItem(
-                                                index, value);
-                                          });
-                                        }
-                                      },
-                                      decoration: InputDecoration(
-                                          labelText: _agentComment),
-                                    );
-                                  },
-                                ),
-                              ],
+                      );
+                    },
+                    child: Container(
+                      height: 50.0,
+                      color: Color.fromRGBO(162, 154, 255, 1),
+                      child: Center(
+                        child: Text(
+                          'Notes',
+                          style: TextStyle(color: Colors.white, fontSize: 18.0),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 50.0),
+            Center(
+              child: Container(
+                width: 406.0,
+                height: 566.0,
+                child: ListView.builder(
+                  itemCount: itemsForArea.length,
+                  itemBuilder: (context, index) {
+                    // final item = items[index];
+                    // final selectedOption = itemSelections[item];
+                    final areaDetail = itemsForArea[index];
+                    //print("areaItems: $areaDetail");
+                    itemName = areaDetail['name'];
+                    _agentComment = areaDetail['agentComment'] ?? "";
+                    //print("Itemname: $itemName");
+                    // final selectedOption = itemSelections[itemName];
+                    //print("itemSelections: $itemSelections");
+                    final conditionsForItem =
+                        getConditionsForItemName(itemsForArea, itemName);
+                    cleanValue = getNameValueForCondition(
+                        conditionsForItem, 'Clean')['value'];
+
+                    undamagedValue = getNameValueForCondition(
+                        conditionsForItem, 'Undamaged')['value'];
+
+                    workingValue = getNameValueForCondition(
+                        conditionsForItem, 'Working')['value'];
+
+                    // print("cleanValue: $cleanValue");
+                    // print("Undamaged Value: $undamagedValue");
+                    // print("Working Value: $workingValue");
+                    // TextEditingController controller =
+                    //     agentCommentControllers[index];
+                    // Map<String, String> agentComment =
+                    //     getAgentCommentForItemName(itemsForArea, itemName);
+                    // String? agentCommentValue = agentComment['agentComment'];
+
+                    return Card(
+                      child: Container(
+                        child: ExpansionTile(
+                          title: Text(
+                            itemName,
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: Color.fromRGBO(102, 88, 252, 1),
                             ),
                           ),
-                        ],
+                          trailing: IconButton(
+                            onPressed: () {},
+                            icon: Icon(
+                              Icons.arrow_forward,
+                              color: Color.fromRGBO(162, 154, 255, 1),
+                            ),
+                          ),
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            updateItemCondition(
+                                                index, 'Clean', cleanValue!);
+                                            // if (selectedOption == Selection.Yes) {
+                                            //   itemSelections[itemName] =
+                                            //       Selection.No;
+                                            // } else if (selectedOption ==
+                                            //     Selection.No) {
+                                            //   itemSelections[itemName] =
+                                            //       Selection.None;
+                                            // } else {
+                                            //   itemSelections[itemName] =
+                                            //       Selection.Yes;
+                                            // }
+                                          });
+                                        },
+                                        child: Container(
+                                          height: 70,
+                                          child: Column(
+                                            children: [
+                                              Text("Clean"),
+                                              Container(
+                                                width: 40,
+                                                height: 40,
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(
+                                                    color: Color.fromRGBO(
+                                                        162, 154, 255, 1),
+                                                    width: 2.0,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          8.0),
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                    cleanValue!,
+                                                    style: TextStyle(
+                                                        fontSize: 18.0),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(width: 10),
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            updateItemCondition(index,
+                                                'Undamaged', undamagedValue!);
+                                            // if (selectedOption == Selection.Yes) {
+                                            //   itemSelections[itemName] =
+                                            //       Selection.No;
+                                            // } else if (selectedOption ==
+                                            //     Selection.No) {
+                                            //   itemSelections[itemName] =
+                                            //       Selection.None;
+                                            // } else {
+                                            //   itemSelections[itemName] =
+                                            //       Selection.Yes;
+                                            // }
+                                          });
+                                        },
+                                        child: Container(
+                                          height: 70,
+                                          child: Column(
+                                            children: [
+                                              Text("Undamaged"),
+                                              Container(
+                                                width: 40,
+                                                height: 40,
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(
+                                                    color: Color.fromRGBO(
+                                                        162, 154, 255, 1),
+                                                    width: 2.0,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          8.0),
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                    undamagedValue!,
+                                                    style: TextStyle(
+                                                        fontSize: 18.0),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(width: 10),
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            final updatedWorkingValue =
+                                                workingValue ?? "";
+                                            updateItemCondition(index,
+                                                'Working', updatedWorkingValue);
+                                          });
+                                        },
+                                        child: Container(
+                                          height: 70,
+                                          child: Column(
+                                            children: [
+                                              Text("Working"),
+                                              Container(
+                                                width: 40,
+                                                height: 40,
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(
+                                                    color: Color.fromRGBO(
+                                                        162, 154, 255, 1),
+                                                    width: 2.0,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          8.0),
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                    workingValue ?? "",
+                                                    style: TextStyle(
+                                                        fontSize: 18.0),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    width: 20,
+                                  ),
+                                  StatefulBuilder(
+                                    builder: (context, setState) {
+                                      return TextField(
+                                        controller: (index <
+                                                agentCommentControllers.length)
+                                            ? agentCommentControllers[index]
+                                            : TextEditingController(),
+                                        onChanged: (value) {
+                                          if (index <
+                                              agentCommentControllers.length) {
+                                            setState(() {
+                                              updateAgentCommentForItem(
+                                                  index, value);
+                                            });
+                                          }
+                                        },
+                                        decoration: InputDecoration(
+                                            labelText: _agentComment),
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: ElevatedButton(
-              onPressed: () {
-                _saveData(context);
-              },
-              child: Text('Save Data'),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  _saveData(context);
+                },
+                child: Text('Save Data'),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

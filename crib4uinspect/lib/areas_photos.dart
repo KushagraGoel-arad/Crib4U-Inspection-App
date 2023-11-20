@@ -23,6 +23,7 @@ class photos extends StatefulWidget {
   List<Map<String, dynamic>> passPhotos;
   Map<String, dynamic> repdetail1 = {};
   String? propertID;
+  List<Map<String, dynamic>>? areaDet;
   photos(
       {super.key,
       required this.title,
@@ -31,7 +32,8 @@ class photos extends StatefulWidget {
       required this.repdetail1,
       required this.inspectID1,
       required this.reportID1,
-      this.propertID});
+      this.propertID,
+      this.areaDet});
 
   @override
   State<photos> createState() => _photosState();
@@ -215,6 +217,80 @@ class _photosState extends State<photos> {
     }
   }
 
+  // Future<String?> postImages(
+  //   String inspID,
+  //   String reportID,
+  //   String? propertID,
+  //   String? name1,
+  //   List<String> imageBytes,
+  // ) async {
+  //   try {
+  //     // Construct the URL
+  //     final url = Uri.parse(
+  //         'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/updateReportImages/$propertID/$inspID/$reportID');
+
+  //     // Create a MultipartRequest
+  //     final request = http.MultipartRequest(
+  //       'POST',
+  //       url,
+  //     );
+
+  //     // Check if images are provided
+  //     if (imageBytes.isNotEmpty) {
+  //       final filename = 'image.jpg';
+
+  //       // Add each image to the request
+  //       for (int i = 0; i < imageBytes.length; i++) {
+  //         final cleanedBase64 =
+  //             imageBytes[i].replaceAll(RegExp('[^a-zA-Z0-9+/]'), '');
+  //         final imageBytesAsUint8List =
+  //             Uint8List.fromList(base64.decode(cleanedBase64));
+  //         final multipartFile = http.MultipartFile.fromBytes(
+  //           'images',
+  //           imageBytesAsUint8List,
+  //           filename: '$filename$i',
+  //         );
+  //         request.files.add(multipartFile);
+  //       }
+  //     } else {
+  //       // Throw an exception if no images are provided
+  //       throw Exception('No images provided');
+  //     }
+
+  //     // Add additional fields and headers
+  //     request.fields['areaName'] = name1 ?? '';
+  //     request.headers['accesstoken'] =
+  //         html.window.sessionStorage['accessToken'] ?? '';
+
+  //     // Send the request and get the response
+  //     final response = await request.send();
+
+  //     // Read and decode the response body
+  //     final responseBody = await response.stream.bytesToString();
+
+  //     // Log response details
+  //     print('Response status code: ${response.statusCode}');
+  //     print('Response body: $responseBody');
+
+  //     // Check if the response status code is 200 (OK)
+  //     if (response.statusCode == 200) {
+  //       // Parse and return the imagePath
+  //       final imagePath = json.decode(responseBody)['imagePath'];
+  //       print('Image path: $imagePath');
+  //       return imagePath;
+  //     } else {
+  //       // Log and return null if the request fails
+  //       print('Failed to upload images. Status code: ${response.statusCode}');
+  //       print('Response body: $responseBody');
+  //       return null;
+  //     }
+  //   } catch (e) {
+  //     // Log and return null in case of an error
+  //     print('Error in postImages: $e');
+  //     return null;
+  //   }
+  // }
+
   Future<void> saveReportData(String inspectID1, String reportID1) async {
     final url = Uri.parse(
       'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/saveInspctionReport/$inspectID1/$reportID1',
@@ -274,7 +350,7 @@ class _photosState extends State<photos> {
         leading: IconButton(
           icon: Icon(CupertinoIcons.back),
           onPressed: () {
-        Navigator.push(
+            Navigator.push(
               context,
               MaterialPageRoute(
                   builder: (context) => reportEntryExit(
@@ -304,7 +380,7 @@ class _photosState extends State<photos> {
                       propertyId: widget.propertID,
                       reportdetails: widget.repdetail1,
                       areaList: [],
-                      areadata: [])),
+                      areadata: widget.areaDet!)),
             );
           },
         ),
@@ -333,296 +409,298 @@ class _photosState extends State<photos> {
           // ),
         ],
       ),
-      body: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => areasEntryExit(
-                          title: widget.title,
-                          areaDetails: widget.passPhotos,
-                          inspectId: widget.inspectID1,
-                          reportDetails: widget.repdetail1,
-                          reportId: widget.reportID1,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => areasEntryExit(
+                            title: widget.title,
+                            areaDetails: widget.passPhotos,
+                            inspectId: widget.inspectID1,
+                            reportDetails: widget.repdetail1,
+                            reportId: widget.reportID1,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    height: 50.0,
-                    color: Color.fromRGBO(162, 154, 255, 1),
-                    child: Center(
-                      child: Text(
-                        'Items',
-                        style: TextStyle(color: Colors.white, fontSize: 18.0),
+                      );
+                    },
+                    child: Container(
+                      height: 50.0,
+                      color: Color.fromRGBO(162, 154, 255, 1),
+                      child: Center(
+                        child: Text(
+                          'Items',
+                          style: TextStyle(color: Colors.white, fontSize: 18.0),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    //_saveData(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => photos(
-                          title: widget.title,
-                          passPhotos: widget.passPhotos,
-                          repdetail1: widget.repdetail1,
-                          inspectID1: widget.inspectID1,
-                          reportID1: widget.reportID1,
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      //_saveData(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => photos(
+                            title: widget.title,
+                            passPhotos: widget.passPhotos,
+                            repdetail1: widget.repdetail1,
+                            inspectID1: widget.inspectID1,
+                            reportID1: widget.reportID1,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    height: 50.0,
-                    color: Color.fromRGBO(162, 154, 255, 1),
-                    child: Center(
-                      child: Text(
-                        'Photos',
-                        style: TextStyle(color: Colors.white, fontSize: 18.0),
+                      );
+                    },
+                    child: Container(
+                      height: 50.0,
+                      color: Color.fromRGBO(162, 154, 255, 1),
+                      child: Center(
+                        child: Text(
+                          'Photos',
+                          style: TextStyle(color: Colors.white, fontSize: 18.0),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    //_saveData(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => notes(
-                          title: widget.title,
-                          passNotes: widget.passPhotos,
-                          inspectID: widget.inspectID1,
-                          repdetail: widget.repdetail1,
-                          reportID: widget.reportID1,
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      //_saveData(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => notes(
+                            title: widget.title,
+                            passNotes: widget.passPhotos,
+                            inspectID: widget.inspectID1,
+                            repdetail: widget.repdetail1,
+                            reportID: widget.reportID1,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    height: 50.0,
-                    color: Color.fromRGBO(162, 154, 255, 1),
-                    child: Center(
-                      child: Text(
-                        'Notes',
-                        style: TextStyle(color: Colors.white, fontSize: 18.0),
+                      );
+                    },
+                    child: Container(
+                      height: 50.0,
+                      color: Color.fromRGBO(162, 154, 255, 1),
+                      child: Center(
+                        child: Text(
+                          'Notes',
+                          style: TextStyle(color: Colors.white, fontSize: 18.0),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: 80.0),
-          Center(
-            child: Container(
-              width: 406.0,
-              height: 555.0,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Text("$title"),
-                  SizedBox(
-                    height: 25,
-                  ),
-                  Stack(children: [
-                    DottedBorder(
-                      borderType: BorderType.Rect,
-                      radius: Radius.circular(12),
-                      padding: EdgeInsets.all(6),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.all(Radius.circular(1)),
-                        child: Container(
-                          height: 180,
-                          width: 384,
-                          color: Colors.white,
+              ],
+            ),
+            SizedBox(height: 80.0),
+            Center(
+              child: Container(
+                width: 406.0,
+                height: 555.0,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Text("$title"),
+                    SizedBox(
+                      height: 25,
+                    ),
+                    Stack(children: [
+                      DottedBorder(
+                        borderType: BorderType.Rect,
+                        radius: Radius.circular(12),
+                        padding: EdgeInsets.all(6),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.all(Radius.circular(1)),
+                          child: Container(
+                            height: 180,
+                            width: 384,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                    ),
-                    Center(
-                      child: GestureDetector(
-                        onTap: () {
-                          final input = html.FileUploadInputElement()
-                            ..accept = 'image/*';
-                          input.click();
+                      Center(
+                        child: GestureDetector(
+                          onTap: () {
+                            final input = html.FileUploadInputElement()
+                              ..accept = 'image/*';
+                            input.click();
 
-                          input.onChange.listen((e) {
-                            final file = input.files!.first;
-                            uploadImage(file);
-                          });
-                          // _selectAndUploadImage();
-                        },
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            SizedBox(
-                              height: 60,
-                            ),
-                            Text("Drop Files here",
-                                style: TextStyle(
-                                  color: Color.fromRGBO(116, 105, 245, 1),
-                                )),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Text("or",
-                                style: TextStyle(
-                                  color: Color.fromRGBO(187, 182, 245, 0.973),
-                                )),
-                            ElevatedButton(
-                              onPressed: () {
-                                final input = html.FileUploadInputElement()
-                                  ..accept = 'image/*';
-                                input.click();
-
-                                input.onChange.listen((e) {
-                                  final file = input.files!.first;
-                                  uploadImage(file);
-                                });
-                                // _selectAndUploadImage();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 12.0, vertical: 8.0),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
-                                backgroundColor:
-                                    Color.fromRGBO(162, 154, 255, 1),
-                                textStyle: TextStyle(fontSize: 18.0),
+                            input.onChange.listen((e) {
+                              final file = input.files!.first;
+                              uploadImage(file);
+                            });
+                            // _selectAndUploadImage();
+                          },
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              SizedBox(
+                                height: 60,
                               ),
-                              child: Text('Select Files'),
-                            ),
-                            SizedBox(
-                              height: 50,
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  ]),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: uploadedImages.length + Photos.length,
-                      itemBuilder: (context, index) {
-                        if (index < uploadedImages.length) {
-                          // Display local uploaded images
-                          final imagePath = uploadedImages[index];
+                              Text("Drop Files here",
+                                  style: TextStyle(
+                                    color: Color.fromRGBO(116, 105, 245, 1),
+                                  )),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Text("or",
+                                  style: TextStyle(
+                                    color: Color.fromRGBO(187, 182, 245, 0.973),
+                                  )),
+                              ElevatedButton(
+                                onPressed: () {
+                                  final input = html.FileUploadInputElement()
+                                    ..accept = 'image/*';
+                                  input.click();
 
-                          return ListTile(
-                            leading: Image.network(
-                              imagePath, // Load the local image
-                              width: 100,
-                              height: 100,
-                            ),
-                            // title: Text(uploadedImage.name),
-                          );
-                        } else {
-                          // Display remote photos from the response
-                          final remoteImageIndex =
-                              index - uploadedImages.length;
-                          final remoteImagePath = Photos[remoteImageIndex];
-
-                          return ListTile(
-                            leading: Image.network(
-                              remoteImagePath, // Load the remote image
-                              width: 100,
-                              height: 100,
-                            ),
-                            // You can add a title or other information here if needed.
-                          );
-                        }
-                      },
-                    ),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        left: 80.0, right: 80, bottom: 20),
-                    child: Stack(children: [
-                      Container(
-                        width: 200,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(8.0),
+                                  input.onChange.listen((e) {
+                                    final file = input.files!.first;
+                                    uploadImage(file);
+                                  });
+                                  // _selectAndUploadImage();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 12.0, vertical: 8.0),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  backgroundColor:
+                                      Color.fromRGBO(162, 154, 255, 1),
+                                  textStyle: TextStyle(fontSize: 18.0),
+                                ),
+                                child: Text('Select Files'),
+                              ),
+                              SizedBox(
+                                height: 50,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      Column(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          TextField(
-                              controller: photosNotesController,
-                              decoration: InputDecoration(
-                                  hintText: 'PhotosNotes', // Placeholder text
-                                  // labelText:
-                                  //     'PhotosNotes', // Label for the text field
-                                  labelStyle:
-                                      TextStyle(color: Colors.grey[500]),
-                                  enabledBorder: InputBorder
-                                      .none, // Remove the underline when not focused
-                                  focusedBorder: InputBorder.none),
-                              style: TextStyle(
-                                color: Colors.black,
-                              )),
-                        ],
                       )
                     ]),
-                  ),
-                ],
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: uploadedImages.length + Photos.length,
+                        itemBuilder: (context, index) {
+                          if (index < uploadedImages.length) {
+                            // Display local uploaded images
+                            final imagePath = uploadedImages[index];
+
+                            return ListTile(
+                              leading: Image.network(
+                                imagePath, // Load the local image
+                                width: 100,
+                                height: 100,
+                              ),
+                              // title: Text(uploadedImage.name),
+                            );
+                          } else {
+                            // Display remote photos from the response
+                            final remoteImageIndex =
+                                index - uploadedImages.length;
+                            final remoteImagePath = Photos[remoteImageIndex];
+
+                            return ListTile(
+                              leading: Image.network(
+                                remoteImagePath, // Load the remote image
+                                width: 100,
+                                height: 100,
+                              ),
+                              // You can add a title or other information here if needed.
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          left: 80.0, right: 80, bottom: 20),
+                      child: Stack(children: [
+                        Container(
+                          width: 200,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                        Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            TextField(
+                                controller: photosNotesController,
+                                decoration: InputDecoration(
+                                    hintText: 'PhotosNotes', // Placeholder text
+                                    // labelText:
+                                    //     'PhotosNotes', // Label for the text field
+                                    labelStyle:
+                                        TextStyle(color: Colors.grey[500]),
+                                    enabledBorder: InputBorder
+                                        .none, // Remove the underline when not focused
+                                    focusedBorder: InputBorder.none),
+                                style: TextStyle(
+                                  color: Colors.black,
+                                )),
+                          ],
+                        )
+                      ]),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: ElevatedButton(
-              onPressed: () => _saveData(context),
-              child: Text('Save Data'),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: ElevatedButton(
+                onPressed: () => _saveData(context),
+                child: Text('Save Data'),
+              ),
             ),
-          ),
-          // Padding(
-          //   padding: const EdgeInsets.all(20.0),
-          //   child: ElevatedButton(
-          //     onPressed: () => _saveArea(context),
-          //     child: Text('Save photo'),
-          //   ),
-          // ),
-        ],
+            // Padding(
+            //   padding: const EdgeInsets.all(20.0),
+            //   child: ElevatedButton(
+            //     onPressed: () => _saveArea(context),
+            //     child: Text('Save photo'),
+            //   ),
+            // ),
+          ],
+        ),
       ),
     );
   }
@@ -646,12 +724,53 @@ class _photosState extends State<photos> {
 
 // }
 
+  // void _saveArea(BuildContext context) async {
+  //   imagePath = await postImages(widget.inspectID1, widget.reportID1,
+  //       widget.propertID, widget.title, uploadedImages // Binary image data
+  //       );
+  //   print("Image PathL $imagePath");
+  //   // Only navigate if the image upload is successful
+  // }
+
   void _saveArea(BuildContext context) async {
-    imagePath = await postImages(widget.inspectID1, widget.reportID1,
-        widget.propertID, widget.title, uploadedImages // Binary image data
-        );
-    print("Image PathL $imagePath");
-    // Only navigate if the image upload is successful
+    try {
+      final areaName = widget.title;
+
+      final imagePath = await postImages(
+        widget.inspectID1,
+        widget.reportID1,
+        widget.propertID,
+        areaName,
+        uploadedImages, // Binary image data
+      );
+
+      if (imagePath != null) {
+        print("Image Path: $imagePath");
+
+        // Update the UI or perform any other actions based on the successful image upload
+
+        // Save the image path to the corresponding area in the report detail
+        if (widget.repdetail1.containsKey('areas') &&
+            widget.repdetail1['areas'] is List) {
+          var areasList = widget.repdetail1['areas'] as List;
+          var areaIndex =
+              areasList.indexWhere((area) => area['name'] == areaName);
+
+          if (areaIndex != -1) {
+            var areaToUpdate = areasList[areaIndex];
+            areaToUpdate['photos'] = [
+              {'url': imagePath, 'name': "", 'notes': ""}
+            ];
+          }
+        }
+      } else {
+        print("Failed to upload image.");
+        // Handle the case where image upload failed
+      }
+    } catch (e) {
+      print('Error in _saveArea: $e');
+      // Handle any other exceptions that might occur during the process
+    }
   }
 
   void _saveData(BuildContext context) async {

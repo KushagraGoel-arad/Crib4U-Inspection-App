@@ -17,6 +17,7 @@ class notes extends StatefulWidget {
   Map<String, dynamic> repdetail = {};
   String inspectID = '';
   String reportID = '';
+  List<Map<String, dynamic>>? areaData;
   notes(
       {super.key,
       required this.title,
@@ -24,7 +25,8 @@ class notes extends StatefulWidget {
       this.jwt1,
       required this.repdetail,
       required this.inspectID,
-      required this.reportID});
+      required this.reportID,
+      this.areaData});
 
   @override
   State<notes> createState() => _notesState();
@@ -123,7 +125,7 @@ class _notesState extends State<notes> {
                       propertyId: '',
                       reportdetails: widget.repdetail,
                       areaList: [],
-                      areadata: [])),
+                      areadata: widget.areaData!)),
             );
             // Navigator.push(
             //   context,
@@ -152,206 +154,208 @@ class _notesState extends State<notes> {
           // ),
         ],
       ),
-      body: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    // _saveData(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => areasEntryExit(
-                          title: widget.title,
-                          areaDetails: widget.passNotes,
-                          inspectId: widget.inspectID,
-                          reportDetails: widget.repdetail,
-                          reportId: widget.reportID,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      // _saveData(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => areasEntryExit(
+                            title: widget.title,
+                            areaDetails: widget.passNotes,
+                            inspectId: widget.inspectID,
+                            reportDetails: widget.repdetail,
+                            reportId: widget.reportID,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    height: 50.0,
-                    color: Color.fromRGBO(162, 154, 255, 1),
-                    child: Center(
-                      child: Text(
-                        'Items',
-                        style: TextStyle(color: Colors.white, fontSize: 18.0),
+                      );
+                    },
+                    child: Container(
+                      height: 50.0,
+                      color: Color.fromRGBO(162, 154, 255, 1),
+                      child: Center(
+                        child: Text(
+                          'Items',
+                          style: TextStyle(color: Colors.white, fontSize: 18.0),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    //_saveData(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => photos(
-                          title: widget.title,
-                          passPhotos: widget.passNotes,
-                          repdetail1: widget.repdetail,
-                          inspectID1: widget.inspectID,
-                          reportID1: widget.reportID,
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      //_saveData(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => photos(
+                            title: widget.title,
+                            passPhotos: widget.passNotes,
+                            repdetail1: widget.repdetail,
+                            inspectID1: widget.inspectID,
+                            reportID1: widget.reportID,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    height: 50.0,
-                    color: Color.fromRGBO(162, 154, 255, 1),
-                    child: Center(
-                      child: Text(
-                        'Photos',
-                        style: TextStyle(color: Colors.white, fontSize: 18.0),
+                      );
+                    },
+                    child: Container(
+                      height: 50.0,
+                      color: Color.fromRGBO(162, 154, 255, 1),
+                      child: Center(
+                        child: Text(
+                          'Photos',
+                          style: TextStyle(color: Colors.white, fontSize: 18.0),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => notes(
-                          title: widget.title,
-                          passNotes: widget.passNotes,
-                          repdetail: widget.repdetail,
-                          inspectID: widget.inspectID,
-                          reportID: widget.reportID,
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => notes(
+                            title: widget.title,
+                            passNotes: widget.passNotes,
+                            repdetail: widget.repdetail,
+                            inspectID: widget.inspectID,
+                            reportID: widget.reportID,
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    height: 50.0,
-                    color: Color.fromRGBO(162, 154, 255, 1),
-                    child: Center(
-                      child: Text(
-                        'Notes',
-                        style: TextStyle(color: Colors.white, fontSize: 18.0),
+                      );
+                    },
+                    child: Container(
+                      height: 50.0,
+                      color: Color.fromRGBO(162, 154, 255, 1),
+                      child: Center(
+                        child: Text(
+                          'Notes',
+                          style: TextStyle(color: Colors.white, fontSize: 18.0),
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: 80.0),
-          Center(
-            child: Container(
-              width: 406.0,
-              height: 600,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 2,
-                    blurRadius: 5,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Text("$title"),
-                  SizedBox(
-                    height: 25,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(32.0),
-                    child: Stack(children: [
-                      Container(
-                        width: 300,
-                        height: 200.0,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(8.0),
+              ],
+            ),
+            SizedBox(height: 80.0),
+            Center(
+              child: Container(
+                width: 406.0,
+                height: 600,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Text("$title"),
+                    SizedBox(
+                      height: 25,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(32.0),
+                      child: Stack(children: [
+                        Container(
+                          width: 300,
+                          height: 200.0,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
                         ),
-                      ),
-                      Column(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          TextField(
-                              controller: tenantCommentController,
-                              decoration: InputDecoration(
-                                  hintText:
-                                      'Tenant Comment', // Placeholder text
-                                  labelText:
-                                      'Tenant Comment', // Label for the text field
-                                  labelStyle:
-                                      TextStyle(color: Colors.grey[500]),
-                                  enabledBorder: InputBorder
-                                      .none, // Remove the underline when not focused
-                                  focusedBorder: InputBorder.none),
-                              style: TextStyle(
-                                color: Colors.black,
-                              )),
-                        ],
-                      )
-                    ]),
-                  ),
-                  // SizedBox(
-                  //   height: 20,
-                  // ),
-                  Padding(
-                    padding: const EdgeInsets.all(32.0),
-                    child: Stack(children: [
-                      Container(
-                        width: 300,
-                        height: 200.0,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(8.0),
+                        Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            TextField(
+                                controller: tenantCommentController,
+                                decoration: InputDecoration(
+                                    hintText:
+                                        'Tenant Comment', // Placeholder text
+                                    labelText:
+                                        'Tenant Comment', // Label for the text field
+                                    labelStyle:
+                                        TextStyle(color: Colors.grey[500]),
+                                    enabledBorder: InputBorder
+                                        .none, // Remove the underline when not focused
+                                    focusedBorder: InputBorder.none),
+                                style: TextStyle(
+                                  color: Colors.black,
+                                )),
+                          ],
+                        )
+                      ]),
+                    ),
+                    // SizedBox(
+                    //   height: 20,
+                    // ),
+                    Padding(
+                      padding: const EdgeInsets.all(32.0),
+                      child: Stack(children: [
+                        Container(
+                          width: 300,
+                          height: 200.0,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
                         ),
-                      ),
-                      Column(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          TextField(
-                              controller: notesController,
-                              decoration: InputDecoration(
-                                  hintText: 'Notes', // Placeholder text
-                                  labelText:
-                                      'Notes', // Label for the text field
-                                  labelStyle:
-                                      TextStyle(color: Colors.grey[500]),
-                                  enabledBorder: InputBorder
-                                      .none, // Remove the underline when not focused
-                                  focusedBorder: InputBorder.none),
-                              style: TextStyle(
-                                color: Colors.black,
-                              )),
-                        ],
-                      )
-                    ]),
-                  ),
-                ],
+                        Column(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            TextField(
+                                controller: notesController,
+                                decoration: InputDecoration(
+                                    hintText: 'Notes', // Placeholder text
+                                    labelText:
+                                        'Notes', // Label for the text field
+                                    labelStyle:
+                                        TextStyle(color: Colors.grey[500]),
+                                    enabledBorder: InputBorder
+                                        .none, // Remove the underline when not focused
+                                    focusedBorder: InputBorder.none),
+                                style: TextStyle(
+                                  color: Colors.black,
+                                )),
+                          ],
+                        )
+                      ]),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: ElevatedButton(
-              onPressed: () => _saveData(context),
-              child: Text('Save Data'),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: ElevatedButton(
+                onPressed: () => _saveData(context),
+                child: Text('Save Data'),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

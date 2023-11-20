@@ -7,21 +7,21 @@
 // // }
 class Areas {
   final String name;
-  String notes;
-  String photosNotes;
-  final String tenantComment;
-  bool isDeleted;
-  List<Area> items; // List of Item
-  List<dynamic> photos; // List of Photo
+  String? notes;
+  String? photosNotes;
+  final String? tenantComment;
+  bool? isDeleted;
+  List<Area>? items; // List of Item
+  List<dynamic>? photos; // List of Photo
 
   Areas({
     required this.name,
-    required this.notes,
-    required this.photosNotes,
-    required this.tenantComment,
-    required this.isDeleted,
-    required this.items,
-    required this.photos,
+     this.notes,
+     this.photosNotes,
+     this.tenantComment,
+     this.isDeleted,
+     this.items,
+     this.photos,
   });
 }
 

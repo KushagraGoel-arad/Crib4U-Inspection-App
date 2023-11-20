@@ -149,7 +149,7 @@ class _basicDetailsState extends State<basicDetails> {
         'tenantComment': area.tenantComment,
         'isDeleted': area.isDeleted,
         'photos': area.photos,
-        'items': area.items.map((item) {
+        'items': area.items!.map((item) {
           return {
             'name': item.name,
             'agentComment': item.agentComment,

@@ -86,7 +86,9 @@ class _reportState extends State<report> {
   String inspectionID = '';
   List<dynamic> details1 = [];
   bool isDeleteIconVisible = false;
-
+  String details = '';
+  String detail2 = '';
+  String detail5 = '';
   final List<String> items = [
     'Shared with User',
   ];
@@ -136,9 +138,11 @@ class _reportState extends State<report> {
 
       if (response.statusCode == 200 && response.statusCode < 300) {
         final responseBodyJson = jsonDecode(response.body);
+        details = responseBodyJson['detail'];
         // Process the response data if needed
         print(responseBodyJson);
       } else {
+        showErrorBox(details);
         print('API request failed with status code: ${response.statusCode}');
         print('Response body: ${response.body}');
       }
@@ -170,16 +174,22 @@ class _reportState extends State<report> {
       headers: headers,
       body: jsonBody,
     );
-
+    if (response.body.isNotEmpty) {
+      final responseData = jsonDecode(response.body);
+      detail2 = responseData['detail'];
+      print('Response data: $responseData');
+    }
     if (response.statusCode == 200) {
       // Request was successful, you can handle the response here
       print('Area deleted successfully');
       // If there's a response body, you can also parse it
       if (response.body.isNotEmpty) {
         final responseData = jsonDecode(response.body);
+        detail5 = responseData['message'];
         print('Response data: $responseData');
       }
     } else {
+      showErrorBox(detail2);
       // Request failed, handle the error here
       print('Failed to delete area. Status code: ${response.statusCode}');
       print('Response body: ${response.body}');
@@ -351,7 +361,6 @@ class _reportState extends State<report> {
     );
   }
 
-  
   void showErrorBox(String errorMessage) {
     showDialog(
       context: context,

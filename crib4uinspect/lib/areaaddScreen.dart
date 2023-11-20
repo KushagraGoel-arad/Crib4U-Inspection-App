@@ -714,7 +714,7 @@
 // // }
 
 import 'dart:typed_data';
-
+import 'dart:convert';
 import 'package:crib4uinspect/edit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -730,6 +730,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:image_picker_web/image_picker_web.dart';
 import 'package:universal_html/html.dart' as html;
+import 'package:http_parser/http_parser.dart'; // Import MediaType
 
 class Area51 {
   final String name;
@@ -839,71 +840,273 @@ class _AddAreaScreenState extends State<AddAreaScreen> {
   //   }
   // }
 
+  // Future<String> postImages(
+  //   String inspID,
+  //   String reportID,
+  //   String? propId,
+  //   String? name1,
+  //   List<int> imageBytes, // Binary image data
+  // ) async {
+  //   try {
+  //     final url = Uri.parse(
+  //         'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/updateReportImages/$propId/$inspID/$reportID');
+
+  //     final request = http.MultipartRequest(
+  //       'POST',
+  //       url,
+  //     );
+
+  //     if (imageBytes.isNotEmpty) {
+  //       final allowedExtensions = [".png", ".jpg", ".jpeg"];
+  //       final filename = 'image.jpg';
+  //       final ext = filename.split('.').last;
+
+  //       if (allowedExtensions.contains(".$ext")) {
+  //         final multipartFile = http.MultipartFile.fromBytes(
+  //           'images',
+  //           imageBytes,
+  //           filename: filename,
+  //         );
+  //         print("Multipart file: $multipartFile");
+  //         request.files.add(multipartFile);
+  //       } else {
+  //         throw Exception('Invalid image file extension: $ext');
+  //       }
+  //     } else {
+  //       throw Exception('No image provided');
+  //     }
+
+  //     request.fields['areaName'] = name1 ?? '';
+  //     request.headers['accesstoken'] =
+  //         html.window.sessionStorage['accessToken'] ?? '';
+  //     request.headers['Content-Type'] = 'multipart/form-data';
+
+  //     print("Request URL: ${request.url}");
+  //     print("Request Headers: ${request.headers}");
+  //     print("Request Fields: ${request.fields}");
+
+  //     final response = await request.send();
+
+  //     if (response.statusCode == 200) {
+  //       final responseBody = await response.stream.bytesToString();
+  //       final imagePath = json.decode(responseBody)['imagePath'];
+  //       print("Image path: $imagePath");
+  //       return imagePath;
+  //     } else {
+  //       throw Exception(
+  //           'Failed to upload images. Status code: ${response.statusCode}');
+  //     }
+  //   } catch (e) {
+  //     print('Error in postImages: $e');
+  //     throw e;
+  //   }
+  // }
+
+  // Future<String> postImages(
+  //   http.Client client,
+  //   String inspID,
+  //   String reportID,
+  //   String? propId,
+  //   String? name1,
+  //   List<Map<String, String>>
+  //       images, // List of objects with fileName and base64
+  // ) async {
+  //   try {
+  //     final url = Uri.parse(
+  //         'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/updateReportImages/$propId/$inspID/$reportID');
+
+  //     final request = http.MultipartRequest(
+  //       'POST',
+  //       url,
+  //     );
+
+  //     if (images.isNotEmpty) {
+  //       for (var image in images) {
+  //         final fileName = image['fileName'];
+  //         final base64String = image['base64'];
+
+  //         // Add each image as a multipart form field
+  //         if (fileName != null && base64String != null) {
+  //           final multipartFile = http.MultipartFile.fromString(
+  //             'images',
+  //             base64String,
+  //             filename: fileName,
+  //             contentType:
+  //                 MediaType('image', 'jpeg'), // Specify the content type
+  //           );
+  //           request.files.add(multipartFile);
+  //         } else {
+  //           throw Exception('Invalid image data');
+  //         }
+  //       }
+  //     } else {
+  //       throw Exception('No images provided');
+  //     }
+
+  //     request.fields['areaName'] = name1 ?? '';
+  //     request.headers['accesstoken'] =
+  //         html.window.sessionStorage['accessToken'] ?? '';
+  //     request.headers['Content-Type'] = 'multipart/form-data';
+
+  //     print("Request URL: ${request.url}");
+  //     print("Request Headers: ${request.headers}");
+  //     print("Request Fields: ${request.fields}");
+
+  //     final response = await request.send();
+
+  //     if (response.statusCode == 200) {
+  //       final responseBody = await response.stream.bytesToString();
+  //       final imagePath = json.decode(responseBody)['imagePath'];
+  //       print("Image path: $imagePath");
+  //       return imagePath;
+  //     } else {
+  //       throw Exception(
+  //           'Failed to upload images. Status code: ${response.statusCode}');
+  //     }
+  //   } catch (e) {
+  //     print('Error in postImages: $e');
+  //     throw e;
+  //   }
+  // }
+
   Future<String> postImages(
+    http.Client client,
     String inspID,
     String reportID,
     String? propId,
     String? name1,
-    List<int> imageBytes, // Binary image data
+    List<Map<String, String>>
+        images, // List of objects with fileName and base64
   ) async {
     try {
       final url = Uri.parse(
-          'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/updateReportImages/$propId/$inspID/$reportID');
+        'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/updateReportImages/$propId/$inspID/$reportID',
+      );
 
       final request = http.MultipartRequest(
         'POST',
         url,
       );
 
-      if (imageBytes.isNotEmpty) {
-        // Check if the file has a valid image extension
-        // You can add more extensions if needed
-        final allowedExtensions = [".png", ".jpg", ".jpeg"];
-        final filename = 'image.jpg'; // Change the filename as needed
-        final ext = filename.split('.').last;
-        if (allowedExtensions.contains(".$ext")) {
-          final multipartFile = http.MultipartFile.fromBytes(
-            'images',
-            imageBytes,
-            filename: filename,
-          );
-          print("Multipart file $multipartFile");
-          request.files.add(multipartFile);
-        } else {
-          // Handle the case when an invalid image extension is provided.
-          throw Exception('Invalid image file extension');
+      if (images.isNotEmpty) {
+        for (var image in images) {
+          final fileName = image['fileName'];
+          final base64String = image['base64'];
+
+          // Add each image as a multipart form field
+          if (fileName != null && base64String != null) {
+            // Decode the base64 string to Uint8List
+            final imageBytes = base64Decode(base64String);
+
+            final multipartFile = http.MultipartFile.fromBytes(
+              'images',
+              imageBytes,
+              filename: fileName,
+              contentType:
+                  MediaType('image', 'jpeg'), // Specify the content type
+            );
+            request.files.add(multipartFile);
+          } else {
+            throw Exception('Invalid image data');
+          }
         }
       } else {
-        // Handle the case when no image is provided.
-        throw Exception('No image provided');
+        throw Exception('No images provided');
       }
 
-      // Add the 'areaName' field
       request.fields['areaName'] = name1 ?? '';
-      // request.fields['images'] =
-      //     imageBytes ;
-
-      // Add the JWT token to the request headers
       request.headers['accesstoken'] =
-          html.window.sessionStorage['accessToken'] ??
-              ''; // Use an empty string if jwttoken is null
-
-      // Set the Content-Type header to "multipart/form-data"
+          html.window.sessionStorage['accessToken'] ?? '';
       request.headers['Content-Type'] = 'multipart/form-data';
 
-      final response = await request.send();
+      print("Request URL: ${request.url}");
+      print("Request Headers: ${request.headers}");
+      print("Request Fields: ${request.fields}");
+
+      final response = await client.send(request);
+
       if (response.statusCode == 200) {
         final responseBody = await response.stream.bytesToString();
         final imagePath = json.decode(responseBody)['imagePath'];
+        print("Image path: $imagePath");
         return imagePath;
       } else {
-        throw Exception('Failed to upload images');
+        throw Exception(
+          'Failed to upload images. Status code: ${response.statusCode}',
+        );
       }
     } catch (e) {
+      print('Error in postImages: $e');
       throw e;
     }
   }
 
+  // Future<String> postImages(
+  //   String inspID,
+  //   String reportID,
+  //   String? propId,
+  //   String? name1,
+  //   List<int> imageBytes, // Binary image data
+  // ) async {
+  //   try {
+  //     final url = Uri.parse(
+  //         'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/updateReportImages/$propId/$inspID/$reportID');
+
+  //     final request = http.MultipartRequest(
+  //       'POST',
+  //       url,
+  //     );
+
+  //     if (imageBytes.isNotEmpty) {
+  //       // Check if the file has a valid image extension
+  //       // You can add more extensions if needed
+  //       final allowedExtensions = [".png", ".jpg", ".jpeg"];
+  //       final filename = 'image.jpg'; // Change the filename as needed
+  //       final ext = filename.split('.').last;
+  //       if (allowedExtensions.contains(".$ext")) {
+  //         final multipartFile = http.MultipartFile.fromBytes(
+  //           'images',
+  //           imageBytes,
+  //           filename: filename,
+  //         );
+  //         print("Multipart file $multipartFile");
+  //         request.files.add(multipartFile);
+  //       } else {
+  //         // Handle the case when an invalid image extension is provided.
+  //         throw Exception('Invalid image file extension');
+  //       }
+  //     } else {
+  //       // Handle the case when no image is provided.
+  //       throw Exception('No image provided');
+  //     }
+
+  //     // Add the 'areaName' field
+  //     request.fields['areaName'] = name1 ?? '';
+  //     // request.fields['images'] =
+  //     //     imageBytes as String ;
+
+  //     // Add the JWT token to the request headers
+  //     request.headers['accesstoken'] =
+  //         html.window.sessionStorage['accessToken'] ??
+  //             ''; // Use an empty string if jwttoken is null
+
+  //     // Set the Content-Type header to "multipart/form-data"
+  //     request.headers['Content-Type'] = 'multipart/form-data';
+
+  //     final response = await request.send();
+  //     if (response.statusCode == 200) {
+  //       final responseBody = await response.stream.bytesToString();
+  //       final imagePath = json.decode(responseBody)['imagePath'];
+  //       return imagePath;
+  //     } else {
+  //       throw Exception('Failed to upload images');
+  //     }
+  //   } catch (e) {
+  //     throw e;
+  //   }
+  // }
+//////
+  ///
   // Future<String> postImages(
   //   String inspID,
   //   String reportID,
@@ -1049,93 +1252,82 @@ class _AddAreaScreenState extends State<AddAreaScreen> {
             ),
           ],
         ),
-        actions: [
-          // IconButton(
-          //   icon: Icon(CupertinoIcons.create),
-          //   onPressed: () {
-          //     Navigator.push(
-          //       context,
-          //       MaterialPageRoute(
-          //         builder: (context) => edit(),
-          //       ),
-          //     );
-          //   },
-          // ),
-        ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Container(
-              width: 300,
-              height: 200,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.grey,
-                  width: 1.0,
-                ),
-              ),
-              child: TextField(
-                controller: nameController,
-                decoration: InputDecoration(
-                  labelText: widget.areaList[index].notes ?? '',
-                  border: InputBorder.none,
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: ElevatedButton(
-              onPressed: _selectImage,
-              child: Text('Select Image'),
-            ),
-          ),
-          if (imageFile != null)
-            Container(
-              width: 300,
-              height: 200,
-              child: Image.memory(
-                imageFile!,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Container(
                 width: 300,
                 height: 200,
-              ),
-            ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Container(
-              width: 150,
-              height: 50,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.grey,
-                  width: 1.0,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.grey,
+                    width: 1.0,
+                  ),
                 ),
-              ),
-              child: TextField(
-                controller: descriptionController,
-                decoration: InputDecoration(
-                  labelText: widget.areaList[index].photosNotes ?? '',
+                child: TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: widget.areaList[index].notes ?? '',
+                    border: InputBorder.none,
+                  ),
                 ),
               ),
             ),
-          ),
-          // Padding(
-          //   padding: const EdgeInsets.all(20.0),
-          //   child: ElevatedButton(
-          //     onPressed: () => _saveArea(context),
-          //     child: Text('Save Image'),
-          //   ),
-          // ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: ElevatedButton(
-              onPressed: () => _updateAreaData(context, selectedAreaIndex),
-              child: Text('Save Data'),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: ElevatedButton(
+                onPressed: _selectImage,
+                child: Text('Select Image'),
+              ),
             ),
-          ),
-        ],
+            if (imageFile != null)
+              Container(
+                width: 300,
+                height: 200,
+                child: Image.memory(
+                  imageFile!,
+                  width: 300,
+                  height: 200,
+                ),
+              ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Container(
+                width: 150,
+                height: 50,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.grey,
+                    width: 1.0,
+                  ),
+                ),
+                child: TextField(
+                  controller: descriptionController,
+                  decoration: InputDecoration(
+                    labelText: widget.areaList[index].photosNotes ?? '',
+                  ),
+                ),
+              ),
+            ),
+            // Padding(
+            //   padding: const EdgeInsets.all(20.0),
+            //   child: ElevatedButton(
+            //     onPressed: () => _saveArea(context),
+            //     child: Text('Save Image'),
+            //   ),
+            // ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: ElevatedButton(
+                onPressed: () => _updateAreaData(context, selectedAreaIndex),
+                child: Text('Save Data'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1152,14 +1344,6 @@ class _AddAreaScreenState extends State<AddAreaScreen> {
   }
 
   void _updateAreaData(BuildContext context, int index) async {
-    // if (nameController.text.isNotEmpty) {
-    //   updateAreaByName(
-    //       widget.areaName, nameController.text, descriptionController.text);
-    //   try {
-    //     saveReportData(widget.inspID, widget.reportID);
-    //     Navigator.pop(context);
-    //   } catch (e) {}
-    // }
     if (nameController.text.isNotEmpty) {
       if (widget.reportDetails.containsKey('areas') &&
           widget.reportDetails['areas'] is List) {
@@ -1172,7 +1356,6 @@ class _AddAreaScreenState extends State<AddAreaScreen> {
           areaToUpdate['notes'] = nameController.text;
           areaToUpdate['photonotes'] = descriptionController.text;
           areaToUpdate['tenantComment'] = "";
-          // areaToUpdate['isDeleted'] = true;
           areaToUpdate['items'] = [];
           areaToUpdate['photos'] = [
             {'url': imagePath, 'name': "", 'notes': ""}
@@ -1182,22 +1365,119 @@ class _AddAreaScreenState extends State<AddAreaScreen> {
         try {
           await saveReportData(widget.inspID, widget.reportID);
           Navigator.pop(context);
-        } catch (e) {}
+        } catch (e) {
+          print('Error updating area data: $e');
+        }
       }
     }
   }
 
+// void _saveArea(BuildContext context) async {
+//   if (nameController.text.isNotEmpty) {
+//     try {
+//       imagePath = await postImages(
+//         widget.inspID,
+//         widget.reportID,
+//         widget.propId,
+//         widget.areaName,
+//         [
+//           {
+//             'fileName': 'image.jpg',
+//             'base64': base64Encode(imageFile!),
+//           }
+//         ],
+//       );
+
+//       // Ensure that accessToken is not null before using it
+//       final accessToken = html.window.sessionStorage['accessToken'];
+//       if (accessToken != null) {
+//         // Set the accessToken in the headers
+//         http.headers['accesstoken'] = accessToken;
+//       } else {
+//         print('Error: accessToken is null');
+//         // Handle the case when accessToken is null
+//       }
+
+//       // Only navigate if the image upload is successful
+//       Navigator.pop(
+//         context,
+//         Area51(
+//           name: nameController.text,
+//           description: descriptionController.text,
+//           imagePath: imagePath!,
+//         ),
+//       );
+//     } catch (e) {
+//       print('Error saving area: $e');
+//       // You can handle the error or display an error message here.
+//     }
+//   } else {
+//     // Show an error message or handle the case when the name is empty.
+//   }
+// }
+
+  // void _saveArea(BuildContext context) async {
+  //   if (nameController.text.isNotEmpty) {
+  //     final client = http.Client();
+  //     try {
+  //       imagePath = await postImages(
+  //         client,
+  //         widget.inspID,
+  //         widget.reportID,
+  //         widget.propId,
+  //         widget.areaName,
+  //         [
+  //           {
+  //             'fileName': 'image.jpg',
+  //             'base64': base64Encode(imageFile!),
+  //           }
+  //         ],
+  //       );
+
+  //       // Only navigate if the image upload is successful
+  //       await saveReportData(widget.inspID, widget.reportID);
+  //       Navigator.pop(
+  //         context,
+  //         Area51(
+  //           name: nameController.text,
+  //           description: descriptionController.text,
+  //           imagePath: imagePath!,
+  //         ),
+  //       );
+  //     } catch (e) {
+  //       print('Error saving area: $e');
+  //       // You can handle the error or display an error message here.
+  //     } finally {
+  //       client.close(); // Close the client to release resources
+  //     }
+  //   } else {
+  //     // Show an error message or handle the case when the name is empty.
+  //   }
+  // }
+
   void _saveArea(BuildContext context) async {
     if (nameController.text.isNotEmpty) {
+      final client = http.Client();
       try {
+        // Convert Uint8List to base64
+        final base64Image = base64Encode(imageFile!);
+
         imagePath = await postImages(
+          client,
           widget.inspID,
           widget.reportID,
           widget.propId,
           widget.areaName,
-          imageFile!,
+          [
+            {
+              'fileName': 'image.jpg',
+              'base64': base64Image,
+            }
+          ],
         );
+
         // Only navigate if the image upload is successful
+        await saveReportData(widget.inspID, widget.reportID);
         Navigator.pop(
           context,
           Area51(
@@ -1207,12 +1487,83 @@ class _AddAreaScreenState extends State<AddAreaScreen> {
           ),
         );
       } catch (e) {
+        print('Error saving area: $e');
         // You can handle the error or display an error message here.
+      } finally {
+        client.close(); // Close the client to release resources
       }
     } else {
       // Show an error message or handle the case when the name is empty.
     }
   }
+
+  // void _updateAreaData(BuildContext context, int index) async {
+  //   // if (nameController.text.isNotEmpty) {
+  //   //   updateAreaByName(
+  //   //       widget.areaName, nameController.text, descriptionController.text);
+  //   //   try {
+  //   //     saveReportData(widget.inspID, widget.reportID);
+  //   //     Navigator.pop(context);
+  //   //   } catch (e) {}
+  //   // }
+  //   if (nameController.text.isNotEmpty) {
+  //     if (widget.reportDetails.containsKey('areas') &&
+  //         widget.reportDetails['areas'] is List) {
+  //       var areasList = widget.reportDetails['areas'] as List;
+  //       var areaIndex =
+  //           areasList.indexWhere((area) => area['name'] == widget.areaName);
+
+  //       if (areaIndex != -1) {
+  //         var areaToUpdate = areasList[areaIndex];
+  //         areaToUpdate['notes'] = nameController.text;
+  //         areaToUpdate['photonotes'] = descriptionController.text;
+  //         areaToUpdate['tenantComment'] = "";
+  //         // areaToUpdate['isDeleted'] = true;
+  //         areaToUpdate['items'] = [];
+  //         areaToUpdate['photos'] = [
+  //           {'url': imagePath, 'name': "", 'notes': ""}
+  //         ];
+  //       }
+
+  //       try {
+  //         await saveReportData(widget.inspID, widget.reportID);
+  //         Navigator.pop(context);
+  //       } catch (e) {}
+  //     }
+  //   }
+  // }
+
+  // void _saveArea(BuildContext context) async {
+  //   if (nameController.text.isNotEmpty) {
+  //     try {
+  //       imagePath = await postImages(
+  //         widget.inspID,
+  //         widget.reportID,
+  //         widget.propId,
+  //         widget.areaName,
+  //         [
+  //           {
+  //             'fileName': 'image.jpg',
+  //             'base64': base64Encode(imageFile!),
+  //           }
+  //         ],
+  //       );
+  //       // Only navigate if the image upload is successful
+  //       Navigator.pop(
+  //         context,
+  //         Area51(
+  //           name: nameController.text,
+  //           description: descriptionController.text,
+  //           imagePath: imagePath!,
+  //         ),
+  //       );
+  //     } catch (e) {
+  //       // You can handle the error or display an error message here.
+  //     }
+  //   } else {
+  //     // Show an error message or handle the case when the name is empty.
+  //   }
+  // }
 }
 
 // import 'dart:typed_data';

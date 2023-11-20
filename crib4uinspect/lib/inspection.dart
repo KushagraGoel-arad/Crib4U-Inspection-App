@@ -608,7 +608,7 @@ class _inspectState extends State<inspect> {
                     itemCount: _tableRows.length,
                     itemBuilder: (context, index) {
                       final data = _tableRows[index];
-
+      
                       return GestureDetector(
                         onTap: () async {
                           String inspectionId = data['_id'];
