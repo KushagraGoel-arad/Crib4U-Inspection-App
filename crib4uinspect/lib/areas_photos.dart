@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:crib4uinspect/areas_notes.dart';
@@ -45,15 +46,45 @@ class _photosState extends State<photos> {
   String areaName = '';
   String? imagePath;
 
-  void uploadImage(html.File file) {
-    // Handle the uploaded image here (you can upload it to a server or display it).
-    final imageUrl = html.Url.createObjectUrlFromBlob(file);
-    setState(() {
-      uploadedImages.add(imageUrl);
-    });
-    _saveArea(context);
-  }
+  // void uploadImage(html.File file) {
+  //   // Handle the uploaded image here (you can upload it to a server or display it).
+  //   final imageUrl = html.Url.createObjectUrlFromBlob(file);
+  //   setState(() {
+  //     uploadedImages.add(imageUrl);
+  //   });
+  //   _saveArea(context);
+  // }
 
+  // void _selectAndUploadImages() async {
+  //   final input = html.FileUploadInputElement()..multiple = true;
+  //   input.click();
+
+  //   input.onChange.listen((e) async {
+  //     final fileList = input.files;
+  //     if (fileList != null && fileList.isNotEmpty) {
+  //       final List<String> selectedImages = [];
+  //       for (final file in fileList) {
+  //         final completer = Completer<String>();
+  //         final reader = html.FileReader();
+
+  //         reader.onLoadEnd.listen((e) {
+  //           completer.complete(reader.result as String);
+  //         });
+
+  //         reader.readAsDataUrl(file);
+  //         selectedImages.add(await completer.future);
+  //       }
+
+  //       // Save the selected images to your state or perform any other actions
+  //       setState(() {
+  //         uploadedImages.addAll(selectedImages);
+  //       });
+
+  //       // Now you can call your _saveArea method to upload images to the server
+  //       _saveArea(context);
+  //     }
+  //   });
+  // }
   // Future<String> postImages(
   //   String inspID,
   //   String reportID,
@@ -158,64 +189,66 @@ class _photosState extends State<photos> {
   //     return null; // Return null or throw an exception based on your needs
   //   }
   // }
-  Future<String?> postImages(
-    String inspID,
-    String reportID,
-    String? propertID,
-    String? name1,
-    List<String> imageBytes,
-  ) async {
-    try {
-      final url = Uri.parse(
-          'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/updateReportImages/$propertID/$inspID/$reportID');
+  // Future<String?> postImages(
+  //   String inspID,
+  //   String reportID,
+  //   String? propertID,
+  //   String? name1,
+  //   List<String> imageBytes,
+  // ) async {
+  //   try {
+  //     final url = Uri.parse(
+  //         'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/updateReportImages/$propertID/$inspID/$reportID');
 
-      final request = http.MultipartRequest(
-        'POST',
-        url,
-      );
+  //     final request = http.MultipartRequest(
+  //       'POST',
+  //       url,
+  //     );
 
-      if (imageBytes.isNotEmpty) {
-        final filename = 'image.jpg';
+  //     if (imageBytes.isNotEmpty) {
+  //       final filename = 'image.jpg';
 
-        for (int i = 0; i < imageBytes.length; i++) {
-          final imageBytesAsUint8List = Uint8List.fromList(
-            base64.decode(imageBytes[i]),
-          );
-          final multipartFile = http.MultipartFile.fromBytes(
-            'images',
-            imageBytesAsUint8List,
-            filename: '$filename$i',
-          );
-          request.files.add(multipartFile);
-        }
-      } else {
-        throw Exception('No images provided');
-      }
+  //       for (int i = 0; i < imageBytes.length; i++) {
+  //         final imageBytesAsUint8List = Uint8List.fromList(
+  //           base64.decode(imageBytes[i]),
+  //         );
+  //         final multipartFile = http.MultipartFile.fromBytes(
+  //           'images',
+  //           imageBytesAsUint8List,
+  //           filename: '$filename$i',
+  //         );
+  //         request.files.add(multipartFile);
+  //       }
+  //     } else {
+  //       throw Exception('No images provided');
+  //     }
 
-      request.fields['areaName'] = name1 ?? '';
-      request.headers['accesstoken'] =
-          html.window.sessionStorage['accessToken'] ?? '';
+  //     request.fields['areaName'] = name1 ?? '';
+  //     request.headers['accesstoken'] =
+  //         html.window.sessionStorage['accessToken'] ?? '';
 
-      final response = await request.send();
-      final responseBody = await response.stream.bytesToString();
+  //     final response = await request.send();
+  //     final responseBody = await response.stream.bytesToString();
 
-      print('Response status code: ${response.statusCode}');
-      print('Response body: $responseBody');
+  //     print('Response status code: ${response.statusCode}');
+  //     print('Response body: $responseBody');
 
-      if (response.statusCode == 200) {
-        final imagePath = json.decode(responseBody)['imagePath'];
-        print('Image path: $imagePath');
-        return imagePath;
-      } else {
-        print('Failed to upload images. Status code: ${response.statusCode}');
-        print('Response body: $responseBody');
-        return null;
-      }
-    } catch (e) {
-      print('Error in postImages: $e');
-      return null;
-    }
-  }
+  //     if (response.statusCode == 200) {
+  //       final imagePath = json.decode(responseBody)['imagePath'];
+  //       print('Image path: $imagePath');
+  //       return imagePath;
+  //     } else {
+  //       print('Failed to upload images. Status code: ${response.statusCode}');
+  //       print('Response body: $responseBody');
+  //       return null;
+  //     }
+  //   } catch (e) {
+  //     print('Error in postImages: $e');
+  //     return null;
+  //   }
+  // }
+
+  ////
 
   // Future<String?> postImages(
   //   String inspID,
@@ -315,6 +348,166 @@ class _photosState extends State<photos> {
       }
     } catch (e) {
       // Handle exceptions
+    }
+  }
+
+  void uploadImage(html.File file) {
+    final imageUrl = html.Url.createObjectUrlFromBlob(file);
+    setState(() {
+      uploadedImages.add(imageUrl);
+    });
+    _saveArea(context);
+  }
+
+  void _selectAndUploadImages() async {
+    final input = html.FileUploadInputElement()..multiple = true;
+    input.click();
+
+    input.onChange.listen((e) async {
+      final fileList = input.files;
+      if (fileList != null && fileList.isNotEmpty) {
+        final List<String> selectedImages = [];
+        for (final file in fileList) {
+          final completer = Completer<String>();
+          final reader = html.FileReader();
+
+          reader.onLoadEnd.listen((e) {
+            completer.complete(reader.result as String);
+          });
+
+          reader.readAsDataUrl(file);
+          selectedImages.add(await completer.future);
+        }
+
+        setState(() {
+          uploadedImages.addAll(selectedImages);
+        });
+
+        _saveArea(context);
+      }
+    });
+  }
+
+  Future<String?> postImages(
+    String inspID,
+    String reportID,
+    String? propertID,
+    String? name1,
+    List<String> imageBytes,
+  ) async {
+    try {
+      final url = Uri.parse(
+          'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/updateReportImages/$propertID/$inspID/$reportID');
+
+      final request = http.MultipartRequest('POST', url);
+
+      if (imageBytes.isNotEmpty) {
+        final filename = 'image.jpg';
+
+        for (int i = 0; i < imageBytes.length; i++) {
+          final imageBytesAsUint8List = Uint8List.fromList(
+            base64.decode(imageBytes[i].split(',').last),
+          );
+          final multipartFile = http.MultipartFile.fromBytes(
+            'images',
+            imageBytesAsUint8List,
+            filename: '$filename$i',
+          );
+          request.files.add(multipartFile);
+        }
+      } else {
+        throw Exception('No images provided');
+      }
+
+      request.fields['areaName'] = name1 ?? '';
+      request.headers['accesstoken'] =
+          html.window.sessionStorage['accessToken'] ?? '';
+
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+
+      print('Response status code: ${response.statusCode}');
+      print('Response body: $responseBody');
+
+      if (response.statusCode == 200) {
+        final imagePath = json.decode(responseBody)['imagePath'];
+        print('Image path: $imagePath');
+        return imagePath;
+      } else {
+        print('Failed to upload images. Status code: ${response.statusCode}');
+        print('Response body: $responseBody');
+        return null;
+      }
+    } catch (e) {
+      print('Error in postImages: $e');
+      return null;
+    }
+  }
+
+  void _saveArea(BuildContext context) async {
+    try {
+      final areaName = widget.title;
+
+      final imagePath = await postImages(
+        widget.inspectID1,
+        widget.reportID1,
+        widget.propertID,
+        areaName,
+        uploadedImages,
+      );
+
+      if (imagePath != null) {
+        print("Image Path: $imagePath");
+
+        if (widget.repdetail1.containsKey('areas') &&
+            widget.repdetail1['areas'] is List) {
+          var areasList = widget.repdetail1['areas'] as List;
+          var areaIndex =
+              areasList.indexWhere((area) => area['name'] == areaName);
+
+          if (areaIndex != -1) {
+            var areaToUpdate = areasList[areaIndex];
+            areaToUpdate['photos'] = [
+              {'url': imagePath, 'name': "", 'notes': ""}
+            ];
+          }
+        }
+      } else {
+        print("Failed to upload image.");
+      }
+    } catch (e) {
+      print('Error in _saveArea: $e');
+    }
+  }
+
+  void _saveData(BuildContext context) async {
+    try {
+      if (widget.repdetail1.containsKey('areas') &&
+          widget.repdetail1['areas'] is List) {
+        var areasList = widget.repdetail1['areas'] as List;
+        var areaIndex =
+            areasList.indexWhere((area) => area['name'] == widget.title);
+
+        if (areaIndex != -1) {
+          var areaToUpdate = areasList[areaIndex];
+          areaToUpdate['notes'] = '';
+          areaToUpdate['photosNotes'] = photosNotesController.text;
+          areaToUpdate['tenantComment'] = '';
+          areaToUpdate['items'] = [
+            // ... existing code ...
+          ];
+          areaToUpdate['photos'] = [
+            {'url': imagePath, 'name': "", 'notes': ""}
+          ];
+        }
+      }
+
+      await saveReportData(
+        widget.inspectID1,
+        widget.reportID1,
+      );
+    } catch (e) {
+      print('Error in _saveData: $e');
     }
   }
 
@@ -547,15 +740,16 @@ class _photosState extends State<photos> {
                       Center(
                         child: GestureDetector(
                           onTap: () {
-                            final input = html.FileUploadInputElement()
-                              ..accept = 'image/*';
-                            input.click();
+                            // final input = html.FileUploadInputElement()
+                            //   ..accept = 'image/*';
+                            // input.click();
 
-                            input.onChange.listen((e) {
-                              final file = input.files!.first;
-                              uploadImage(file);
-                            });
+                            // input.onChange.listen((e) {
+                            //   final file = input.files!.first;
+                            //   uploadImage(file);
+                            // });
                             // _selectAndUploadImage();
+                            _selectAndUploadImages();
                           },
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -578,15 +772,16 @@ class _photosState extends State<photos> {
                                   )),
                               ElevatedButton(
                                 onPressed: () {
-                                  final input = html.FileUploadInputElement()
-                                    ..accept = 'image/*';
-                                  input.click();
+                                  // final input = html.FileUploadInputElement()
+                                  //   ..accept = 'image/*';
+                                  // input.click();
 
-                                  input.onChange.listen((e) {
-                                    final file = input.files!.first;
-                                    uploadImage(file);
-                                  });
+                                  // input.onChange.listen((e) {
+                                  //   final file = input.files!.first;
+                                  //   uploadImage(file);
+                                  // });
                                   // _selectAndUploadImage();
+                                  _selectAndUploadImages();
                                 },
                                 style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.symmetric(
@@ -732,176 +927,176 @@ class _photosState extends State<photos> {
   //   // Only navigate if the image upload is successful
   // }
 
-  void _saveArea(BuildContext context) async {
-    try {
-      final areaName = widget.title;
+  // void _saveArea(BuildContext context) async {
+  //   try {
+  //     final areaName = widget.title;
 
-      final imagePath = await postImages(
-        widget.inspectID1,
-        widget.reportID1,
-        widget.propertID,
-        areaName,
-        uploadedImages, // Binary image data
-      );
+  //     final imagePath = await postImages(
+  //       widget.inspectID1,
+  //       widget.reportID1,
+  //       widget.propertID,
+  //       areaName,
+  //       uploadedImages, // Binary image data
+  //     );
 
-      if (imagePath != null) {
-        print("Image Path: $imagePath");
+  //     if (imagePath != null) {
+  //       print("Image Path: $imagePath");
 
-        // Update the UI or perform any other actions based on the successful image upload
+  //       // Update the UI or perform any other actions based on the successful image upload
 
-        // Save the image path to the corresponding area in the report detail
-        if (widget.repdetail1.containsKey('areas') &&
-            widget.repdetail1['areas'] is List) {
-          var areasList = widget.repdetail1['areas'] as List;
-          var areaIndex =
-              areasList.indexWhere((area) => area['name'] == areaName);
+  //       // Save the image path to the corresponding area in the report detail
+  //       if (widget.repdetail1.containsKey('areas') &&
+  //           widget.repdetail1['areas'] is List) {
+  //         var areasList = widget.repdetail1['areas'] as List;
+  //         var areaIndex =
+  //             areasList.indexWhere((area) => area['name'] == areaName);
 
-          if (areaIndex != -1) {
-            var areaToUpdate = areasList[areaIndex];
-            areaToUpdate['photos'] = [
-              {'url': imagePath, 'name': "", 'notes': ""}
-            ];
-          }
-        }
-      } else {
-        print("Failed to upload image.");
-        // Handle the case where image upload failed
-      }
-    } catch (e) {
-      print('Error in _saveArea: $e');
-      // Handle any other exceptions that might occur during the process
-    }
-  }
+  //         if (areaIndex != -1) {
+  //           var areaToUpdate = areasList[areaIndex];
+  //           areaToUpdate['photos'] = [
+  //             {'url': imagePath, 'name': "", 'notes': ""}
+  //           ];
+  //         }
+  //       }
+  //     } else {
+  //       print("Failed to upload image.");
+  //       // Handle the case where image upload failed
+  //     }
+  //   } catch (e) {
+  //     print('Error in _saveArea: $e');
+  //     // Handle any other exceptions that might occur during the process
+  //   }
+  // }
 
-  void _saveData(BuildContext context) async {
-    //String agentComment = agentCommentController.text;
-//     setState(() {
-// // Update this value
-//     });
+//   void _saveData(BuildContext context) async {
+//     //String agentComment = agentCommentController.text;
+// //     setState(() {
+// // // Update this value
+// //     });
 
-    try {
-      final areas = widget.repdetail1['areas'] as List;
+//     try {
+//       final areas = widget.repdetail1['areas'] as List;
 
-      if (widget.repdetail1.containsKey('areas') &&
-          widget.repdetail1['areas'] is List) {
-        // Cast the 'areas' to a List
-        var areasList = widget.repdetail1['areas'] as List;
+//       if (widget.repdetail1.containsKey('areas') &&
+//           widget.repdetail1['areas'] is List) {
+//         // Cast the 'areas' to a List
+//         var areasList = widget.repdetail1['areas'] as List;
 
-        // Find the index of the area with the matching 'name'
-        var areaIndex =
-            areasList.indexWhere((area) => area['name'] == widget.title);
+//         // Find the index of the area with the matching 'name'
+//         var areaIndex =
+//             areasList.indexWhere((area) => area['name'] == widget.title);
 
-        if (areaIndex != -1) {
-          // Update the area data at the found index
-          var areaToUpdate = areasList[areaIndex];
-          areaToUpdate['notes'] = '';
-          areaToUpdate['photosNotes'] = photosNotesController.text;
-          areaToUpdate['tenantComment'] = '';
-          //areaToUpdate['isDeleted'] = true;
+//         if (areaIndex != -1) {
+//           // Update the area data at the found index
+//           var areaToUpdate = areasList[areaIndex];
+//           areaToUpdate['notes'] = '';
+//           areaToUpdate['photosNotes'] = photosNotesController.text;
+//           areaToUpdate['tenantComment'] = '';
+//           //areaToUpdate['isDeleted'] = true;
 
-          // Update 'items' based on the provided response
-          areaToUpdate['items'] = [
-            {
-              "name": "Windows/screens",
-              "agentComment": '',
-              "otherComment": "",
-              "conditions": [
-                {"name": "Clean", "value": ''},
-                {"name": "Undamaged", "value": ''},
-                {"name": "Working", "value": ''},
-              ],
-            },
-            {
-              "name": "Blinds/curtains",
-              "agentComment": '',
-              "otherComment": "",
-              "conditions": [
-                {"name": "Clean", "value": ''},
-                {"name": "Undamaged", "value": ''},
-                {"name": "Working", "value": ''},
-              ],
-            },
-            {
-              "name": "Fans/light fittings",
-              "agentComment": '',
-              "otherComment": "",
-              "conditions": [
-                {"name": "Clean", "value": ''},
-                {"name": "Undamaged", "value": ''},
-                {"name": "Working", "value": ''},
-              ],
-            },
-            {
-              "name": "Floor/floor coverings",
-              "agentComment": '',
-              "otherComment": "",
-              "conditions": [
-                {"name": "Clean", "value": ''},
-                {"name": "Undamaged", "value": ''},
-                {"name": "Working", "value": ''},
-              ],
-            },
-            {
-              "name": "Wardrobe/drawers/shelves",
-              "agentComment": '',
-              "otherComment": "",
-              "conditions": [
-                {"name": "Clean", "value": ''},
-                {"name": "Undamaged", "value": ''},
-                {"name": "Working", "value": ''},
-              ],
-            },
-            {
-              "name": "Air conditioner",
-              "agentComment": '',
-              "otherComment": "",
-              "conditions": [
-                {"name": "Clean", "value": ''},
-                {"name": "Undamaged", "value": ''},
-                {"name": "Working", "value": ''},
-              ],
-            },
-            {
-              "name": "Power points",
-              "agentComment": '',
-              "otherComment": "",
-              "conditions": [
-                {"name": "Clean", "value": ''},
-                {"name": "Undamaged", "value": ''},
-                {"name": "Working", "value": ''},
-              ],
-            },
-            {
-              "name": "Other",
-              "agentComment": '',
-              "otherComment": "",
-              "conditions": [
-                {"name": "Clean", "value": ''},
-                {"name": "Undamaged", "value": ''},
-                {"name": "Working", "value": ''},
-              ],
-            },
-          ];
+//           // Update 'items' based on the provided response
+//           areaToUpdate['items'] = [
+//             {
+//               "name": "Windows/screens",
+//               "agentComment": '',
+//               "otherComment": "",
+//               "conditions": [
+//                 {"name": "Clean", "value": ''},
+//                 {"name": "Undamaged", "value": ''},
+//                 {"name": "Working", "value": ''},
+//               ],
+//             },
+//             {
+//               "name": "Blinds/curtains",
+//               "agentComment": '',
+//               "otherComment": "",
+//               "conditions": [
+//                 {"name": "Clean", "value": ''},
+//                 {"name": "Undamaged", "value": ''},
+//                 {"name": "Working", "value": ''},
+//               ],
+//             },
+//             {
+//               "name": "Fans/light fittings",
+//               "agentComment": '',
+//               "otherComment": "",
+//               "conditions": [
+//                 {"name": "Clean", "value": ''},
+//                 {"name": "Undamaged", "value": ''},
+//                 {"name": "Working", "value": ''},
+//               ],
+//             },
+//             {
+//               "name": "Floor/floor coverings",
+//               "agentComment": '',
+//               "otherComment": "",
+//               "conditions": [
+//                 {"name": "Clean", "value": ''},
+//                 {"name": "Undamaged", "value": ''},
+//                 {"name": "Working", "value": ''},
+//               ],
+//             },
+//             {
+//               "name": "Wardrobe/drawers/shelves",
+//               "agentComment": '',
+//               "otherComment": "",
+//               "conditions": [
+//                 {"name": "Clean", "value": ''},
+//                 {"name": "Undamaged", "value": ''},
+//                 {"name": "Working", "value": ''},
+//               ],
+//             },
+//             {
+//               "name": "Air conditioner",
+//               "agentComment": '',
+//               "otherComment": "",
+//               "conditions": [
+//                 {"name": "Clean", "value": ''},
+//                 {"name": "Undamaged", "value": ''},
+//                 {"name": "Working", "value": ''},
+//               ],
+//             },
+//             {
+//               "name": "Power points",
+//               "agentComment": '',
+//               "otherComment": "",
+//               "conditions": [
+//                 {"name": "Clean", "value": ''},
+//                 {"name": "Undamaged", "value": ''},
+//                 {"name": "Working", "value": ''},
+//               ],
+//             },
+//             {
+//               "name": "Other",
+//               "agentComment": '',
+//               "otherComment": "",
+//               "conditions": [
+//                 {"name": "Clean", "value": ''},
+//                 {"name": "Undamaged", "value": ''},
+//                 {"name": "Working", "value": ''},
+//               ],
+//             },
+//           ];
 
-          //print("Clean: : $cleanValue");
-          areaToUpdate['photos'] = [
-            {'url': imagePath, 'name': "", 'notes': ""}
-          ]; // Clear the 'photos' list
-        }
-      }
+//           //print("Clean: : $cleanValue");
+//           areaToUpdate['photos'] = [
+//             {'url': imagePath, 'name': "", 'notes': ""}
+//           ]; // Clear the 'photos' list
+//         }
+//       }
 
-      await saveReportData(
-        widget.inspectID1,
-        widget.reportID1,
-      );
+//       await saveReportData(
+//         widget.inspectID1,
+//         widget.reportID1,
+//       );
 
-      //agentCommentController.clear();
-      // cleanValue = "";
-      // undamagedValue = "";
-      // workingValue = "";
-      //Navigator.pop(context);
-    } catch (e) {
-      // Handle any errors that occur during the API call.
-    }
-  }
+//       //agentCommentController.clear();
+//       // cleanValue = "";
+//       // undamagedValue = "";
+//       // workingValue = "";
+//       //Navigator.pop(context);
+//     } catch (e) {
+//       // Handle any errors that occur during the API call.
+//     }
+//   }
 }
