@@ -468,7 +468,7 @@ class _photosState extends State<photos> {
           if (areaIndex != -1) {
             var areaToUpdate = areasList[areaIndex];
             areaToUpdate['photos'] = [
-              {'url': imagePath, 'name': "", 'notes': ""}
+              {'url': uploadedImages, 'name': "", 'notes': ""}
             ];
           }
         }
@@ -497,7 +497,7 @@ class _photosState extends State<photos> {
             // ... existing code ...
           ];
           areaToUpdate['photos'] = [
-            {'url': imagePath, 'name': "", 'notes': ""}
+            {'url': uploadedImages, 'name': "", 'notes': ""}
           ];
         }
       }
