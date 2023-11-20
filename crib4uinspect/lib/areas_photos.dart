@@ -14,6 +14,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'dart:html' as html;
 import 'dart:typed_data';
+import 'package:http_parser/http_parser.dart';
 
 class photos extends StatefulWidget {
   final String title;
@@ -44,285 +45,8 @@ class _photosState extends State<photos> {
   List<String> uploadedImages = [];
   TextEditingController photosNotesController = TextEditingController();
   String areaName = '';
-  String? imagePath;
-
-  // void uploadImage(html.File file) {
-  //   // Handle the uploaded image here (you can upload it to a server or display it).
-  //   final imageUrl = html.Url.createObjectUrlFromBlob(file);
-  //   setState(() {
-  //     uploadedImages.add(imageUrl);
-  //   });
-  //   _saveArea(context);
-  // }
-
-  // void _selectAndUploadImages() async {
-  //   final input = html.FileUploadInputElement()..multiple = true;
-  //   input.click();
-
-  //   input.onChange.listen((e) async {
-  //     final fileList = input.files;
-  //     if (fileList != null && fileList.isNotEmpty) {
-  //       final List<String> selectedImages = [];
-  //       for (final file in fileList) {
-  //         final completer = Completer<String>();
-  //         final reader = html.FileReader();
-
-  //         reader.onLoadEnd.listen((e) {
-  //           completer.complete(reader.result as String);
-  //         });
-
-  //         reader.readAsDataUrl(file);
-  //         selectedImages.add(await completer.future);
-  //       }
-
-  //       // Save the selected images to your state or perform any other actions
-  //       setState(() {
-  //         uploadedImages.addAll(selectedImages);
-  //       });
-
-  //       // Now you can call your _saveArea method to upload images to the server
-  //       _saveArea(context);
-  //     }
-  //   });
-  // }
-  // Future<String> postImages(
-  //   String inspID,
-  //   String reportID,
-  //   String? propertID,
-  //   String? name1,
-  //   List<String> imageBytes, // Base64-encoded image data
-  // ) async {
-  //   try {
-  //     final url = Uri.parse(
-  //         'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/updateReportImages/$propertID/$inspID/$reportID');
-
-  //     final request = http.MultipartRequest(
-  //       'POST',
-  //       url,
-  //     );
-
-  //     if (imageBytes.isNotEmpty) {
-  //       final filename = 'image.jpg';
-
-  //       for (int i = 0; i < imageBytes.length; i++) {
-  //         final imageBytesAsUint8List = Uint8List.fromList(
-  //           base64.decode(imageBytes[i]),
-  //         );
-  //         final multipartFile = http.MultipartFile.fromBytes(
-  //           'images',
-  //           imageBytesAsUint8List,
-  //           filename: '$filename$i',
-  //         );
-  //         request.files.add(multipartFile);
-  //       }
-  //     } else {
-  //       throw Exception('No images provided');
-  //     }
-
-  //     request.fields['areaName'] = name1 ?? '';
-  //     request.headers['accesstoken'] =
-  //         html.window.sessionStorage['accessToken'] ?? '';
-  //     final response = await request.send();
-  //     if (response.statusCode == 200) {
-  //       final responseBody = await response.stream.bytesToString();
-  //       final imagePath = json.decode(responseBody)['imagePath'];
-  //       return imagePath;
-  //     } else {
-  //       throw Exception('Failed to upload images');
-  //     }
-  //   } catch (e) {
-  //     throw e;
-  //   }
-  // }
-
-  // Future<String?> postImages(
-  //   String inspID,
-  //   String reportID,
-  //   String? propertID,
-  //   String? name1,
-  //   List<String> imageBytes,
-  // ) async {
-  //   try {
-  //     final url = Uri.parse(
-  //         'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/updateReportImages/$propertID/$inspID/$reportID');
-
-  //     final request = http.MultipartRequest(
-  //       'POST',
-  //       url,
-  //     );
-
-  //     if (imageBytes.isNotEmpty) {
-  //       final filename = 'image.jpg';
-
-  //       for (int i = 0; i < imageBytes.length; i++) {
-  //         final imageBytesAsUint8List = Uint8List.fromList(
-  //           base64.decode(imageBytes[i]),
-  //         );
-  //         final multipartFile = http.MultipartFile.fromBytes(
-  //           'images',
-  //           imageBytesAsUint8List,
-  //           filename: '$filename$i',
-  //         );
-  //         request.files.add(multipartFile);
-  //       }
-  //     } else {
-  //       throw Exception('No images provided');
-  //     }
-
-  //     request.fields['areaName'] = name1 ?? '';
-  //     request.headers['accesstoken'] =
-  //         html.window.sessionStorage['accessToken'] ?? '';
-
-  //     final response = await request.send();
-  //     final responseBody = await response.stream.bytesToString();
-
-  //     if (response.statusCode == 200) {
-  //       final imagePath = json.decode(responseBody)['imagePath'];
-  //       return imagePath;
-  //     } else {
-  //       print('Failed to upload images. Status code: ${response.statusCode}');
-  //       print('Response body: $responseBody');
-  //       return null; // Return null or throw an exception based on your needs
-  //     }
-  //   } catch (e) {
-  //     print('Error in postImages: $e');
-  //     return null; // Return null or throw an exception based on your needs
-  //   }
-  // }
-  // Future<String?> postImages(
-  //   String inspID,
-  //   String reportID,
-  //   String? propertID,
-  //   String? name1,
-  //   List<String> imageBytes,
-  // ) async {
-  //   try {
-  //     final url = Uri.parse(
-  //         'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/updateReportImages/$propertID/$inspID/$reportID');
-
-  //     final request = http.MultipartRequest(
-  //       'POST',
-  //       url,
-  //     );
-
-  //     if (imageBytes.isNotEmpty) {
-  //       final filename = 'image.jpg';
-
-  //       for (int i = 0; i < imageBytes.length; i++) {
-  //         final imageBytesAsUint8List = Uint8List.fromList(
-  //           base64.decode(imageBytes[i]),
-  //         );
-  //         final multipartFile = http.MultipartFile.fromBytes(
-  //           'images',
-  //           imageBytesAsUint8List,
-  //           filename: '$filename$i',
-  //         );
-  //         request.files.add(multipartFile);
-  //       }
-  //     } else {
-  //       throw Exception('No images provided');
-  //     }
-
-  //     request.fields['areaName'] = name1 ?? '';
-  //     request.headers['accesstoken'] =
-  //         html.window.sessionStorage['accessToken'] ?? '';
-
-  //     final response = await request.send();
-  //     final responseBody = await response.stream.bytesToString();
-
-  //     print('Response status code: ${response.statusCode}');
-  //     print('Response body: $responseBody');
-
-  //     if (response.statusCode == 200) {
-  //       final imagePath = json.decode(responseBody)['imagePath'];
-  //       print('Image path: $imagePath');
-  //       return imagePath;
-  //     } else {
-  //       print('Failed to upload images. Status code: ${response.statusCode}');
-  //       print('Response body: $responseBody');
-  //       return null;
-  //     }
-  //   } catch (e) {
-  //     print('Error in postImages: $e');
-  //     return null;
-  //   }
-  // }
-
-  ////
-
-  // Future<String?> postImages(
-  //   String inspID,
-  //   String reportID,
-  //   String? propertID,
-  //   String? name1,
-  //   List<String> imageBytes,
-  // ) async {
-  //   try {
-  //     // Construct the URL
-  //     final url = Uri.parse(
-  //         'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/updateReportImages/$propertID/$inspID/$reportID');
-
-  //     // Create a MultipartRequest
-  //     final request = http.MultipartRequest(
-  //       'POST',
-  //       url,
-  //     );
-
-  //     // Check if images are provided
-  //     if (imageBytes.isNotEmpty) {
-  //       final filename = 'image.jpg';
-
-  //       // Add each image to the request
-  //       for (int i = 0; i < imageBytes.length; i++) {
-  //         final cleanedBase64 =
-  //             imageBytes[i].replaceAll(RegExp('[^a-zA-Z0-9+/]'), '');
-  //         final imageBytesAsUint8List =
-  //             Uint8List.fromList(base64.decode(cleanedBase64));
-  //         final multipartFile = http.MultipartFile.fromBytes(
-  //           'images',
-  //           imageBytesAsUint8List,
-  //           filename: '$filename$i',
-  //         );
-  //         request.files.add(multipartFile);
-  //       }
-  //     } else {
-  //       // Throw an exception if no images are provided
-  //       throw Exception('No images provided');
-  //     }
-
-  //     // Add additional fields and headers
-  //     request.fields['areaName'] = name1 ?? '';
-  //     request.headers['accesstoken'] =
-  //         html.window.sessionStorage['accessToken'] ?? '';
-
-  //     // Send the request and get the response
-  //     final response = await request.send();
-
-  //     // Read and decode the response body
-  //     final responseBody = await response.stream.bytesToString();
-
-  //     // Log response details
-  //     print('Response status code: ${response.statusCode}');
-  //     print('Response body: $responseBody');
-
-  //     // Check if the response status code is 200 (OK)
-  //     if (response.statusCode == 200) {
-  //       // Parse and return the imagePath
-  //       final imagePath = json.decode(responseBody)['imagePath'];
-  //       print('Image path: $imagePath');
-  //       return imagePath;
-  //     } else {
-  //       // Log and return null if the request fails
-  //       print('Failed to upload images. Status code: ${response.statusCode}');
-  //       print('Response body: $responseBody');
-  //       return null;
-  //     }
-  //   } catch (e) {
-  //     // Log and return null in case of an error
-  //     print('Error in postImages: $e');
-  //     return null;
-  //   }
-  // }
+  List<dynamic> imagePath = [];
+  List<Uint8List> imageFiles = [];
 
   Future<void> saveReportData(String inspectID1, String reportID1) async {
     final url = Uri.parse(
@@ -351,13 +75,13 @@ class _photosState extends State<photos> {
     }
   }
 
-  void uploadImage(html.File file) {
-    final imageUrl = html.Url.createObjectUrlFromBlob(file);
-    setState(() {
-      uploadedImages.add(imageUrl);
-    });
-    _saveArea(context);
-  }
+  // void uploadImage(html.File file) {
+  //   final imageUrl = html.Url.createObjectUrlFromBlob(file);
+  //   setState(() {
+  //     uploadedImages.add(imageUrl);
+  //   });
+  //   _saveArea(context);
+  // }
 
   void _selectAndUploadImages() async {
     final input = html.FileUploadInputElement()..multiple = true;
@@ -366,21 +90,21 @@ class _photosState extends State<photos> {
     input.onChange.listen((e) async {
       final fileList = input.files;
       if (fileList != null && fileList.isNotEmpty) {
-        final List<String> selectedImages = [];
+        final List<Uint8List> selectedImages = [];
         for (final file in fileList) {
-          final completer = Completer<String>();
+          final completer = Completer<Uint8List>();
           final reader = html.FileReader();
 
           reader.onLoadEnd.listen((e) {
-            completer.complete(reader.result as String);
+            completer.complete(Uint8List.fromList(reader.result as List<int>));
           });
 
-          reader.readAsDataUrl(file);
+          reader.readAsArrayBuffer(file);
           selectedImages.add(await completer.future);
         }
 
         setState(() {
-          uploadedImages.addAll(selectedImages);
+          imageFiles = selectedImages;
         });
 
         _saveArea(context);
@@ -388,30 +112,26 @@ class _photosState extends State<photos> {
     });
   }
 
-  Future<String?> postImages(
-    String inspID,
-    String reportID,
-    String? propertID,
-    String? name1,
-    List<String> imageBytes,
-  ) async {
+  Future<void> postImages(http.Client client, String inspID, String reportID,
+      String? propId, String? name1,
+      {required List<Uint8List> images}) async {
     try {
       final url = Uri.parse(
-          'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/updateReportImages/$propertID/$inspID/$reportID');
+        'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/updateReportImages/$propId/$inspID/$reportID',
+      );
 
       final request = http.MultipartRequest('POST', url);
 
-      if (imageBytes.isNotEmpty) {
-        final filename = 'image.jpg';
+      if (images.isNotEmpty) {
+        for (var i = 0; i < images.length; i++) {
+          final fileName = 'image_$i.jpeg';
+          final imageBytes = images[i];
 
-        for (int i = 0; i < imageBytes.length; i++) {
-          final imageBytesAsUint8List = Uint8List.fromList(
-            base64.decode(imageBytes[i].split(',').last),
-          );
           final multipartFile = http.MultipartFile.fromBytes(
             'images',
-            imageBytesAsUint8List,
-            filename: '$filename$i',
+            imageBytes,
+            filename: fileName,
+            contentType: MediaType('image', 'jpeg'),
           );
           request.files.add(multipartFile);
         }
@@ -422,42 +142,45 @@ class _photosState extends State<photos> {
       request.fields['areaName'] = name1 ?? '';
       request.headers['accesstoken'] =
           html.window.sessionStorage['accessToken'] ?? '';
+      request.headers['Content-Type'] = 'multipart/form-data';
 
-      final response = await request.send();
-      final responseBody = await response.stream.bytesToString();
+      print("Request URL: ${request.url}");
+      print("Request Headers: ${request.headers}");
+      print("Request Fields: ${request.fields}");
 
-      print('Response status code: ${response.statusCode}');
-      print('Response body: $responseBody');
+      final response = await client.send(request);
 
       if (response.statusCode == 200) {
-        final imagePath = json.decode(responseBody)['imagePath'];
-        print('Image path: $imagePath');
-        return imagePath;
+        final responseBody = await response.stream.bytesToString();
+        imagePath = json.decode(responseBody)['details'];
+        print("Image path: $imagePath");
+        //return imagePath;
       } else {
-        print('Failed to upload images. Status code: ${response.statusCode}');
-        print('Response body: $responseBody');
-        return null;
+        throw Exception(
+          'Failed to upload images. Status code: ${response.statusCode}',
+        );
       }
     } catch (e) {
       print('Error in postImages: $e');
-      return null;
+      throw e;
     }
   }
 
   void _saveArea(BuildContext context) async {
     try {
       final areaName = widget.title;
-
-      final imagePath = await postImages(
+      final client = http.Client();
+      final imagePath1 = await postImages(
+        client,
         widget.inspectID1,
         widget.reportID1,
         widget.propertID,
         areaName,
-        uploadedImages,
+        images: imageFiles,
       );
-
+      print("Image Path: : $imagePath");
       if (imagePath != null) {
-        print("Image Path: $imagePath");
+        print("Image Pathhhhudhwuh: $imagePath");
 
         if (widget.repdetail1.containsKey('areas') &&
             widget.repdetail1['areas'] is List) {
@@ -467,10 +190,9 @@ class _photosState extends State<photos> {
 
           if (areaIndex != -1) {
             var areaToUpdate = areasList[areaIndex];
-            areaToUpdate['photos'] = [
-              {'url': uploadedImages, 'name': "", 'notes': ""}
-            ];
+            areaToUpdate['photos'] = imagePath;
           }
+          // print("Upload Images: $uploadedImages");
         }
       } else {
         print("Failed to upload image.");
@@ -492,13 +214,11 @@ class _photosState extends State<photos> {
           var areaToUpdate = areasList[areaIndex];
           areaToUpdate['notes'] = '';
           areaToUpdate['photosNotes'] = photosNotesController.text;
-          areaToUpdate['tenantComment'] = '';
-          areaToUpdate['items'] = [
-            // ... existing code ...
-          ];
-          areaToUpdate['photos'] = [
-            {'url': uploadedImages, 'name': "", 'notes': ""}
-          ];
+          // areaToUpdate['tenantComment'] = '';
+          // areaToUpdate['items'] = [
+          //   // ... existing code ...
+          // ];
+          areaToUpdate['photos'] = imagePath;
         }
       }
 

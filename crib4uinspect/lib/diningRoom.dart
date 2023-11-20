@@ -263,15 +263,15 @@ class _areasEntryExitState extends State<areasEntryExit> {
   void initState() {
     super.initState();
     itemSelections = {};
-    // updateSelectedArea(selectedAreaIndex);
+    itemsForArea = getItemsForAreaName(widget.title);
+    print("ITEMS for AREA: $itemsForArea");
     // Initialize agentCommentControllers based on the number of items
     agentCommentControllers = List.generate(
-      widget.areaDetails!.length,
-      (index) => TextEditingController(
-          text: widget.areaDetails![index]['agentComment']),
+      itemsForArea.length,
+      (index) =>
+          TextEditingController(text: itemsForArea[index]['agentComment']),
     );
   }
-
   // void updateSelectedArea(int index) {
   //   // agentCommentController.text = widget.areaDetails[index].agentComments ??
   //   //     ''; // Use null check operator and provide a default value
@@ -366,15 +366,14 @@ class _areasEntryExitState extends State<areasEntryExit> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => photos(
-                            title: widget.title,
-                            passPhotos: widget.areaDetails!,
-                            jwt: widget.jwtToken,
-                            repdetail1: widget.reportDetails!,
-                            inspectID1: widget.inspectId,
-                            reportID1: widget.reportId!,
-                            propertID: widget.propId,
-                            areaDet:widget.areaDetails
-                          ),
+                              title: widget.title,
+                              passPhotos: widget.areaDetails!,
+                              jwt: widget.jwtToken,
+                              repdetail1: widget.reportDetails!,
+                              inspectID1: widget.inspectId,
+                              reportID1: widget.reportId!,
+                              propertID: widget.propId,
+                              areaDet: widget.areaDetails),
                         ),
                       );
                     },
@@ -398,14 +397,13 @@ class _areasEntryExitState extends State<areasEntryExit> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => notes(
-                            title: widget.title,
-                            passNotes: widget.areaDetails!,
-                            jwt1: widget.jwtToken,
-                            repdetail: widget.reportDetails!,
-                            inspectID: widget.inspectId,
-                            reportID: widget.reportId!,
-                            areaData:widget.areaDetails
-                          ),
+                              title: widget.title,
+                              passNotes: widget.areaDetails!,
+                              jwt1: widget.jwtToken,
+                              repdetail: widget.reportDetails!,
+                              inspectID: widget.inspectId,
+                              reportID: widget.reportId!,
+                              areaData: widget.areaDetails),
                         ),
                       );
                     },
@@ -706,7 +704,7 @@ class _areasEntryExitState extends State<areasEntryExit> {
           // print("area to update: ${areaToUpdate['items']}");
 
           areaToUpdate['items'] = itemsForArea;
-          //print('Before For : $itemsForArea');
+          print('Before For : $itemsForArea');
           // for (int index = 0; index < itemsForArea.length; index++) {
           //   print('after For : $index');
           //   updateAgentCommentForItem(

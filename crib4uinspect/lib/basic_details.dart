@@ -173,7 +173,7 @@ class _basicDetailsState extends State<basicDetails> {
     super.initState();
     //print('Date: ${widget.date}');
     areaDataList = areasListToMap(widget.areaData);
-
+   // print("Print Area ADAD list: $areaDataList");
     // Print the converted data
     //print('Converted areaData: $areaDataList');
   }

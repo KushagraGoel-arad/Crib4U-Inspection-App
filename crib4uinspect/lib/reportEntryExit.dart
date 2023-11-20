@@ -98,8 +98,11 @@ class _reportEntryExitState extends State<reportEntryExit> {
   bool isDeleteIconVisible = false;
   List<Areas> createAreasList(List<dynamic> areasData) {
     // print("areasData: $areasData");
+    // print("Areas DATA: ${widget.areadata}");
     List<Areas> areasList = areasData.map((areaData) {
       final items1 = extractItems(areaData);
+
+     // print("ITEMS: $items1");
       final conditions = extractConditions(areaData);
 
       List<Area> item2 = items1.map((itemData) {

@@ -272,6 +272,7 @@ class _inspectState extends State<inspect> {
         if (areasData is List<dynamic>) {
           areasList = areasData.map((areaData) {
             final items1 = extractItems(areaData);
+            print("ITEMS DATAAAAA: $items1");
             // final conditions = extractConditions(areaData);
 
             List<Area> item2 = items1.map((itemData) {
@@ -481,6 +482,7 @@ class _inspectState extends State<inspect> {
 
   List<dynamic> extractItems(Map<String, dynamic> areaData) {
     final itemsData = areaData['items'] as List<dynamic>;
+    
     return itemsData;
   }
 
@@ -608,7 +610,7 @@ class _inspectState extends State<inspect> {
                     itemCount: _tableRows.length,
                     itemBuilder: (context, index) {
                       final data = _tableRows[index];
-      
+
                       return GestureDetector(
                         onTap: () async {
                           String inspectionId = data['_id'];
