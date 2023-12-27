@@ -44,7 +44,6 @@ class _notesState extends State<notes> {
           ],
         ),
         actions: [
-          
           IconButton(
             icon: Icon(CupertinoIcons.create),
             onPressed: () {},

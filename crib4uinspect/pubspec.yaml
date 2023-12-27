@@ -50,6 +50,7 @@ dependencies:
   dio: ^4.0.6
   request: ^0.1.1
   requests: ^4.7.0
+  image_picker_for_web: ^3.0.1
   
   
   

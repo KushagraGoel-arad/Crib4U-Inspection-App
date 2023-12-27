@@ -576,7 +576,9 @@
 // }
 
 import 'dart:convert';
+import 'dart:async';
 import 'package:crib4uinspect/inspection.dart';
+import 'package:crib4uinspect/test/mainscreen.dart';
 import 'package:crib4uinspect/tokens/token.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -586,6 +588,7 @@ import 'package:rest_api_client/options/rest_api_client_options.dart';
 import 'package:universal_html/html.dart'
     as html; // Import the universal_html package
 import 'package:dio/dio.dart';
+//import 'package:crib4uinspect/test/inspection_two.dart';
 //import 'package:universal_html/prefer_universal/html.dart' as html;
 
 class login_page extends StatefulWidget {
@@ -596,10 +599,47 @@ class login_page extends StatefulWidget {
 }
 
 class _login_pageState extends State<login_page> {
-  var email = "";
-  var password = "";
+  var email = "localhost@gmail.com";
+  var password = "blue@1234";
   String? accessToken; // Declare accessToken variable
   String? refreshToken;
+
+//!  START
+
+  // Timer? _timer;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _timer = Timer.periodic(Duration(seconds: 120), (Timer t) => callPostApi());
+  // }
+
+  // @override
+  // void dispose() {
+  //   _timer?.cancel();
+  //   super.dispose();
+  // }
+
+  // Future<void> callPostApi() async {
+  //   try {
+  //     var url = Uri.parse(
+  //         'http://localhost:55000/api/auth_gateway/refreshToken'); // Replace with your API endpoint
+  //     var response = await http.post(
+  //       url,
+  //       body: {},
+  //       // Add headers if required
+  //     );
+  //     // Process your response
+  //     print('yes');
+  //     print('Response status: ${response.statusCode}');
+  //     print('Response body: ${response.body}');
+  //   } catch (e) {
+  //     print(e.toString());
+  //   }
+  // }
+
+  //!  END
+
   final apiClient = RestApiClient(
     options:
         RestApiClientOptions(baseUrl: 'https://crib4u.axiomprotect.com:9497'),
@@ -612,6 +652,7 @@ class _login_pageState extends State<login_page> {
     html.document.cookie = cookie;
   }
 
+//! post api call for login
   Future<void> main() async {
     final Headers = {
       'Content-Type': 'application/json',
@@ -640,14 +681,14 @@ class _login_pageState extends State<login_page> {
       var refreshToken = responseData['refreshToken'];
 
       setCookie('accessToken', accessToken, 2);
-setCookie('refreshToken', refreshToken, 2);
+      setCookie('refreshToken', refreshToken, 2);
       // Set the accessToken and refreshToken in TokenStorage
       TokenStorage.accessToken = accessToken;
       TokenStorage.refreshToken = refreshToken;
 
       print('accessToken: $accessToken');
       print('refreshToken: $refreshToken');
-
+//! early screen
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -657,6 +698,15 @@ setCookie('refreshToken', refreshToken, 2);
           ),
         ),
       );
+      //! changed screen
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(
+      //       builder: (context) => InspectionScreen(
+      //             accessToken: TokenStorage.accessToken,
+      //             refreshToken: TokenStorage.refreshToken,
+      //           )),
+      // );
     } else {
       print('API request failed with status code: ${response.statusCode}');
       //print('Response body: ${response.Body}');

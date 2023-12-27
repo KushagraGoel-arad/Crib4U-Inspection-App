@@ -343,15 +343,23 @@
 // //     });
 // //   }
 // }
-
+//! change
 import 'dart:convert';
-
+import 'dart:async';
+import 'package:crib4uinspect/APIs/copy.dart';
 import 'package:crib4uinspect/basic_details.dart';
+import 'package:crib4uinspect/basic_details.dart';
+import 'package:crib4uinspect/test/active.dart';
+import 'package:crib4uinspect/test/mainscreen.dart';
+import 'package:crib4uinspect/test/schedule.dart';
 //import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:crib4uinspect/basic_details.dart'; //!
+import 'package:crib4uinspect/report.dart'; //!
+import 'package:crib4uinspect/test/screen.dart'; //!
 
 class Task {
   final String title;
@@ -375,17 +383,55 @@ class inspect extends StatefulWidget {
       : super(key: key);
 
   @override
-  State<inspect> createState() => _inspectState();
+  State<inspect> createState() => schedule();
 }
 
-class _inspectState extends State<inspect> {
+class schedule extends State<inspect> {
+//! start
+
+  // Timer? _timer;
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _timer = Timer.periodic(Duration(seconds: 120), (Timer t) => callPostApi());
+  // }
+
+  // @override
+  // void dispose() {
+  //   _timer?.cancel();
+  //   super.dispose();
+  // }
+
+  // Future<void> callPostApi() async {
+  //   try {
+  //     var url = Uri.parse(
+  //         'https://crib4u.axiomprotect.com:9497/api/auth_gateway/refreshToken'); // Replace with your API endpoint
+  //     var response = await http.post(
+  //       url,
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: jsonEncode({'refreshToken': widget.refreshToken}),
+  //       // Add headers if required
+  //     );
+  //     // Process your response
+  //     print('yes');
+  //     print('Response status: ${response.statusCode}');
+  //     print('Response body: ${response.body}');
+  //   } catch (e) {
+  //     print(e.toString());
+  //   }
+  // }
+
+  //! end
+
   List<String> items = ["Active", "Schedule"];
   int current = 0;
   List<Task> tasks = [];
-  List<Map<String, dynamic>> _tableRows = [];
+  List<Map<String, dynamic>> _tableRows =
+      []; //! here response of active api is stored
 
   //final dio = Dio();
-
+//! active get api call
   Future<void> active() async {
     final headers = {
       'Content-Type': 'application/json',
@@ -408,40 +454,39 @@ class _inspectState extends State<inspect> {
       _tableRows.clear(); // Clear the previous data
 
       List<dynamic> jData = jsonData['details'];
-      if (jData.length > 0) {
-        for (int i = 0; i < jData.length; i++) {
-          dynamic _obj = jData[i];
-          String inspectionId = _obj['_id'];
+      if (jData.isNotEmpty) {
+        for (var _obj in jData) {
+          var inspectionId = _obj['_id'];
+          var property = _obj['property']['property_basic_details']['address'];
+          var manager = _obj['manager']['name'];
+          var tenant = _obj['tenant']['users'][0]['name'];
+          var owner = _obj['owner']['users'][0]['name'];
 
-          String propertyName =
-              '${_obj['property']['property_basic_details']['address']['line_one']} ${_obj['property']['property_basic_details']['address']['line_two']}';
-          String tenantName =
-              '${_obj['tenant']['users'][0]['name']['firstName'] ?? ''} ${_obj['tenant']['users'][0]['name']['lastName'] ?? ''}';
-          String managerName =
-              '${_obj['manager']['name']['firstName'] ?? ''} ${_obj['manager']['name']['lastName'] ?? ''}';
-          String ownerName =
-              '${_obj['owner']['users'][0]['name']['firstName'] ?? ''} ${_obj['tenant']['users'][0]['name']['lastName'] ?? ''}';
-          DateTime date = DateTime.parse(_obj['date']);
-          DateTime startTime = DateTime.parse(_obj['startTime']);
-          DateTime createAt = DateTime.parse(_obj['createdAt']);
+          var propertyName = '${property['line_one']} ${property['line_two']}';
+          var tenantName = '${tenant['firstName']} ${tenant['lastName']}';
+          var managerName = '${manager['firstName']} ${manager['lastName']}';
+          var ownerName = '${owner['firstName']} ${owner['lastName']}';
+          var date = DateTime.parse(_obj['date']);
+          var createdAt = DateTime.parse(_obj['createdAt']);
 
           _tableRows.add({
             '_id': inspectionId,
             'inspectionOn':
-                '${DateFormat('dd-MM-yyyy').format(date)} ${DateFormat('hh:mm a').format(startTime)}',
+                '${DateFormat('dd-MM-yyyy').format(date)} ${_obj['startTime']}',
             'type': _obj['type'],
             'summary': _obj['summary'],
             'property': propertyName,
             'manager': managerName,
             'tenant': tenantName,
             'owner': ownerName,
-            'createdAt': DateFormat('dd-MM-yyyy hh:mm a').format(createAt),
+            'createdAt': DateFormat('dd-MM-yyyy hh:mm a').format(createdAt),
           });
         }
       }
     }
   }
 
+//! get api of detail of inspection
   Future<void> detailsOfInspection(String inspectionId) async {
     final headers = {
       'Content-Type': 'application/json',
@@ -493,7 +538,7 @@ class _inspectState extends State<inspect> {
     // }
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
-
+      print(jsonData);
       if (jsonData['resultCode'] == 1) {
         final basicDetails = jsonData['details']['BasicDetails'];
 
@@ -556,6 +601,25 @@ class _inspectState extends State<inspect> {
     }
   }
 
+//! code for checking data of tablerows list
+  void printTableRows(List<Map<String, dynamic>> tableRows) {
+    print("called printtable");
+    for (var row in tableRows) {
+      print(row);
+      print('ID: ${row['_id']}');
+      print('Inspection On: ${row['inspectionOn']}');
+      print('Type: ${row['type']}');
+      print('Summary: ${row['summary']}');
+      print('Property: ${row['property']}');
+      print('Manager: ${row['manager']}');
+      print('Tenant: ${row['tenant']}');
+      print('Owner: ${row['owner']}');
+      print('Created At: ${row['createdAt']}');
+      print('-----------------------------------');
+    }
+  }
+
+//! user interface started
   @override
   Widget build(BuildContext context) {
     DateTime dateTime = DateTime.now();
@@ -567,7 +631,7 @@ class _inspectState extends State<inspect> {
         toolbarHeight: 80.0,
         backgroundColor: Color.fromRGBO(162, 154, 255, 1),
         leading: IconButton(
-          icon: Icon(CupertinoIcons.calendar_badge_plus),
+          icon: Icon(CupertinoIcons.calendar_badge_plus), //! app bar calender
           onPressed: () {},
         ),
         title: Row(
@@ -579,7 +643,7 @@ class _inspectState extends State<inspect> {
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w500,
-                fontSize: 37.0,
+                fontSize: 40.0,
               ),
             ),
           ],
@@ -660,7 +724,8 @@ class _inspectState extends State<inspect> {
 
                       return GestureDetector(
                         onTap: () {
-                          String inspectionId = data['_id'];
+                          String inspectionId =
+                              data['_id']; //! id is inspection id
                           detailsOfInspection(
                               inspectionId); // Call your API or any other action
                           Navigator.push(
@@ -694,7 +759,127 @@ class _inspectState extends State<inspect> {
                         ),
                       );
                     },
-                  )
+                  ),
+                  //! changes made here
+                  ElevatedButton(
+                    onPressed: () {
+                      activate();
+                    },
+                    child: Text(
+                      "Elevated Button",
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Assuming you want to pass the data of the first row in _tableRows
+                      //       print(_tableRows[0]['property']);
+                      if (_tableRows.isNotEmpty) {
+                        // Assuming you want to pass the data of the first row in _tableRows
+                        final data = _tableRows[0];
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => basicDetails(
+                              type: data['type'],
+                              date: data['date'],
+                              endTime: data['endTime'],
+                              startTime: data['startTime'],
+                              summary: data['summary'],
+                              property: data['property'],
+                              manager: data['manager'],
+                              tenant: data['tenant'],
+                              owner: data['owner'],
+                              createdAt: data['createdAt'],
+                              status: data['status'],
+                              duration: data['duration'],
+                            ),
+                          ),
+                        );
+                      } else {
+                        // Handle the case where _tableRows is empty
+                        print('No data available to pass to basicDetails');
+                      }
+                    },
+                    child: Text(
+                      "Basic Details",
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await active(); // Make sure data is loaded
+                      final data = _tableRows[0];
+                      String inspectionId = data['_id']; //! id is inspection id
+                      await detailsOfInspection(inspectionId);
+                      printTableRows(_tableRows); // Then print data
+                    },
+                    child: Text(
+                      "print and detailofInspection   Button",
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      final data = _tableRows[0];
+                      String inspectionId = data['_id'];
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => Copy(
+                                  inspectionid: inspectionId,
+                                  accessToken: widget.accessToken,
+                                )),
+                      );
+                    },
+                    child: Text(
+                      "TESTING Button",
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Text("other calling"),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ScheduleData(
+                                  accessToken: widget.accessToken,
+                                )),
+                      );
+                    },
+                    child: Text(
+                      "SCHEDULE Button",
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => ActiveScreen(
+                                  accessToken: widget.accessToken,
+                                )),
+                      );
+                    },
+                    child: Text(
+                      "ACTIVE Button",
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => InspectionScreen(
+                                  accessToken: widget.accessToken,
+                                )),
+                      );
+                    },
+                    child: Text(
+                      "MAINSCREEN Button",
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -707,6 +892,7 @@ class _inspectState extends State<inspect> {
         child: Icon(Icons.add),
         onPressed: () {
           // _addTask();
+          //active();
         },
       ),
     );

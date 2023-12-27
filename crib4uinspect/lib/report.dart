@@ -8,6 +8,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class report extends StatefulWidget {
+
+ 
+
   const report({super.key});
 
   @override
@@ -54,7 +57,7 @@ class _reportState extends State<report> {
     'Bedroom 1',
   ];
 
-  copy() async {
+copy() async {
     final Headers = {
       'Content-Type': 'application/json',
       'authorization': 'Basic c3R1ZHlkb3RlOnN0dWR5ZG90ZTEyMw=='
@@ -96,10 +99,13 @@ class _reportState extends State<report> {
     }
   }
 
+ 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          //! report back button functionality
           toolbarHeight: 80.0,
           backgroundColor: Color.fromRGBO(162, 154, 255, 1),
           leading: IconButton(
@@ -131,7 +137,7 @@ class _reportState extends State<report> {
             IconButton(
               icon: Icon(Icons.copy),
               onPressed: () {
-                copy();
+                copy(); //! here copy called
               },
             ),
             IconButton(
@@ -144,6 +150,10 @@ class _reportState extends State<report> {
                   ),
                 );
               },
+            ),
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.add),
             ),
           ],
         ),

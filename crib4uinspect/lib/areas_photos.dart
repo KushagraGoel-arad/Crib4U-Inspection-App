@@ -7,51 +7,125 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker_web/image_picker_web.dart';
+import 'dart:typed_data';
+import 'dart:html' as html;
+
 import 'package:http/http.dart' as http;
 
 class photos extends StatefulWidget {
-  const photos({super.key,required this.title});
-final String title;
+  const photos(
+      {super.key,
+      required this.title,
+      this.accessToken,
+      this.reportId,
+      this.propertyId,
+      this.inspectionid});
+  final String? accessToken;
+  final String? reportId;
+  final String? propertyId;
+  final String? inspectionid;
+  final String title;
   @override
-  State<photos> createState() => _photosState();
+  State<photos> createState() => implementations();
 }
 
-class _photosState extends State<photos> {
+class implementations extends State<photos> {
   List<File> uploadedImages = [];
+//! earlier implemetation
 
+  // Future<void> _selectAndUploadImage() async {
+  //   final pickedImage = await ImagePickerWeb.getImageInfo;
+
+  //   if (pickedImage != null) {
+  //     final imageData = pickedImage.data;
+  //     final fileName = pickedImage.fileName;
+
+  //     final file = File(fileName!);
+
+  //     setState(() {
+  //       uploadedImages.add(file);
+  //     });
+
+  //     // Save the image to the server using API
+  //     // final response = await http.post(
+  //     //   Uri.parse('YOUR_API_URL'),
+  //     //   body: {
+  //     //     'image': base64Encode(imageBytes),
+  //     //   },
+  //     // );
+
+  //     // if (response.statusCode == 200) {
+  //     //   // Image uploaded successfully, handle the API response
+  //     //   final apiResponse = jsonDecode(response.body);
+  //     //   // ...
+  //     // } else {
+  //     //   // Error occurred while uploading the image
+  //     //   // Handle the error
+  //     // }
+  //   }
+  // }
+
+  //! new implemention
   Future<void> _selectAndUploadImage() async {
     final pickedImage = await ImagePickerWeb.getImageInfo;
 
     if (pickedImage != null) {
-      
       final imageData = pickedImage.data;
       final fileName = pickedImage.fileName;
-
       final file = File(fileName!);
 
       setState(() {
         uploadedImages.add(file);
       });
 
-      // Save the image to the server using API
-      // final response = await http.post(
-      //   Uri.parse('YOUR_API_URL'),
-      //   body: {
-      //     'image': base64Encode(imageBytes),
-      //   },
-      // );
+      print(
+          "Image selected: $fileName"); // Print the file name for confirmation
 
-      // if (response.statusCode == 200) {
-      //   // Image uploaded successfully, handle the API response
-      //   final apiResponse = jsonDecode(response.body);
-      //   // ...
-      // } else {
-      //   // Error occurred while uploading the image
-      //   // Handle the error
-      // }
+      // Call the upload function with the file and its name
+      print("Calling _uploadImage() with file: $file");
+      await _uploadImage(file, fileName);
+    } else {
+      print("No image was selected"); // If no image is picked
     }
   }
-late final String title=widget.title;
+
+  Future<void> _uploadImage(File imageFile, String fileName) async {
+    try {
+      final headers = {
+        'Content-Type': 'multipart/form-data',
+        'accessToken': '${widget.accessToken}', // Use actual access token
+      };
+
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse(
+            'https://crib4u.axiomprotect.com:9497/api/prop_gateway/inspect/updateReportImages/${widget.propertyId}/${widget.inspectionid}/${widget.reportId}'),
+      );
+
+      request.headers.addAll(headers);
+
+      // Read the image file as a list of bytes
+      final imageBytes = await imageFile.readAsBytes();
+
+      request.files.add(http.MultipartFile.fromBytes(
+        'images',
+        imageBytes,
+        filename: fileName, // Use the fileName from the image picker
+      ));
+
+      var response = await request.send();
+
+      if (response.statusCode == 200) {
+        print("Image uploaded successfully");
+      } else {
+        print("Failed to upload image. Status code: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error uploading image: $e");
+    }
+  }
+
+  late final String title = widget.title;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,12 +134,12 @@ late final String title=widget.title;
         backgroundColor: Color.fromRGBO(162, 154, 255, 1),
         leading: IconButton(
           icon: Icon(CupertinoIcons.back),
-          onPressed: () {Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => report()
-                      ),
-                    );},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => report()),
+            );
+          },
         ),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -84,7 +158,9 @@ late final String title=widget.title;
         actions: [
           IconButton(
             icon: Icon(Icons.copy),
-            onPressed: () {},
+            onPressed: () {
+              _selectAndUploadImage(); //! change
+            },
           ),
           IconButton(
             icon: Icon(CupertinoIcons.create),
@@ -103,7 +179,9 @@ late final String title=widget.title;
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => areas(title: widget.title,),
+                        builder: (context) => areas(
+                          title: widget.title,
+                        ),
                       ),
                     );
                   },
@@ -125,7 +203,9 @@ late final String title=widget.title;
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => photos(title: widget.title,),
+                        builder: (context) => photos(
+                          title: widget.title,
+                        ),
                       ),
                     );
                   },
@@ -147,7 +227,9 @@ late final String title=widget.title;
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => notes(title: widget.title,),
+                        builder: (context) => notes(
+                          title: widget.title,
+                        ),
                       ),
                     );
                   },
